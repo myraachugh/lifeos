@@ -1,0 +1,1806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LIFE OS // CONSOLE</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#04080c">
+<style>
+:root{
+  --bg:#04080c; --bg2:#071019; --panel:#0a1622; --line:#123047; --line2:#1d4a6b;
+  --cy:#59d8ff; --cy2:#9beaff; --am:#ffb454; --rd:#ff5d5d; --gn:#5dffa8; --tx:#c8dcea; --dim:#5f7d92;
+  --mono: ui-monospace, "Cascadia Mono", "JetBrains Mono", Consolas, "Courier New", monospace;
+}
+*{box-sizing:border-box; margin:0; padding:0}
+html,body{height:100%}
+body{
+  background:
+    radial-gradient(1200px 600px at 70% -10%, #0a2233 0%, transparent 60%),
+    radial-gradient(900px 500px at 10% 110%, #071a28 0%, transparent 55%),
+    var(--bg);
+  color:var(--tx); font-family:var(--mono); font-size:13px; line-height:1.5;
+}
+body::after{ /* scanlines */
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:99;
+  background:repeating-linear-gradient(0deg, rgba(255,255,255,.022) 0 1px, transparent 1px 3px);
+  mix-blend-mode:overlay;
+}
+.hidden{display:none !important}
+.glow{text-shadow:0 0 8px rgba(89,216,255,.55)}
+h1,h2,h3{font-weight:600; letter-spacing:.12em}
+a{color:var(--cy)}
+
+/* ---------- boot & lock ---------- */
+#boot,#lock{min-height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:22px; padding:24px}
+.ring{width:132px; height:132px; animation:spin 9s linear infinite}
+.ring.small{width:96px; height:96px}
+@keyframes spin{to{transform:rotate(360deg)}}
+#bootlog{width:min(680px,92vw); min-height:190px; white-space:pre-wrap; color:var(--cy); font-size:12px;
+  border:1px solid var(--line); background:rgba(6,17,26,.7); padding:14px 16px; box-shadow:0 0 24px rgba(89,216,255,.08) inset}
+.lockbox{width:min(430px,92vw); border:1px solid var(--line2); background:var(--panel); padding:22px; box-shadow:0 0 34px rgba(89,216,255,.10)}
+.lockbox h2{color:var(--cy); font-size:14px; margin-bottom:4px}
+.lockbox p.sub{color:var(--dim); font-size:11px; margin-bottom:14px}
+.lockbox .warn{color:var(--am); font-size:11px; margin-top:10px}
+#lockmsg{min-height:18px; font-size:11px; margin-top:8px}
+#lockmsg.err{color:var(--rd)} #lockmsg.ok{color:var(--gn)}
+
+/* ---------- forms / buttons ---------- */
+.inp, select.inp, textarea.inp{
+  width:100%; background:#06121c; color:var(--cy2); border:1px solid var(--line2);
+  padding:8px 10px; font-family:var(--mono); font-size:12.5px; outline:none; border-radius:2px;
+}
+.inp:focus{border-color:var(--cy); box-shadow:0 0 10px rgba(89,216,255,.25)}
+textarea.inp{resize:vertical}
+.btn{
+  display:inline-block; cursor:pointer; background:transparent; color:var(--cy);
+  border:1px solid var(--line2); padding:7px 14px; font-family:var(--mono); font-size:11.5px;
+  letter-spacing:.14em; text-transform:uppercase; border-radius:2px;
+}
+.btn:hover{background:rgba(89,216,255,.10); box-shadow:0 0 12px rgba(89,216,255,.25)}
+.btn.warn{color:var(--am); border-color:#5a4423}
+.btn.warn:hover{background:rgba(255,180,84,.08)}
+.btn.danger{color:var(--rd); border-color:#5a2323}
+.btn.danger:hover{background:rgba(255,93,93,.08)}
+.row{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+label{font-size:10.5px; color:var(--dim); letter-spacing:.1em; text-transform:uppercase; display:block; margin:10px 0 4px}
+
+/* ---------- app frame ---------- */
+#app{display:flex; flex-direction:column; min-height:100%}
+header{
+  display:flex; align-items:center; gap:14px; padding:10px 16px;
+  border-bottom:1px solid var(--line); background:rgba(6,15,23,.9); position:sticky; top:0; z-index:5;
+}
+header .logo{color:var(--cy); font-size:13px; letter-spacing:.22em}
+header .logo b{color:var(--am)}
+#clock{color:var(--dim); font-size:11px; margin-left:auto}
+#jarvisline{flex:1; max-width:520px; display:flex; gap:6px}
+#jarvisline .prompt{color:var(--am); align-self:center}
+nav{display:flex; flex-wrap:wrap; gap:2px; padding:8px 12px; border-bottom:1px solid var(--line); background:rgba(5,12,19,.85); position:sticky; top:41px; z-index:4}
+nav button{
+  cursor:pointer; background:transparent; border:1px solid transparent; color:var(--dim);
+  font-family:var(--mono); font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; padding:6px 10px;
+}
+nav button:hover{color:var(--cy)}
+nav button.on{color:var(--cy); border-color:var(--line2); background:rgba(89,216,255,.07); text-shadow:0 0 8px rgba(89,216,255,.5)}
+main{flex:1; padding:18px; width:min(1150px,100%); margin:0 auto}
+
+/* ---------- panels & tables ---------- */
+.grid{display:grid; gap:14px; grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+.panel{border:1px solid var(--line); background:rgba(8,19,29,.72); padding:14px 16px; box-shadow:0 0 20px rgba(0,0,0,.35)}
+.panel h3{color:var(--cy); font-size:11.5px; margin-bottom:10px; border-bottom:1px solid var(--line); padding-bottom:7px}
+.panel h3 span{color:var(--dim); font-size:10px; letter-spacing:.08em}
+table{width:100%; border-collapse:collapse; font-size:12px}
+th{color:var(--dim); text-align:left; font-size:10px; letter-spacing:.12em; text-transform:uppercase; padding:4px 8px; border-bottom:1px solid var(--line2)}
+td{padding:6px 8px; border-bottom:1px solid rgba(18,48,71,.55); vertical-align:top}
+tr:hover td{background:rgba(89,216,255,.04)}
+td .del{cursor:pointer; color:var(--rd); background:none; border:none; font-family:var(--mono); font-size:11px}
+.chip{display:inline-block; border:1px solid var(--line2); color:var(--cy2); padding:5px 10px; margin:3px 4px 3px 0; font-size:11px; background:rgba(89,216,255,.05)}
+.chip b{color:var(--am)}
+.st{font-size:10px; letter-spacing:.1em; text-transform:uppercase; padding:2px 7px; border:1px solid}
+.st.ok,.st.done,.st.accepted{color:var(--gn); border-color:#1d5a3a}
+.st.prog,.st.submitted,.st.interview,.st.reading{color:var(--cy); border-color:var(--line2)}
+.st.queued,.st.preparing{color:var(--dim); border-color:#33475a}
+.st.blocked,.st.rejected{color:var(--rd); border-color:#5a2323}
+.meter{color:var(--cy)} .meter i{font-style:normal; color:#1d4a6b}
+#banner{margin:0 0 14px; padding:8px 12px; border:1px solid #5a4423; color:var(--am); background:rgba(255,180,84,.06); font-size:11.5px}
+#toasts{position:fixed; right:14px; bottom:14px; z-index:100; display:flex; flex-direction:column; gap:8px}
+.toast{border:1px solid var(--line2); background:var(--panel); color:var(--cy2); padding:8px 14px; font-size:11.5px; box-shadow:0 0 18px rgba(89,216,255,.15)}
+
+/* ---------- jarvis chat ---------- */
+#chatlog{min-height:300px; max-height:52vh; overflow-y:auto; display:flex; flex-direction:column; gap:10px; padding:6px 2px}
+.msg{max-width:82%; padding:9px 13px; border:1px solid var(--line); background:rgba(8,22,34,.7); white-space:pre-wrap}
+.msg.j{align-self:flex-start; border-left:2px solid var(--cy); color:var(--cy2)}
+.msg.u{align-self:flex-end; border-right:2px solid var(--am); color:var(--tx)}
+.msg .who{display:block; font-size:9.5px; letter-spacing:.18em; color:var(--dim); margin-bottom:4px}
+.cursor{display:inline-block; width:7px; background:var(--cy); animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+footer{padding:8px 16px; border-top:1px solid var(--line); color:var(--dim); font-size:10px; letter-spacing:.08em; display:flex; gap:16px; flex-wrap:wrap}
+
+/* ---------- DARK ACADEMIA THEME ---------- */
+body[data-theme="academia"]{
+  --bg:#120d07; --bg2:#17110a; --panel:#1c150c; --line:#3a2d1c; --line2:#5c4728;
+  --cy:#d2a75a; --cy2:#eedaa8; --am:#c9702e; --rd:#c05341; --gn:#8aa05c; --tx:#e8dcc2; --dim:#96815d;
+  font-family:Georgia,"Iowan Old Style","Palatino Linotype","Times New Roman",serif;
+}
+body[data-theme="academia"]::after{background:repeating-linear-gradient(0deg, rgba(238,218,168,.02) 0 1px, transparent 1px 4px)}
+body[data-theme="academia"] .panel{background:rgba(24,17,9,.88); box-shadow:0 2px 26px rgba(0,0,0,.55)}
+body[data-theme="academia"] .panel h3{font-variant:small-caps; letter-spacing:.14em}
+body[data-theme="academia"] .inp, body[data-theme="academia"] .btn, body[data-theme="academia"] nav button,
+body[data-theme="academia"] header .logo, body[data-theme="academia"] footer, body[data-theme="academia"] #bootlog{font-family:var(--mono)}
+body[data-theme="academia"] .inp{background:#160f08; border-color:var(--line2); color:var(--cy2)}
+body[data-theme="academia"] .glow{text-shadow:0 0 10px rgba(210,167,90,.5)}
+body[data-theme="academia"] .st{font-family:var(--mono)}
+body[data-theme="academia"] table, body[data-theme="academia"] th, body[data-theme="academia"] td{font-family:var(--mono)}
+body[data-theme="academia"] .quotebox{border:1px double var(--line2); background:rgba(210,167,90,.05)}
+
+/* ---------- games ---------- */
+.g2048{display:grid; grid-template-columns:repeat(4,72px); gap:8px; padding:10px; background:#0a1622; border:1px solid var(--line2)}
+body[data-theme="academia"] .g2048{background:#160f08}
+.g2048 div{width:72px; height:72px; display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:700;
+  background:#06121c; color:var(--cy2); border:1px solid var(--line)}
+body[data-theme="academia"] .g2048 div{background:#241a0e}
+.cb{display:grid; grid-template-columns:repeat(8,min(44px,11vw)); border:1px solid var(--line2)}
+.cb .sq{width:min(44px,11vw); height:min(44px,11vw); display:flex; align-items:center; justify-content:center; font-size:min(28px,7vw); cursor:pointer; user-select:none}
+.cb .sq.l{background:#e8d5a3; color:#221a10} .cb .sq.d{background:#8a6a43; color:#221a10}
+.cb .sq.sel{outline:2px solid var(--am); outline-offset:-2px}
+.cb .sq.mv::after{content:""; width:10px; height:10px; border-radius:50%; background:rgba(90,200,120,.75)}
+.cb .sq.cap{outline:2px solid var(--rd); outline-offset:-2px}
+.mjboard{position:relative; height:380px; background:#071019; border:1px solid var(--line); overflow:hidden}
+body[data-theme="academia"] .mjboard{background:#160f08}
+.mjtile{position:absolute; width:42px; height:54px; border:1px solid #6b5836; border-radius:4px;
+  background:linear-gradient(160deg,#f3e6c4,#d9c493); color:#2a2013; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  font-size:13px; font-weight:700; cursor:pointer; box-shadow:2px 3px 0 #0009}
+.mjtile.locked{filter:brightness(.62) saturate(.6); cursor:default}
+.mjtile.sel{outline:3px solid var(--am)}
+.pomodoro{font-size:52px; letter-spacing:.1em; color:var(--cy); text-shadow:0 0 16px rgba(89,216,255,.35)}
+.fc{min-height:150px; display:flex; align-items:center; justify-content:center; text-align:center; padding:18px;
+  border:1px solid var(--line2); background:rgba(89,216,255,.04); cursor:pointer; font-size:15px; white-space:pre-wrap}
+.quotebox{padding:12px 16px; font-style:italic; color:var(--cy2); font-size:13px; cursor:pointer}
+.quotebox .src{display:block; margin-top:6px; font-style:normal; font-size:10px; color:var(--dim); letter-spacing:.14em}
+
+/* ---------- MORE THEMES ---------- */
+body[data-theme="neon"]{ --bg:#07010f; --bg2:#0d0221; --panel:#12052a; --line:#341160; --line2:#6a2bd9;
+  --cy:#ff3df2; --cy2:#ffd7fb; --am:#22e6ff; --rd:#ff4d6d; --gn:#3dff8c; --tx:#efe6ff; --dim:#8a72b8; }
+body[data-theme="neon"] .panel{box-shadow:0 0 26px rgba(255,61,242,.10)}
+body[data-theme="neon"] .glow{text-shadow:0 0 12px rgba(255,61,242,.7)}
+body[data-theme="crt"]{ --bg:#020a04; --bg2:#031008; --panel:#041408; --line:#0d3a1c; --line2:#1d6b34;
+  --cy:#4dff7a; --cy2:#c9ffd8; --am:#b8ff4d; --rd:#ff5d5d; --gn:#4dff7a; --tx:#cfeed8; --dim:#4e8a60;
+  font-family:var(--mono); }
+body[data-theme="crt"] .panel{background:rgba(2,16,7,.9)}
+body[data-theme="crt"] .glow{text-shadow:0 0 10px rgba(77,255,122,.7)}
+body[data-theme="starlight"]{ --bg:#050a18; --bg2:#081027; --panel:#0b1226; --line:#1c2c55; --line2:#35509b;
+  --cy:#8fb3ff; --cy2:#dbe6ff; --am:#ffd77a; --rd:#ff6d6d; --gn:#6dd89a; --tx:#e2e8f8; --dim:#6a7aa5; }
+body[data-theme="starlight"] .glow{text-shadow:0 0 12px rgba(143,179,255,.6)}
+body[data-theme="daylight"]{ --bg:#f3efe6; --bg2:#ece6d8; --panel:#fbf8f1; --line:#d8cfbc; --line2:#b3a689;
+  --cy:#7a5c2e; --cy2:#3d2f14; --am:#a05a2c; --rd:#b03a2e; --gn:#4e6e3a; --tx:#2c2417; --dim:#8a7c62;
+  font-family:Georgia,"Iowan Old Style","Palatino Linotype",serif; }
+body[data-theme="daylight"] .panel{background:rgba(255,253,247,.9); box-shadow:0 2px 14px rgba(90,70,40,.12)}
+body[data-theme="daylight"]::after{opacity:.35}
+body[data-theme="daylight"] .inp{background:#fffdf7; color:#2c2417}
+body[data-theme="daylight"] .g2048{background:#ece6d8} body[data-theme="daylight"] .g2048 div{background:#fffdf7; color:#3d2f14}
+body[data-theme="daylight"] .cb .sq.l{background:#efe7d2} body[data-theme="daylight"] .cb .sq.d{background:#a98d5f}
+body[data-theme="daylight"] .mjboard{background:#ece6d8}
+body[data-theme="daylight"] th{color:#8a7c62}
+
+/* ---------- living interface ---------- */
+#fx{position:fixed; inset:0; z-index:0; pointer-events:none}
+#boot,#lock,#app{position:relative; z-index:1}
+#ecg{color:var(--cy); opacity:.9; flex:0 0 auto}
+#ecg .base{stroke:var(--line2)} #ecg .run{stroke:currentColor; stroke-dasharray:16 84; animation:ecgrun 2.8s linear infinite}
+@keyframes ecgrun{from{stroke-dashoffset:100}to{stroke-dashoffset:-100}}
+header .logo{animation:pulse 3.2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.72}}
+.panel{animation:rise .38s ease both}
+.grid .panel:nth-child(2){animation-delay:.06s} .grid .panel:nth-child(3){animation-delay:.12s}
+.grid .panel:nth-child(4){animation-delay:.18s} .grid .panel:nth-child(5){animation-delay:.24s}
+@keyframes rise{from{opacity:0; transform:translateY(7px)}to{opacity:1; transform:none}}
+.g2048 div{transition:background .15s} .g2048 div{animation:pop .16s ease}
+@keyframes pop{from{transform:scale(.92)}to{transform:scale(1)}}
+.mjtile{transition:transform .12s} .mjtile:not(.locked):hover{transform:translateY(-3px)}
+.btn{transition:box-shadow .15s, background .15s}
+
+/* ===== v2 motion + aesthetics ===== */
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes drift{from{transform:translate3d(-2%,-1%,0)}to{transform:translate3d(2%,2%,0)}}
+@keyframes habpop{0%{transform:scale(.9)}60%{transform:scale(1.06)}100%{transform:scale(1)}}
+@keyframes caret{50%{opacity:0}}
+#view>*{animation:rise .45s cubic-bezier(.2,.7,.3,1) both}
+#view>*:nth-child(2){animation-delay:.06s}#view>*:nth-child(3){animation-delay:.12s}
+#view>*:nth-child(4){animation-delay:.18s}#view>*:nth-child(5){animation-delay:.24s}
+html::after{content:"";position:fixed;inset:-10%;pointer-events:none;z-index:0;opacity:.5;
+ background:radial-gradient(1.2px 1.2px at 12% 22%,rgba(140,220,235,.5) 40%,transparent 41%),
+ radial-gradient(1px 1px at 68% 12%,rgba(232,179,74,.45) 40%,transparent 41%),
+ radial-gradient(1.4px 1.4px at 84% 64%,rgba(140,220,235,.35) 40%,transparent 41%),
+ radial-gradient(1px 1px at 32% 78%,rgba(201,111,159,.4) 40%,transparent 41%),
+ radial-gradient(1px 1px at 50% 45%,rgba(233,223,200,.3) 40%,transparent 41%);
+ animation:drift 46s ease-in-out infinite alternate}
+.panel{transition:transform .25s ease,box-shadow .25s ease}
+.panel:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.45)}
+.btn{transition:transform .12s ease,box-shadow .2s ease,filter .2s}
+.btn:hover{filter:brightness(1.2);box-shadow:0 0 14px rgba(99,216,232,.25)}
+.btn:active{transform:scale(.96)}
+#nav button{transition:color .2s,background .2s,transform .15s}
+#nav button:hover{transform:translateX(2px)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.chip{cursor:pointer;border:1px solid var(--line2);padding:4px 10px;font-size:11px;color:var(--cy);border-radius:99px;transition:.2s}
+.chip:hover{background:var(--cy);color:#04131a}
+.hab{cursor:pointer;border:1px solid var(--line2);padding:10px 8px;text-align:center;font-size:11px;letter-spacing:.08em;border-radius:6px;transition:.2s;user-select:none}
+.hab.on{background:linear-gradient(160deg,rgba(99,216,232,.18),rgba(232,179,74,.12));border-color:var(--cy);color:var(--cy);animation:habpop .25s}
+.bar{height:8px;background:var(--line2);border-radius:99px;overflow:hidden;margin:6px 0 2px}
+.bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--cy),var(--am));border-radius:99px;transition:width .6s cubic-bezier(.2,.7,.3,1)}
+.tterm{font-family:var(--mono);font-size:11px;color:#9fe8b0;background:#050a06;border:1px solid #123018;padding:10px;border-radius:6px;min-height:96px;white-space:pre-wrap}
+.tterm .c{animation:caret 1s steps(1) infinite}
+.ttgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.ttday{border:1px solid var(--line2);border-radius:6px;padding:6px;min-height:130px}
+.ttday h4{font-size:10px;letter-spacing:.2em;color:var(--dim);margin-bottom:6px}
+.ttc{font-size:10px;padding:5px 6px;border-radius:4px;margin-bottom:5px;color:#0a0f12;cursor:pointer;line-height:1.35}
+.quote{font-style:italic;font-size:15px;line-height:1.6;color:var(--parch,#e9dfc8)}
+</style>
+</head>
+<body>
+<canvas id="fx"></canvas>
+
+<!-- ============ BOOT ============ -->
+<div id="boot">
+  <svg class="ring" viewBox="0 0 100 100">
+    <circle cx="50" cy="50" r="46" fill="none" stroke="#123047" stroke-width="1.5"/>
+    <circle cx="50" cy="50" r="46" fill="none" stroke="#59d8ff" stroke-width="1.5" stroke-dasharray="70 220" stroke-linecap="round"/>
+    <circle cx="50" cy="50" r="34" fill="none" stroke="#1d4a6b" stroke-width="1" stroke-dasharray="8 10"/>
+    <circle cx="50" cy="50" r="12" fill="none" stroke="#9beaff" stroke-width="2"/>
+    <circle cx="50" cy="50" r="5" fill="#59d8ff"/>
+  </svg>
+  <div id="bootlog"></div>
+</div>
+
+<!-- ============ LOCK ============ -->
+<div id="lock" class="hidden">
+  <svg class="ring small" viewBox="0 0 100 100">
+    <circle cx="50" cy="50" r="46" fill="none" stroke="#123047" stroke-width="1.5"/>
+    <circle cx="50" cy="50" r="46" fill="none" stroke="#59d8ff" stroke-width="1.5" stroke-dasharray="70 220" stroke-linecap="round"/>
+    <circle cx="50" cy="50" r="5" fill="#59d8ff"/>
+  </svg>
+  <div class="lockbox">
+    <h2 id="locktitle">VAULT LOCK</h2>
+    <p class="sub" id="locksub">All data is encrypted on this device before storage. Nothing leaves it.</p>
+    <div id="lockform"></div>
+    <div id="lockmsg"></div>
+  </div>
+</div>
+
+<!-- ============ APP ============ -->
+<div id="app" class="hidden">
+  <header>
+    <span class="logo glow">LIFE<b>//</b>OS</span>
+    <svg id="ecg" viewBox="0 0 120 24" width="110" height="22" aria-hidden="true">
+      <path class="base" d="M0 12 L18 12 L24 4 L30 20 L36 12 L58 12 L64 7 L70 17 L76 12 L120 12" fill="none" stroke-width="1.2"/>
+      <path class="run" d="M0 12 L18 12 L24 4 L30 20 L36 12 L58 12 L64 7 L70 17 L76 12 L120 12" fill="none" stroke-width="1.6" pathLength="100"/>
+    </svg>
+    <div id="jarvisline">
+      <span class="prompt">≫</span>
+      <input class="inp" id="jinput" placeholder="ask the console… (try: priorities / deadlines / money / sleep)" autocomplete="off">
+    </div>
+    <span id="clock"></span>
+    <button class="btn hidden" id="btninstall" title="install as an app">⤓ INSTALL</button>
+    <button class="btn" id="btntheme" title="cycle aesthetic">◐ THEME</button>
+    <button class="btn warn" id="btnlock" title="lock and clear keys from memory">LOCK</button>
+  </header>
+  <nav id="nav"></nav>
+  <main>
+    <div id="banner" class="hidden"></div>
+    <div id="view"></div>
+  </main>
+  <footer>
+    <span id="ftmode"></span>
+    <span id="motto">PROTECT THE OPERATOR'S TIME, HEALTH AND OPTIONS</span>
+    <span>DATA: THIS DEVICE ONLY</span>
+  </footer>
+</div>
+
+<div id="toasts"></div>
+<input type="file" id="importfile" accept=".json" class="hidden">
+
+<script>
+"use strict";
+/* =========================================================
+   LIFE OS CONSOLE v1 — local-first, encrypted at rest.
+   Crypto: PBKDF2-SHA256 (250k) -> AES-256-GCM via WebCrypto.
+   Fallback (restricted previews without WebCrypto): clearly
+   labelled obfuscation + in-memory storage. NOT security.
+   ========================================================= */
+
+/* ---------- tiny utils ---------- */
+const $ = s => document.querySelector(s);
+const el = (t,c,h) => { const n=document.createElement(t); if(c)n.className=c; if(h!=null)n.innerHTML=h; return n; };
+const esc = s => String(s==null?"":s).replace(/[&<>"']/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+const b64 = u8 => { let s=""; for(let i=0;i<u8.length;i+=8192) s+=String.fromCharCode.apply(null,u8.subarray(i,i+8192)); return btoa(s); };
+const unb64 = s => { const bin=atob(s); const u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i); return u; };
+const today = () => new Date().toISOString().slice(0,10);
+const days = d => Math.ceil((new Date(d+"T00:00:00") - new Date(today()+"T00:00:00"))/86400000);
+function toast(msg){ const t=el("div","toast",esc(msg)); $("#toasts").appendChild(t); setTimeout(()=>t.remove(),3400); }
+
+/* ---------- storage with in-memory fallback ---------- */
+const mem = {};
+const LS = {
+  get(k){ try{ const v=localStorage.getItem(k); return v==null?null:JSON.parse(v); }catch(e){ return (k in mem)?mem[k]:null; } },
+  set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){ mem[k]=v; } },
+  del(k){ try{ localStorage.removeItem(k); }catch(e){ delete mem[k]; } }
+};
+
+/* ---------- crypto layer ---------- */
+const canCrypto = !!(window.crypto && window.crypto.subtle);
+function derive(pass, salt){
+  return crypto.subtle.importKey("raw", new TextEncoder().encode(pass), "PBKDF2", false, ["deriveKey"])
+    .then(km => crypto.subtle.deriveKey({name:"PBKDF2", salt:salt, iterations:250000, hash:"SHA-256"},
+      km, {name:"AES-GCM", length:256}, false, ["encrypt","decrypt"]));
+}
+function aesEnc(key, str){
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  return crypto.subtle.encrypt({name:"AES-GCM", iv}, key, new TextEncoder().encode(str))
+    .then(ct => JSON.stringify({iv:b64(iv), ct:b64(new Uint8Array(ct))}));
+}
+function aesDec(key, packed){
+  const o = JSON.parse(packed);
+  return crypto.subtle.decrypt({name:"AES-GCM", iv:unb64(o.iv)}, key, unb64(o.ct))
+    .then(pt => new TextDecoder().decode(pt));
+}
+/* labelled, non-security fallback for restricted iframes */
+function obfKey(pass){ let h=2166136261>>>0; for(let i=0;i<pass.length;i++){ h^=pass.charCodeAt(i); h=Math.imul(h,16777619)>>>0; } return h>>>0; }
+function obfEnc(pass, str){
+  let s=obfKey(pass); const out=new Uint8Array(str.length);
+  for(let i=0;i<str.length;i++){ s=(Math.imul(s,1664525)+1013904223)>>>0; out[i]=str.charCodeAt(i)^(s&255)^((s>>>16)&255); }
+  return b64(out);
+}
+function obfDec(pass, packed){
+  let s=obfKey(pass); const u=unb64(packed); let out="";
+  for(let i=0;i<u.length;i++){ s=(Math.imul(s,1664525)+1013904223)>>>0; out+=String.fromCharCode(u[i]^((s&255)^((s>>>16)&255))); }
+  return out;
+}
+function session(kind, arg){ /* kind: aes->key, obf->pass */
+  return {
+    enc: obj => { const s=JSON.stringify(obj); return kind==="aes"?aesEnc(arg,s):Promise.resolve(obfEnc(arg,s)); },
+    dec: p   => kind==="aes"?aesDec(arg,p).then(JSON.parse):Promise.resolve(JSON.parse(obfDec(arg,p))),
+    encB: buf => { const iv=crypto.getRandomValues(new Uint8Array(12));
+      return crypto.subtle.encrypt({name:"AES-GCM", iv}, arg, buf).then(ct=>({iv:b64(iv), ct})); },
+    decB: o   => crypto.subtle.decrypt({name:"AES-GCM", iv:unb64(o.iv)}, arg, o.ct)
+  };
+}
+const Vault = {
+  async setup(pass, lsKey){
+    if(canCrypto){
+      const salt = crypto.getRandomValues(new Uint8Array(16));
+      const key = await derive(pass, salt);
+      LS.set(lsKey, {mode:"aes", salt:b64(salt), v:await aesEnc(key,'{"ok":1}')});
+      return session("aes", key);
+    }
+    LS.set(lsKey, {mode:"obf", v:obfEnc(pass,'{"ok":1}')});
+    return session("obf", pass);
+  },
+  async open(pass, lsKey){
+    const rec = LS.get(lsKey); if(!rec) return "nolock";
+    if(rec.mode==="aes"){
+      if(!canCrypto) return "incompatible";
+      const key = await derive(pass, unb64(rec.salt));
+      try{ await aesDec(key, rec.v); }catch(e){ return "badpass"; }
+      return session("aes", key);
+    }
+    try{ JSON.parse(obfDec(pass, rec.v)); }catch(e){ return "badpass"; }
+    return session("obf", pass);
+  }
+};
+
+/* ---------- embedded Life OS knowledge (from the PDF, v2.1) ---------- */
+const SEMS = [
+ {id:"S1", name:"Semester 1", range:["2026-10-01","2027-02-28"], pri:"Engineering Maths 1 · Statistics for BME", skills:"Python from zero · Git/GitHub · 3B1B linear algebra", read:"Pólya · A Mind for Numbers · Naked Statistics", proj:"none — practice code only", res:"join Dr. Ng; boring task; 4-6 h/wk", life:"sleep schedule · BMESC only · guitar 2x/wk"},
+ {id:"S2", name:"Semester 2", range:["2027-03-01","2027-07-31"], pri:"Engineering Maths 2 · Electronic Devices", skills:"SciPy/pandas · command line · LaTeX", read:"Make It Stick · Surely You're Joking", proj:"P1 reproduce a published result", res:"defined small contribution", life:"sport 3x/wk · one BMESC event"},
+ {id:"S3", name:"Semester 3", range:["2027-08-01","2028-01-31"], pri:"be AHEAD of Numerical Methods · BME Design 1", skills:"own numerical implementations · pytest · poster LaTeX", read:"The Information · Range", proj:"P2 EEG/PPG pipeline begins", res:"first group-meeting update", apps:"EPFL E3 1 Nov · Summer@EPFL 29 Nov · A*STAR ~Dec · ISTern ~Feb"},
+ {id:"S4", name:"Semester 4", range:["2028-02-01","2028-07-31"], pri:"Biomechanics of Human Motion · Electromagnetism", skills:"DSP self-study (OCW 6.003) · IELTS diagnostic · Dutch 15'/day from summer", read:"Range · Superforecasting", proj:"P2 done + poster · P3 begins", res:"ask what authorship track looks like"},
+ {id:"S5", name:"Semester 5", range:["2028-08-01","2029-01-31"], pri:"BIOMEDICAL SIGNAL PROCESSING · Integrated Design 1", skills:"deep DSP · honest ML (ISLR + Stat Rethinking) · reproducibility", read:"The Craft of Research · Purves Neuroscience · Why Nations Fail", proj:"P4 validated simulation", res:"authorship position · one abstract", apps:"Oct-Nov 2028: overseas industrial-training applications"},
+ {id:"S6", name:"Semester 6", range:["2029-02-01","2029-06-30"], pri:"5 specialisation electives · lock FYP topic", skills:"cluster skills (embedded C / CAD / standards)", read:"Design of Everyday Things · Chip War", proj:"P5 closed loop begins", res:"letter-of-recommendation conversation"},
+ {id:"SS", name:"Special Semester", range:["2029-07-01","2029-09-30"], pri:"KIB3031 Industrial Training — overseas company", skills:"workplace engineering: docs, review, standups", read:"one book for pleasure", res:"one short email to Dr. Ng per week", life:"weekends free to explore the country"},
+ {id:"S7", name:"Semester 7", range:["2029-10-01","2030-03-31"], pri:"FYP part 1 · EMJM window Oct-Jan", skills:"submission writing · IELTS exam (>=7.0) · Dutch A1", read:"A PhD Is Not Enough! · Psychology of Money · The Code Breaker", apps:"EMJM (Dutch-coordinated) · funded PhD scan"},
+ {id:"S8", name:"Semester 8", range:["2030-03-01","2030-08-31"], pri:"FYP to publication standard · choose funded offer", skills:"interviews · one-page portfolio · negotiation basics", read:"Deep Work · re-read Elements of Style", life:"graduate · celebrate · one trip in Malaysia"}
+];
+const DEADLINES = [
+ {d:"2027-11-01", label:"EPFL E3 deadline — first eligible cycle (summer 2028 rehearsal)", kind:"verified"},
+ {d:"2027-11-29", label:"Summer@EPFL deadline", kind:"verified"},
+ {d:"2027-12-15", label:"A*STAR SIP window (verify eligibility)", kind:"approx"},
+ {d:"2028-02-01", label:"ISTernship deadline (verify)", kind:"approx"},
+ {d:"2028-11-01", label:"EPFL E3 cycle for summer 2029", kind:"pattern"},
+ {d:"2029-10-01", label:"Erasmus Mundus window opens (Sep 2030 entry)", kind:"pattern"}
+];
+const OPENQ = [
+ "Q2 — does company-affiliated R&D satisfy KIB3031? are overseas placements accepted? (Coordinator, in writing)",
+ "Q5 — does a 2-3 month absence affect my Student Pass? (Intl Student Centre, BEFORE any overseas application)",
+ "Q3 — GKI1001 rules: semesters, prerequisites, credits (Coordinator)",
+ "Q4 — is unpaid lab assistance / paid research allowance permitted on my pass? (ISC, in writing)",
+ "Q6 — do Dutch study years count fully toward the 5-year residence rule? (IND, in writing)"
+];
+function phase(){
+  const t = today();
+  for(const s of SEMS) if(t>=s.range[0] && t<=s.range[1]) return s;
+  return t < SEMS[0].range[0] ? SEMS[0] : SEMS[SEMS.length-1];
+}
+
+/* ---------- seed data ---------- */
+function seed(){
+  return {
+    tasks:[
+      {t:"Get MY cohort's guidebook; confirm it matches 2025/26 edition", done:false},
+      {t:"Protect KIX1001 + KIB1009; weekly problem practice", done:false},
+      {t:"Read 2-3 of Dr. Ng's papers; send the boring-task email", done:false},
+      {t:"Create GitHub account; first repository; commit weekly", done:false},
+      {t:"Ask ISC in writing: unpaid lab, GKI1001, absence & pass (Q3/Q4/Q5)", done:false},
+      {t:"Start time audit + 2-month actual spending log", done:false}
+    ],
+    cgpa:{},
+    projects:[
+      {n:"P1 — Reproduce a published result", w:"Sem 2", h:20, s:"queued", note:""},
+      {n:"P2 — EEG/PPG denoising pipeline vs naive baseline", w:"Sem 3-4", h:40, s:"queued", note:"poster-worthy"},
+      {n:"P3 — Instrumented measurement rig (IMU/load cell/PPG)", w:"Sem 4", h:50, s:"queued", note:"RM 80-250 parts"},
+      {n:"P4 — Simulation validated against reality", w:"Sem 5", h:60, s:"queued", note:""},
+      {n:"P5 — Closed-loop decoding / control", w:"Sem 6-7", h:80, s:"queued", note:"FYP candidate"},
+      {n:"P6 — Final Year Project (chosen in Sem 6, not assigned in Sem 8)", w:"Sem 7-8", h:0, s:"queued", note:""}
+    ],
+    applications:[
+      {o:"Dr. Ng's lab (UM BME)", r:"volunteer research assistant", dl:"rolling — this month", s:"preparing", e:"open"},
+      {o:"EPFL E3 (Switzerland)", r:"research internship, CHF 1,800-2,500/mo", dl:"1 Nov 2027", s:"queued", e:"needs 2 yrs completed"},
+      {o:"Summer@EPFL", r:"CS/EE summer research, CHF 1,800/mo", dl:"29 Nov 2027", s:"queued", e:"needs 1 yr completed"},
+      {o:"ISTernship (Austria)", r:"~EUR 1,400/mo", dl:"~Feb 2028", s:"queued", e:"verify"},
+      {o:"A*STAR SIP (Singapore)", r:"stipend + housing", dl:"~Dec 2027", s:"queued", e:"verify"},
+      {o:"KIB3031 overseas company", r:"industrial training — the prize", dl:"apply autumn 2028", s:"queued", e:"needs dept approval in writing"}
+    ],
+    skills:[
+      {n:"Python (scientific)", tier:"core", lv:0}, {n:"Git / GitHub", tier:"core", lv:0},
+      {n:"Linux / command line", tier:"core", lv:0}, {n:"Mathematics", tier:"core", lv:0},
+      {n:"LaTeX", tier:"core", lv:0}, {n:"Numerical methods", tier:"core", lv:0},
+      {n:"Digital signal processing", tier:"core", lv:0}, {n:"Statistics & inference", tier:"core", lv:0},
+      {n:"Machine learning", tier:"core", lv:0}, {n:"Embedded C", tier:"cluster", lv:0},
+      {n:"Standards & regulation", tier:"cluster", lv:0}, {n:"Technical writing", tier:"career", lv:0},
+      {n:"Speaking", tier:"career", lv:0}, {n:"Dutch", tier:"career", lv:0}, {n:"IELTS", tier:"career", lv:0}
+    ],
+    reading:[
+      {t:"How to Solve It — Pólya", w:"Sem 1", s:"reading", x:""},
+      {t:"A Mind for Numbers — Oakley", w:"Sem 1", s:"queued", x:""},
+      {t:"Naked Statistics — Wheelan", w:"Sem 1", s:"queued", x:""},
+      {t:"Make It Stick — Brown et al.", w:"Sem 1-2", s:"queued", x:""},
+      {t:"Thinking, Fast and Slow — Kahneman", w:"summer Y1", s:"queued", x:""},
+      {t:"The Information — Gleick", w:"Sem 3", s:"queued", x:""},
+      {t:"Range — Epstein", w:"Sem 3", s:"queued", x:""},
+      {t:"Meditations — Marcus Aurelius", w:"Sem 2", s:"queued", x:""},
+      {t:"Statistical Rethinking — McElreath", w:"summer Y2", s:"queued", x:""},
+      {t:"The Silk Roads — Frankopan", w:"Yr 3", s:"queued", x:""}
+    ],
+    decisions:[], budget:[], weekly:[]
+  };
+}
+
+/* ---------- global session state ---------- */
+let S = null;          // decrypted main state
+let SK = null;         // main session (enc/dec)
+let PK = null;         // private-room session
+let CUR = "dashboard";
+let saveTimer = null;
+function save(){ clearTimeout(saveTimer); saveTimer=setTimeout(async ()=>{ if(S&&SK){ LS.set("lifeos.data", await SK.enc(S));
+  if(typeof SYNC!=="undefined"&&SYNC){ SYNC.dirty=true;
+    if(SYNC.auto&&SYNC.tok){ clearTimeout(SYNC.st); SYNC.st=setTimeout(()=>syncNow(true),6000); } } } },400); }
+
+/* ---------- boot ---------- */
+const BOOTLINES = [
+ "POWER      ▸ arc reactor online",
+ "CRYPTO     ▸ " + (canCrypto ? "AES-256-GCM · PBKDF2-250k [WebCrypto]" : "WebCrypto UNAVAILABLE — restricted preview mode"),
+ "STORAGE    ▸ " + (LS.get("lifeos.lock") ? "vault image detected on device" : "no vault image — first boot"),
+ "PERSONA    ▸ console assistant: rule-based, offline, zero telemetry",
+ "DIRECTIVE  ▸ protect the operator's time, health and options",
+ "",
+ "initialising interface…"
+];
+function boot(){
+  let i=0; const log=$("#bootlog");
+  const step=()=>{ if(i<BOOTLINES.length){ log.textContent += BOOTLINES[i++] + "\n"; setTimeout(step, 240); } else setTimeout(showLock, 500); };
+  step();
+}
+function showLock(){
+  $("#boot").classList.add("hidden"); $("#lock").classList.remove("hidden");
+  renderLock();
+}
+
+/* ---------- lock screen ---------- */
+let failCount = 0, cooldownUntil = 0;
+function renderLock(){
+  const has = !!LS.get("lifeos.lock");
+  $("#locktitle").textContent = has ? "VAULT LOCK" : "FIRST BOOT — CREATE VAULT";
+  $("#lockmsg").textContent=""; $("#lockmsg").className="";
+  const f = $("#lockform"); f.innerHTML="";
+  if(!canCrypto){
+    f.appendChild(el("p","warn","⚠ This viewer blocks WebCrypto. You may demo the console, but it will run in OBFUSCATION mode with session-only storage. For real AES-256 encryption, open the live preview link or download this file and open it in a browser."));
+  }
+  if(!has){
+    f.insertAdjacentHTML("beforeend",
+      '<label>passphrase (min 8 chars)</label><input type="password" class="inp" id="p1" autocomplete="new-password">'+
+      '<label>confirm</label><input type="password" class="inp" id="p2" autocomplete="new-password">'+
+      '<div class="row" style="margin-top:14px"><button class="btn" id="mk">FORGE VAULT</button></div>'+
+      '<p class="warn">There is no recovery. Forget it and the data is gone — export backups from Settings.</p>');
+    $("#mk").onclick = async ()=>{
+      const a=$("#p1").value, b=$("#p2").value, m=$("#lockmsg");
+      if(a.length<8){ m.textContent="min 8 characters."; m.className="err"; return; }
+      if(a!==b){ m.textContent="passphrases do not match."; m.className="err"; return; }
+      SK = await Vault.setup(a, "lifeos.lock");
+      S = seed(); ensureIds(S);
+      LS.set("lifeos.data", await SK.enc(S));
+      enter();
+    };
+  } else {
+    f.insertAdjacentHTML("beforeend",
+      '<label>passphrase</label><input type="password" class="inp" id="p1" autocomplete="current-password">'+
+      '<div class="row" style="margin-top:14px"><button class="btn" id="un">UNLOCK</button></div>');
+    const go = async ()=>{
+      const m=$("#lockmsg");
+      if(Date.now()<cooldownUntil){ m.textContent="cooldown "+Math.ceil((cooldownUntil-Date.now())/1000)+"s"; m.className="err"; return; }
+      const r = await Vault.open($("#p1").value, "lifeos.lock");
+      if(r==="badpass"){
+        failCount++;
+        if(failCount>=5){ cooldownUntil=Date.now()+30000; failCount=0; m.textContent="5 failures — 30s cooldown."; }
+        else m.textContent="wrong passphrase ("+failCount+"/5).";
+        m.className="err"; return;
+      }
+      if(r==="incompatible"){ m.textContent="vault was sealed with AES but this viewer lacks WebCrypto. Open in a browser."; m.className="err"; return; }
+      SK=r;
+      const data = LS.get("lifeos.data");
+      S = data ? await SK.dec(data) : seed(); ensureIds(S);
+      enter();
+    };
+    $("#un").onclick = go;
+    $("#p1").onkeydown = e=>{ if(e.key==="Enter") go(); };
+    $("#p1").focus();
+  }
+}
+function enter(){
+  $("#lock").classList.add("hidden"); $("#app").classList.remove("hidden");
+  $("#ftmode").textContent = "CRYPTO: " + (canCrypto ? "AES-256-GCM · PBKDF2-SHA256 250k" : "OBFUSCATION (NOT SECURITY)");
+  if(!canCrypto) $("#banner").classList.remove("hidden"), $("#banner").textContent = "RESTRICTED PREVIEW — storage is session-only and encryption is simulated. Open the live preview or download this file for the real vault.";
+  buildNav(); show("dashboard"); startClock();
+}
+
+/* ---------- nav ---------- */
+const VIEWS = [
+ ["dashboard","Dashboard"],["jarvis","Console"],["roadmap","Roadmap"],["projects","Projects"],
+ ["applications","Applications"],["skills","Skills"],["courses","Course Oracle"],["study","Study Hall"],
+ ["reading","Reading"],["decisions","Decisions"],["budget","Budget"],["weekly","Weekly Review"],
+ ["games","Sanctum"],["locker","Locker"],["oracle","Oracle AI"],["deploy","Ship & Sync"],["priv","Private Room"],["settings","Settings"]
+];
+function buildNav(){
+  const n=$("#nav"); n.innerHTML="";
+  for(const [id,label] of VIEWS){
+    const b=el("button",null,esc(label)); b.dataset.v=id;
+    b.onclick=()=>show(id);
+    n.appendChild(b);
+  }
+}
+function show(id){
+  CUR=id;
+  document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on", b.dataset.v===id));
+  if(id!=="priv") PK=null;
+  const R = {dashboard:vDash, jarvis:vJarvis, roadmap:vRoadmap, projects:vProjects, applications:vApps,
+             skills:vSkills, reading:vReading, decisions:vDecisions, budget:vBudget, weekly:vWeekly,
+             priv:vPriv, settings:vSettings, courses:vCourses, study:vStudy, games:vGames,
+             locker:vLocker, oracle:vOracle, deploy:vDeploy, timetable:vTimetable, daily:vDaily, bench:vBench, keys:vKeys}[id];
+  R();
+}
+
+/* ---------- views ---------- */
+function vDash(){
+  const ph = phase();
+  const chips = DEADLINES.slice().sort((a,b)=>a.d<b.d?-1:1)
+    .map(x=>({x, dd:days(x.d)})).filter(o=>o.dd>=-30).slice(0,6)
+    .map(o=>'<span class="chip"><b>'+Math.max(o.dd,0)+'d</b> · '+esc(o.x.label)+(o.x.kind!=="verified"?" <i style='color:var(--dim)'>["+o.x.kind+"]</i>":"")+'</span>').join("");
+  const tasks = S.tasks.map((t,i)=>
+    '<tr><td style="width:26px"><input type="checkbox" data-i="'+i+'" '+(t.done?"checked":"")+' class="taskck"></td>'+
+    '<td style="'+(t.done?"color:var(--dim); text-decoration:line-through":"")+'">'+esc(t.t)+'</td></tr>').join("");
+  const cg = Object.entries(S.cgpa).sort();
+  const spark = cg.length>=1 ? svgSpark(cg.map(e=>e[1])) : '<span style="color:var(--dim)">no entries yet — log after each finals week</span>';
+  $("#view").innerHTML =
+   '<div class="grid">'+
+    '<div class="panel"><h3>CURRENT PHASE <span>// '+esc(ph.name)+'</span></h3>'+
+      '<p style="margin-bottom:8px"><span class="st prog">'+esc(ph.name)+'</span></p>'+
+      '<p><b style="color:var(--am)">PRIORITIES</b> — '+esc(ph.pri)+'</p>'+
+      '<p><b style="color:var(--am)">SKILLS</b> — '+esc(ph.skills)+'</p>'+
+      '<p><b style="color:var(--am)">READING</b> — '+esc(ph.read)+'</p>'+
+      '<p><b style="color:var(--am)">PROJECT</b> — '+esc(ph.proj||"—")+'</p>'+
+      (ph.apps?'<p><b style="color:var(--am)">WINDOWS</b> — '+esc(ph.apps)+'</p>':"")+
+    '</div>'+
+    '<div class="panel"><h3>COUNTDOWNS <span>// application & deadline radar</span></h3><div>'+chips+'</div></div>'+
+    '<div class="panel"><h3>THIS MONTH\'S DIRECTIVES <span>// tap to clear</span></h3><table>'+tasks+'</table></div>'+
+    '<div class="panel"><h3>CGPA <span>// the gate for everything</span></h3>'+
+      '<div class="row"><input class="inp" id="cgsem" placeholder="e.g. S1" style="max-width:90px"><input class="inp" id="cgval" placeholder="3.70" style="max-width:90px"><button class="btn" id="cgadd">LOG</button></div>'+
+      '<div style="margin-top:10px">'+spark+'</div>'+
+      '<p style="margin-top:8px;color:var(--dim);font-size:11px">'+cg.map(e=>esc(e[0])+"="+esc(e[1])).join(" · ")+'</p>'+
+    '</div>'+
+    '<div class="panel"><h3>OPEN VERIFICATION QUESTIONS <span>// resolve before planning on them</span></h3>'+
+      OPENQ.map(q=>'<p style="margin-bottom:6px">▸ '+esc(q)+'</p>').join("")+
+    '</div>'+
+   '</div>';
+  document.querySelectorAll(".taskck").forEach(c=>c.onchange=()=>{ stamp(S.tasks[+c.dataset.i]).done=c.checked; save(); vDash(); });
+  $("#cgadd").onclick=()=>{ const k=$("#cgsem").value.trim(), v=parseFloat($("#cgval").value); if(!k||isNaN(v))return; S.cgpa[k]=v; save(); vDash(); };
+}
+function svgSpark(vals){
+  const w=260,h=64,p=8; const min=Math.min(...vals)-0.1, max=Math.max(...vals)+0.1;
+  const pts=vals.map((v,i)=>[p+i*(w-2*p)/Math.max(vals.length-1,1), h-p-(v-min)*(h-2*p)/(max-min)]);
+  const poly=pts.map(pt=>pt.map(n=>n.toFixed(1)).join(",")).join(" ");
+  return '<svg width="'+w+'" height="'+h+'"><polyline points="'+poly+'" fill="none" stroke="#59d8ff" stroke-width="2"/>'+
+    pts.map(pt=>'<circle cx="'+pt[0]+'" cy="'+pt[1]+'" r="3" fill="#ffb454"/>').join("")+'</svg>';
+}
+
+function vRoadmap(){
+  $("#view").innerHTML = '<div class="panel"><h3>SEMESTER OPERATING SHEETS <span>// from §21 of the Life OS</span></h3>'+
+   SEMS.map(s=>'<details style="margin-bottom:10px" '+(s.id===phase().id?"open":"")+'><summary style="cursor:pointer;color:var(--cy);letter-spacing:.1em">'+esc(s.name)+' <span style="color:var(--dim)">'+esc(s.range[0])+' → '+esc(s.range[1])+'</span></summary>'+
+     '<div style="padding:8px 4px 4px 14px">'+
+     '<p><b style="color:var(--am)">PRIORITIES</b> — '+esc(s.pri)+'</p>'+
+     '<p><b style="color:var(--am)">SKILLS</b> — '+esc(s.skills)+'</p>'+
+     '<p><b style="color:var(--am)">READING</b> — '+esc(s.read)+'</p>'+
+     '<p><b style="color:var(--am)">PROJECT</b> — '+esc(s.proj||"—")+'</p>'+
+     '<p><b style="color:var(--am)">RESEARCH</b> — '+esc(s.res||"—")+'</p>'+
+     (s.apps?'<p><b style="color:var(--am)">WINDOWS</b> — '+esc(s.apps)+'</p>':"")+
+     (s.life?'<p><b style="color:var(--am)">LIFE</b> — '+esc(s.life)+'</p>':"")+
+     '</div></details>').join("")+'</div>';
+}
+
+function stSelect(opts, val, cls){
+  return '<select class="inp stsel '+cls+'" style="width:auto;padding:2px 6px;font-size:10.5px">'+
+    opts.map(o=>'<option '+(o===val?"selected":"")+'>'+o+'</option>').join("")+'</select>';
+}
+function vProjects(){
+  const rows=S.projects.map((p,i)=>'<tr><td>'+esc(p.n)+'</td><td>'+esc(p.w)+'</td><td>'+(p.h||"—")+'h</td><td>'+
+    stSelect(["queued","prog","done","blocked"],p.s,"psel")+'</td><td><button class="del" data-i="'+i+'">✕</button></td></tr>').join("");
+  $("#view").innerHTML='<div class="panel"><h3>PROJECT LADDER <span>// §8 — each unlocks the next</span></h3><table>'+
+   '<tr><th>project</th><th>window</th><th>hrs</th><th>status</th><th></th></tr>'+rows+'</table>'+
+   '<div class="row" style="margin-top:12px"><input class="inp" id="pn" placeholder="new project"><input class="inp" id="pw" placeholder="window" style="max-width:120px"><button class="btn" id="pa">ADD</button></div></div>';
+  wire("#pa", ()=>{ const n=$("#pn").value.trim(); if(!n)return; S.projects.push(stamp({n:n,w:$("#pw").value.trim(),h:0,s:"queued",note:""})); save(); vProjects(); });
+  bindTable(".psel", S.projects, "s", vProjects); bindDel(".del", S.projects, vProjects);
+}
+function vApps(){
+  const rows=S.applications.map((a,i)=>'<tr><td>'+esc(a.o)+'</td><td>'+esc(a.r)+'</td><td>'+esc(a.dl)+'</td><td>'+
+   '<span class="st queued" style="border:none;color:var(--dim)">'+esc(a.e)+'</span></td><td>'+
+   stSelect(["queued","preparing","submitted","interview","accepted","rejected"],a.s,"asel")+'</td><td><button class="del" data-i="'+i+'">✕</button></td></tr>').join("");
+  $("#view").innerHTML='<div class="panel"><h3>APPLICATION TRACKER <span>// eligibility-filtered, §10</span></h3><table>'+
+   '<tr><th>target</th><th>role / value</th><th>deadline</th><th>eligibility</th><th>status</th><th></th></tr>'+rows+'</table>'+
+   '<div class="row" style="margin-top:12px"><input class="inp" id="ao" placeholder="target"><input class="inp" id="ar" placeholder="role/value"><input class="inp" id="ad" placeholder="deadline" style="max-width:140px"><button class="btn" id="aa">ADD</button></div></div>';
+  wire("#aa", ()=>{ const o=$("#ao").value.trim(); if(!o)return; S.applications.push(stamp({o:o,r:$("#ar").value.trim(),dl:$("#ad").value.trim(),s:"queued",e:"verify"})); save(); vApps(); });
+  bindTable(".asel", S.applications, "s", vApps); bindDel(".del", S.applications, vApps);
+}
+function vSkills(){
+  const rows=S.skills.map((k,i)=>'<tr><td>'+esc(k.n)+'</td><td><span class="st queued" style="border:none;color:var(--dim)">'+esc(k.tier)+'</span></td><td>'+
+   '<span class="meter">'+dots(k.lv)+'</span> <select class="inp lvsel" data-i="'+i+'" style="width:auto;padding:1px 4px;font-size:10px">'+
+   [0,1,2,3,4,5].map(n=>'<option '+(n===k.lv?"selected":"")+'>'+n+'</option>').join("")+'</select></td></tr>').join("");
+  $("#view").innerHTML='<div class="panel"><h3>COMPETENCY MATRIX <span>// 0 none → 5 can-teach; honesty enforced by §5 tests</span></h3><table>'+
+   '<tr><th>skill</th><th>tier</th><th>level</th></tr>'+rows+'</table></div>';
+  document.querySelectorAll(".lvsel").forEach(s=>s.onchange=()=>{ stamp(S.skills[+s.dataset.i]).lv=+s.value; save(); });
+}
+function dots(n){ let s=""; for(let i=0;i<5;i++) s += i<n ? "●" : '<i>●</i>'; return s; }
+function vReading(){
+  const rows=S.reading.map((r,i)=>'<tr><td>'+esc(r.t)+'</td><td>'+esc(r.w)+'</td><td>'+
+   stSelect(["queued","reading","done"],r.s,"rsel")+'</td><td><input class="inp xnote" data-i="'+i+'" placeholder="extraction note — what changed?" value="'+esc(r.x)+'" style="min-width:180px"></td><td><button class="del" data-i="'+i+'">✕</button></td></tr>').join("");
+  $("#view").innerHTML='<div class="panel"><h3>READING LOG <span>// §14 + §23 + §24 — max 2 on the desk</span></h3><table>'+
+   '<tr><th>book</th><th>when</th><th>status</th><th>extraction note</th><th></th></tr>'+rows+'</table>'+
+   '<div class="row" style="margin-top:12px"><input class="inp" id="rn" placeholder="title — author"><input class="inp" id="rw" placeholder="when" style="max-width:120px"><button class="btn" id="ra">ADD</button></div></div>';
+  wire("#ra", ()=>{ const t=$("#rn").value.trim(); if(!t)return; S.reading.push(stamp({t:t,w:$("#rw").value.trim(),s:"queued",x:""})); save(); vReading(); });
+  bindTable(".rsel", S.reading, "s", vReading); bindDel(".del", S.reading, vReading);
+  document.querySelectorAll(".xnote").forEach(n=>n.onchange=()=>{ stamp(S.reading[+n.dataset.i]).x=n.value; save(); });
+}
+function vDecisions(){
+  const rows=S.decisions.map((d,i)=>'<tr><td>'+esc(d.when)+'</td><td>'+esc(d.q)+'</td><td>'+esc(d.c)+'</td><td>'+esc(d.fals)+'</td><td><button class="del" data-i="'+i+'">✕</button></td></tr>').join("");
+  $("#view").innerHTML='<div class="panel"><h3>DECISION LOG <span>// §17 — good decision + bad outcome = repeat</span></h3><table>'+
+   '<tr><th>date</th><th>decision</th><th>why / key assumption</th><th>what would change my mind</th><th></th></tr>'+rows+'</table>'+
+   '<div class="grid" style="margin-top:12px"><input class="inp" id="dq" placeholder="the decision"><input class="inp" id="dc" placeholder="why + key assumption"><input class="inp" id="df" placeholder="falsifier"><button class="btn" id="da">LOG</button></div></div>';
+  wire("#da", ()=>{ const q=$("#dq").value.trim(); if(!q)return; S.decisions.push(stamp({when:today(),q:q,c:$("#dc").value.trim(),fals:$("#df").value.trim()})); save(); vDecisions(); });
+  bindDel(".del", S.decisions, vDecisions);
+}
+function vBudget(){
+  const rows=S.budget.map((b,i)=>'<tr><td>'+esc(b.m)+'</td><td>'+esc(b.item)+'</td><td>'+esc(b.cat)+'</td><td style="text-align:right">'+(+b.amt).toFixed(2)+'</td><td><button class="del" data-i="'+i+'">✕</button></td></tr>').join("");
+  const total=S.budget.reduce((a,b)=>a+(+b.amt||0),0);
+  $("#view").innerHTML='<div class="panel"><h3>BUDGET <span>// RM · track ACTUALS for 2 months before trusting any plan</span></h3><table>'+
+   '<tr><th>month</th><th>item</th><th>category</th><th style="text-align:right">RM</th><th></th></tr>'+rows+
+   '<tr><td colspan="3" style="color:var(--am)">TOTAL</td><td style="text-align:right;color:var(--am)">'+total.toFixed(2)+'</td><td></td></tr></table>'+
+   '<div class="grid" style="margin-top:12px"><input class="inp" id="bm" placeholder="month (2026-10)" style="max-width:120px"><input class="inp" id="bi" placeholder="item"><input class="inp" id="bc" placeholder="category"><input class="inp" id="ba" placeholder="RM" style="max-width:100px"><button class="btn" id="bb">ADD</button></div>'+
+   '<p style="margin-top:10px;color:var(--dim);font-size:11px">categories that matter: food · transport · phone/data · study · project parts · health · social (protected) · travel home</p></div>';
+  wire("#bb", ()=>{ const i=$("#bi").value.trim(); if(!i)return; S.budget.push(stamp({m:$("#bm").value.trim()||today().slice(0,7),item:i,cat:$("#bc").value.trim(),amt:$("#ba").value||0})); save(); vBudget(); });
+  bindDel(".del", S.budget, vBudget);
+}
+function vWeekly(){
+  const rows=S.weekly.slice().reverse().map((w,i)=>'<div class="panel" style="margin-bottom:10px"><h3>'+esc(w.when)+' <span>// review</span></h3>'+
+   '<p><b style="color:var(--am)">DID</b> — '+esc(w.did)+'</p><p><b style="color:var(--am)">WELL / BADLY</b> — '+esc(w.wb)+'</p>'+
+   '<p><b style="color:var(--am)">STOP</b> — '+esc(w.stop)+'</p><p><b style="color:var(--am)">PREDICTIONS</b> — '+esc(w.pred)+'</p></div>').join("");
+  $("#view").innerHTML='<div class="panel"><h3>WEEKLY REVIEW <span>// 10 minutes, Sunday evening — §16</span></h3>'+
+   '<label>1. what did I actually do?</label><textarea class="inp" id="w1" rows="2"></textarea>'+
+   '<label>2. one thing well / one badly</label><textarea class="inp" id="w2" rows="2"></textarea>'+
+   '<label>3. what will I stop?</label><textarea class="inp" id="w3" rows="1"></textarea>'+
+   '<label>4. three predictions for next week (write them; check them)</label><textarea class="inp" id="w4" rows="2"></textarea>'+
+   '<div class="row" style="margin-top:10px"><button class="btn" id="ws">SEAL REVIEW</button></div></div>'+
+   '<div style="margin-top:14px">'+(rows||'<p style="color:var(--dim)">no reviews sealed yet.</p>')+'</div>';
+  wire("#ws", ()=>{ const d=$("#w1").value.trim(); if(!d){toast("question 1 first."); return;} S.weekly.push(stamp({when:today(),did:d,wb:$("#w2").value.trim(),stop:$("#w3").value.trim(),pred:$("#w4").value.trim()})); save(); vWeekly(); toast("review sealed."); });
+}
+
+/* ---------- private room ---------- */
+function vPriv(){
+  const has=!!LS.get("lifeos.prilock");
+  if(!PK){
+    $("#view").innerHTML='<div class="panel" style="max-width:520px"><h3>PRIDE ROOM <span>// second passphrase · your sealed room</span></h3>'+
+     '<p style="color:var(--dim);margin-bottom:10px">Your pride room: wins, proud moments, and anything unshareable. Encrypted under a DIFFERENT passphrase and never decrypted while sealed.</p>'+
+     '<label>'+(has?"private passphrase":"create private passphrase (min 8)")+'</label><input type="password" class="inp" id="pp">'+
+     (has?'':'<label>confirm</label><input type="password" class="inp" id="pp2">')+
+     '<div class="row" style="margin-top:12px"><button class="btn" id="po">'+(has?"UNSEAL":"CREATE ROOM")+'</button></div><div id="pm" style="color:var(--rd);font-size:11px;margin-top:8px"></div></div>';
+    $("#po").onclick=async ()=>{
+      const a=$("#pp").value, m=$("#pm");
+      if(!has){
+        if(a.length<8){m.textContent="min 8 characters.";return;}
+        if(a!==$("#pp2").value){m.textContent="does not match.";return;}
+        PK=await Vault.setup(a,"lifeos.prilock");
+        LS.set("lifeos.priv", await PK.enc([]));
+        renderPrivBody();
+      } else {
+        const r=await Vault.open(a,"lifeos.prilock");
+        if(typeof r==="string"){ m.textContent = r==="badpass"?"wrong private passphrase.":"open in a browser."; return; }
+        PK=r; renderPrivBody();
+      }
+    };
+    return;
+  }
+  renderPrivBody();
+}
+async function renderPrivBody(){
+  const all = await PK.dec(LS.get("lifeos.priv")||await PK.enc([]));
+  const wins=all.filter(n=>n.kind==="win"), notes=all.filter(n=>n.kind!=="win");
+  const wlist=wins.map(n=>{const i=all.indexOf(n);return '<div class="panel" style="margin-bottom:10px;border-color:var(--am)"><h3 style="color:var(--am)">★ '+esc(n.when)+'</h3><p style="font-size:14px">'+esc(n.w)+'</p>'+(n.why?'<p style="color:var(--dim);font-size:11px;margin-top:4px">why it matters: '+esc(n.why)+'</p>':'')+'<button class="del" data-i="'+i+'">delete</button></div>';}).join("");
+  const nlist=notes.map(n=>{const i=all.indexOf(n);return '<div class="panel" style="margin-bottom:10px"><h3>'+esc(n.when)+'</h3><p style="white-space:pre-wrap">'+esc(n.t)+'</p><button class="del" data-i="'+i+'">delete</button></div>';}).join("");
+  $("#view").innerHTML='<div class="panel"><h3>PRIDE ROOM <span>// '+wins.length+' win(s) sealed · nobody else gets in</span></h3>'+
+   '<label>seal a win</label><input class="inp" id="pw" placeholder="the win — got the lab slot · solved it cold · said no to the bad trade">'+
+   '<input class="inp" id="py" style="margin-top:6px" placeholder="why it matters (optional)">'+
+   '<div class="row" style="margin-top:8px"><button class="btn" id="wa">SEAL WIN</button></div>'+
+   '<label style="margin-top:14px">or write freely</label><textarea class="inp" id="nt" rows="3" placeholder="anything unshareable. sealed on save."></textarea>'+
+   '<div class="row" style="margin-top:10px"><button class="btn" id="ns">SEAL NOTE</button><button class="btn warn" id="nx">SEAL ROOM</button></div></div>'+
+   '<div style="margin-top:14px">'+(wlist||'<p style="color:var(--dim)">no wins sealed yet. the first one is coming this week.</p>')+'</div>'+
+   '<div style="margin-top:14px">'+nlist+'</div>';
+  $("#wa").onclick=async ()=>{ const w=$("#pw").value.trim(); if(!w)return;
+    const arr=await PK.dec(LS.get("lifeos.priv")); arr.push(stamp({when:today(),kind:"win",w:w,why:$("#py").value.trim()}));
+    LS.set("lifeos.priv", await PK.enc(arr)); renderPrivBody(); toast("win sealed. this room remembers."); };
+  $("#ns").onclick=async ()=>{
+    const t=$("#nt").value.trim(); if(!t)return;
+    const arr=await PK.dec(LS.get("lifeos.priv")); arr.push({when:today(),t:t});
+    LS.set("lifeos.priv", await PK.enc(arr)); renderPrivBody(); toast("sealed."); };
+  $("#nx").onclick=()=>{ PK=null; toast("room sealed. key cleared."); vPriv(); };
+  document.querySelectorAll("#view .del").forEach(b=>b.onclick=async ()=>{
+    const arr=await PK.dec(LS.get("lifeos.priv")); arr.splice(+b.dataset.i,1);
+    LS.set("lifeos.priv", await PK.enc(arr)); renderPrivBody(); });
+}
+
+/* ---------- settings ---------- */
+function vSettings(){
+  $("#view").innerHTML='<div class="grid">'+
+  '<div class="panel"><h3>BACKUP <span>// encrypted blob export</span></h3>'+
+   '<div class="row"><button class="btn" id="ex">EXPORT VAULT</button><button class="btn" id="im">IMPORT VAULT</button></div>'+
+   '<p style="margin-top:10px;color:var(--dim);font-size:11px">Export produces the encrypted image — safe to store anywhere, useless without the passphrase. Import replaces this device\'s vault.</p></div>'+
+  '<div class="panel"><h3>CHANGE MAIN PASSPHRASE</h3>'+
+   '<label>current</label><input type="password" class="inp" id="c1"><label>new (min 8)</label><input type="password" class="inp" id="c2">'+
+   '<div class="row" style="margin-top:10px"><button class="btn" id="cc">ROTATE KEY</button></div></div>'+
+  '<div class="panel"><h3>THREAT MODEL <span>// honesty section</span></h3>'+
+   '<p style="margin-bottom:8px">▸ At rest: everything on this device is AES-256-GCM under a key derived from your passphrase (PBKDF2-SHA256, 250k rounds). No server, no telemetry, no network calls.</p>'+
+   '<p style="margin-bottom:8px">▸ While unlocked: data lives decrypted in this tab\'s memory. A locked device or a closed tab protects you; an unlocked, unattended session does not. Hence the LOCK button.</p>'+
+   '<p style="margin-bottom:8px">▸ No recovery by design. Forgetting the passphrase means the data is mathematically gone. Backups are your responsibility — the console will nag you.</p>'+
+   '<p>▸ This is real cryptography but not an audited security product. It protects from casual access and lost devices, not from a targeted attacker with your unlocked machine.</p></div>'+
+  '<div class="panel"><h3>DANGER ZONE</h3><div class="row"><button class="btn danger" id="wz">WIPE VAULT</button></div></div>'+
+  '</div>';
+  $("#ex").onclick=async ()=>{
+    const blob={exported:today(), lock:LS.get("lifeos.lock"), data:LS.get("lifeos.data"), privlock:LS.get("lifeos.prilock"), priv:LS.get("lifeos.priv")};
+    const a=el("a"); a.href=URL.createObjectURL(new Blob([JSON.stringify(blob,null,1)],{type:"application/json"}));
+    a.download="lifeos-vault-"+today()+".json"; a.click(); toast("vault image exported.");
+  };
+  $("#im").onclick=()=>$("#importfile").click();
+  $("#cc").onclick=async ()=>{
+    const old=$("#c1").value, nw=$("#c2").value;
+    const r=await Vault.open(old,"lifeos.lock");
+    if(typeof r==="string"){ toast("current passphrase wrong."); return; }
+    if(nw.length<8){ toast("new passphrase min 8."); return; }
+    const data=LS.get("lifeos.data");
+    S = data? await r.dec(data): S;
+    SK = await Vault.setup(nw,"lifeos.lock");
+    LS.set("lifeos.data", await SK.enc(S));
+    $("#c1").value=$("#c2").value=""; toast("key rotated.");
+  };
+  $("#wz").onclick=()=>{ if(confirm("Wipe the vault on this device? Backups elsewhere survive.")){ LS.del("lifeos.lock"); LS.del("lifeos.data"); LS.del("lifeos.prilock"); LS.del("lifeos.priv"); location.reload(); } };
+}
+$("#importfile").onchange=e=>{
+  const f=e.target.files[0]; if(!f)return;
+  const rd=new FileReader();
+  rd.onload=()=>{ try{ const b=JSON.parse(rd.result);
+    if(b.lock)LS.set("lifeos.lock",b.lock); if(b.data)LS.set("lifeos.data",b.data);
+    if(b.privlock)LS.set("lifeos.prilock",b.privlock); if(b.priv)LS.set("lifeos.priv",b.priv);
+    location.reload();
+  }catch(err){ toast("not a vault image."); } };
+  rd.readAsText(f);
+};
+
+/* ---------- shared table wiring ---------- */
+function wire(sel, fn){ const b=$(sel); if(b) b.onclick=fn; }
+function bindTable(sel, arr, field, rerender){
+  document.querySelectorAll(sel).forEach(s=>s.onchange=()=>{
+    const tr=s.closest("tr"); const idx=+tr.querySelector(".del").dataset.i;
+    arr[idx][field]=s.value; stamp(arr[idx]); save();
+  });
+}
+function bindDel(sel, arr, rerender){
+  document.querySelectorAll(sel).forEach(b=>b.onclick=()=>{ arr.splice(+b.dataset.i,1); save(); rerender(); });
+}
+
+/* ---------- JARVIS console ---------- */
+let CHAT=[];
+function jSay(text){ CHAT.push({who:"j",t:text}); renderChat(text); }
+function jUser(text){ CHAT.push({who:"u",t:text}); }
+function renderChat(animate){
+  const log=$("#chatlog"); if(!log) return;
+  log.innerHTML="";
+  for(const m of CHAT.slice(0,-1)){
+    log.appendChild(el("div","msg "+m.who,'<span class="who">'+(m.who==="j"?"CONSOLE":"YOU")+'</span>'+esc(m.t)));
+  }
+  const last=CHAT[CHAT.length-1];
+  if(last.who==="u"){ log.appendChild(el("div","msg u",'<span class="who">YOU</span>'+esc(last.t))); return; }
+  const box=el("div","msg j",'<span class="who">CONSOLE</span><span class="bodytxt"></span><span class="cursor">&nbsp;</span>');
+  log.appendChild(box);
+  const body=box.querySelector(".bodytxt"); let i=0;
+  const tick=()=>{ if(i<=last.t.length){ body.textContent=last.t.slice(0,i++); log.scrollTop=log.scrollHeight; setTimeout(tick,9); } else box.querySelector(".cursor").remove(); };
+  tick();
+}
+function vJarvis(){
+  $("#view").innerHTML='<div class="panel"><h3>CONSOLE <span>// rule-based advisor · offline · knows the Life OS</span></h3>'+
+   '<div id="chatlog"></div></div>';
+  renderChat();
+  if(CHAT.length===0){
+    jSay("Operator. Console online, vault decrypted, all trackers nominal.\nI hold the Life OS — constraints, roadmap, deadlines, rules. Ask me: priorities · deadlines · money · books · skills · sleep · what now.\nI am rules, not a mind: for anything new, check the document or ask a human who knows you.");
+  }
+}
+function jarvisReply(q){
+  q=q.toLowerCase();
+  const ph=phase();
+  const has=re=>re.test(q);
+  if(has(/\b(hi|hello|hey)\b/)) return "Operator. Systems green. Current phase: "+ph.name+". Priorities: "+ph.pri+". Ask 'what now' if you want the short list.";
+  if(has(/priorit|focus|important/)) return "Phase "+ph.name+". Priorities: "+ph.pri+". Remember the standing order: academics first; the lab and projects are multipliers on grades, not replacements.";
+  if(has(/deadline|when.*due|radar|countdown/)){ const up=DEADLINES.map(x=>({x,dd:days(x.d)})).filter(o=>o.dd>=0).sort((a,b)=>a.dd-b.dd).slice(0,4); return "Radar:\n"+up.map(o=>"  "+o.dd+"d — "+o.x.label+(o.x.kind!=="verified"?" ["+o.x.kind+"]":"")).join("\n"); }
+  if(has(/what now|do now|next|start/)) return "Short list, in order:\n1. "+(S.tasks.find(t=>!t.done)?S.tasks.find(t=>!t.done).t:"directives clear — run your weekly review")+"\n2. This phase's skills: "+ph.skills+"\n3. Reading: "+ph.read+"\nSleep before all three.";
+  if(has(/money|ipad|budget|loan|freelance|work/)) return "Money rules, non-negotiable:\n- legal part-time work only, breaks only, ~120 h/yr ≈ RM 960-1,560. Pocket money, not a plan.\n- freelance for overseas clients = self-employment = NOT permitted on your Student Pass. Not worth the iPad.\n- the family loan makes FUNDED postgraduate study the only route; a funded PhD is the only route that pays you.\n- iPad target: legal break work + scholarships, Year 3-4. Skills now, money later.";
+  if(has(/sleep|tired|burn|exhaust|rest/)) return "Sleep is a performance constraint, not a reward: 7-9 h, consistent times. An all-nighter costs more marks than it saves. If you are working past midnight and seeing nobody, that is a system failure — fix the plan, not your willpower. Rest is a component of progress.";
+  if(has(/book|read/)) return "On the desk: max two. Current queue:\n"+S.reading.filter(r=>r.s!=="done").slice(0,4).map(r=>"  "+r.t+" ["+r.w+"]").join("\n")+"\nFinish one before adding. Extraction note or it didn't happen.";
+  if(has(/skill|learn|python|code/)) return "Skill focus this phase: "+ph.skills+".\nRule: a tool enters only when a project pulls it in. Certificates are purchases; repositories are proof.";
+  if(has(/advisor|lab|ng|professor/)) return "Dr. Ng Siew Cheok — h-index 24, actively publishing, his record IS your entry ramp into neural decoding. Approach: name two specific papers, offer the boring task, start unpaid, cap 4-6 h/wk in term. Reliability above brilliance.";
+  if(has(/netherland|dutch|citizen|passport|visa|switzerland/)) return "Netherlands: 5 consecutive years + non-temporary permit at application + A2 + renunciation. Study years appear to count (V-04: confirm with IND in writing). Funded Dutch PhD = salaried + the right permit. Earliest citizenship ~28-29, zero slack, treat as bonus never dependency. Switzerland: career yes, citizenship ~37-40, no investment route. Start Dutch 15 min/day this summer.";
+  if(has(/vault|secret|private/)) return "The private room is under a second passphrase, separate key, decrypted only while open. Opening it now.";
+  if(has(/geopolitic|world|china|india\b/)) return "Your shelf: Silk Roads (Asia-centred history) → Mahbubani (your neighbourhood) → Monsoon (the Indian Ocean linking India and Malaysia) → Guha (your own country) → Mearsheimer vs Kissinger (read as a pair). Note publication years; read for frames, verify facts.";
+  if(has(/help|what can/)) return "I answer from the Life OS: priorities · deadlines · what now · money · sleep · books · skills · advisor · netherlands · geopolitics · vault. I also keep your trackers. For anything beyond my rules: the document, then a human.";
+  return "That is outside my rule set, operator. I hold the Life OS — try: priorities / deadlines / what now / money / sleep / books / skills / advisor / netherlands / geopolitics. For anything new, the document or a human beats me.";
+}
+function ask(text){
+  if(!text.trim()) return;
+  jUser(text); renderChat();
+  const reply = (/vault|secret|private/.test(text.toLowerCase())) ? (show("priv"), jarvisReply(text)) : jarvisReply(text);
+  setTimeout(()=>jSay(reply), 350);
+}
+$("#jinput").onkeydown=e=>{ if(e.key==="Enter"){ const v=$("#jinput").value; $("#jinput").value=""; if(CUR!=="jarvis") show("jarvis"); ask(v); } };
+
+/* ---------- clock & lock button ---------- */
+function startClock(){
+  const f=()=>{ const d=new Date(); $("#clock").textContent=d.toISOString().slice(0,10)+" "+d.toTimeString().slice(0,8)+" LOCAL"; };
+  f(); setInterval(f,1000);
+}
+$("#btnlock").onclick=()=>{ S=null; SK=null; PK=null; CHAT=[]; $("#app").classList.add("hidden"); showLock(); };
+
+/* ================= v1.5 MODULES ================= */
+
+/* ================= SHIP & SYNC ================= */
+async function gTok(){
+  await new Promise(res=>{ if(window.google&&google.accounts&&google.accounts.oauth2)return res();
+    const s=document.createElement("script"); s.src="https://accounts.google.com/gsi/client"; s.onload=()=>res(); s.onerror=()=>res(); document.head.appendChild(s); });
+  if(!(window.google&&google.accounts&&google.accounts.oauth2))throw new Error("cannot load Google sign-in (network blocked here?)");
+  return new Promise(res=>{ google.accounts.oauth2.initTokenClient(
+    {client_id:S.sync.cid, scope:"https://www.googleapis.com/auth/drive.appdata", callback:r=>res(r.access_token)}).requestAccessToken(); });
+}
+async function gFind(tok){ const r=await fetch("https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q="+encodeURIComponent("name = 'lifeos.vault'"),{headers:{Authorization:"Bearer "+tok}});
+  const j=await r.json(); return (j.files&&j.files[0])?j.files[0].id:null; }
+/* --- v1.7 sync engine: auto + merge, still zero-knowledge --- */
+const SYNC={tok:null, auto:!!LS.get("lifeos.auto"), st:null, timer:null, knownRev:0, dirty:false,
+  dev:(LS.get("lifeos.dev")||(()=>{ const d=Math.random().toString(36).slice(2,10); LS.set("lifeos.dev",d); return d; })())};
+const COLLS=["tasks","projects","applications","skills","reading","decisions","budget","weekly","cards"];
+function uid(){ return (crypto.randomUUID?crypto.randomUUID():Date.now()+"-"+Math.random().toString(36).slice(2,10)); }
+function stamp(r){ if(!r.id)r.id=uid(); r.updatedAt=Date.now(); return r; }
+function ensureIds(st){ for(const c of COLLS){ if(Array.isArray(st[c]))for(const r of st[c]){ if(!r.id)r.id=uid(); if(!r.updatedAt)r.updatedAt=0; } }
+  if(st.study&&Array.isArray(st.study.log))for(const r of st.study.log){ if(!r.id)r.id=uid(); if(!r.updatedAt)r.updatedAt=0; } }
+function mergeStates(A,B){ const M=JSON.parse(JSON.stringify(A));
+  const coll=(a,b)=>{ const by={}; for(const r of a)by[r.id]=r; for(const r of b){ const e=by[r.id]; if(!e)by[r.id]=r; else if((r.updatedAt||0)>(e.updatedAt||0))by[r.id]=r; } return Object.values(by); };
+  for(const c of COLLS)if(Array.isArray(A[c])&&Array.isArray(B[c]))M[c]=coll(A[c],B[c]);
+  if(A.study&&B.study&&Array.isArray(A.study.log)&&Array.isArray(B.study.log))M.study.log=coll(A.study.log,B.study.log);
+  if(B.cgpa)for(const k in B.cgpa)if(!(k in M.cgpa))M.cgpa[k]=B.cgpa[k];
+  return M; }
+async function blobPush(tok,rev){
+  const blob=JSON.stringify({rev:rev, ts:new Date().toISOString(), device:SYNC.dev, lock:LS.get("lifeos.lock"), data:LS.get("lifeos.data"), privlock:LS.get("lifeos.prilock"), priv:LS.get("lifeos.priv")});
+  let id=await gFind(tok);
+  if(!id){ const c=await fetch("https://www.googleapis.com/drive/v3/files?fields=id",{method:"POST",headers:{Authorization:"Bearer "+tok,"Content-Type":"application/json"},body:JSON.stringify({name:"lifeos.vault",parents:["appDataFolder"]})});
+    id=(await c.json()).id; }
+  const r=await fetch("https://www.googleapis.com/upload/drive/v3/files/"+id+"?uploadType=media",{method:"PATCH",headers:{Authorization:"Bearer "+tok,"Content-Type":"application/json"},body:blob});
+  if(r.ok)LS.set("lifeos.synced",new Date().toISOString()+" rev"+rev);
+  return r.ok; }
+async function blobFetch(tok){ const id=await gFind(tok); if(!id)return null;
+  const r=await fetch("https://www.googleapis.com/drive/v3/files/"+id+"?alt=media",{headers:{Authorization:"Bearer "+tok}});
+  return await r.json(); }
+async function syncNow(silent){ if(!SYNC.tok||!SK)return;
+  try{ const remote=await blobFetch(SYNC.tok); const known=SYNC.knownRev, dirty=SYNC.dirty;
+    if(!remote){ await blobPush(SYNC.tok,1); SYNC.knownRev=1; SYNC.dirty=false; if(!silent)toast("pushed (first sync)."); return; }
+    if(remote.rev>known&&!dirty){ LS.set("lifeos.data",remote.data); S=await SK.dec(remote.data); ensureIds(S);
+      SYNC.knownRev=remote.rev; if(CUR)show(CUR); if(!silent)toast("adopted newer vault from the ring."); return; }
+    if(remote.rev>known&&dirty){ const R=await SK.dec(remote.data); S=mergeStates(S,R); ensureIds(S);
+      LS.set("lifeos.data",await SK.enc(S)); const rev=remote.rev+1; await blobPush(SYNC.tok,rev); SYNC.knownRev=rev; SYNC.dirty=false;
+      if(CUR)show(CUR); if(!silent)toast("merged edits from both devices."); return; }
+    if(dirty){ const rev=Math.max(remote.rev,known)+1; await blobPush(SYNC.tok,rev); SYNC.knownRev=rev; SYNC.dirty=false;
+      if(!silent)toast("pushed rev "+rev+"."); }
+  }catch(e){ if(!silent)toast("sync: "+String(e)); } }
+async function gConnect(){ if(!S.sync.cid){ toast("seal the client id first."); return; }
+  try{ SYNC.tok=await gTok(); const r=await blobFetch(SYNC.tok); SYNC.knownRev=r?r.rev:0;
+    toast("connected — device "+SYNC.dev+" in the sync ring."); if(SYNC.auto)syncNow(true);
+  }catch(e){ toast(String(e)); } }
+async function gPush(){ try{ const tok=await gTok(); SYNC.tok=tok;
+  const remote=await blobFetch(tok); const rev=(remote?remote.rev:0)+1;
+  if(await blobPush(tok,rev)){ SYNC.knownRev=rev; SYNC.dirty=false; toast("PUSHED rev "+rev+" — ciphertext only, as always."); }
+  else toast("push failed.");
+ }catch(e){ toast("push error: "+String(e)); } }
+async function gPull(){ try{ const tok=await gTok(); const b=await blobFetch(tok);
+  if(!b){ toast("no vault in Drive yet — push first from whichever device has your data."); return; }
+  if(!confirm("Replace THIS device's vault with the Drive copy? (export a local backup first if unsure)"))return;
+  if(b.lock)LS.set("lifeos.lock",b.lock); if(b.data)LS.set("lifeos.data",b.data);
+  if(b.privlock)LS.set("lifeos.prilock",b.privlock); if(b.priv)LS.set("lifeos.priv",b.priv);
+  location.reload();
+ }catch(e){ toast("pull error: "+String(e)); } }
+function vDeploy(){
+  if(!S.sync)S.sync={cid:""};
+  $("#view").innerHTML='<div class="grid">'+
+  '<div class="panel"><h3>1 · GIVE IT A PERMANENT HOME <span>// 5 minutes, free</span></h3>'+
+   '<p>▸ Make a free GitHub account → <b>New repository</b> (name it <code>lifeos</code>).</p>'+
+   '<p>▸ Upload <b>all six files</b> from the <code>app/</code> folder — the two PNG icons are <b>required</b> for app-install, do not skip them: <code>index.html</code>, <code>manifest.json</code>, <code>sw.js</code>, <code>icon.svg</code>, <code>icon-192.png</code>, <code>icon-512.png</code>.</p>'+
+   '<p>▸ Repository <b>Settings → Pages → Branch: main → Save</b>. In ~1 minute you get <code>https://YOURNAME.github.io/lifeos/</code> — a permanent https home, on every device, free.</p>'+
+   '<p>▸ <b>No-git route:</b> <b>Neocities</b> (free, browser-only) — make an account, upload the six files from your browser, get <code>https://YOURNAME.neocities.org</code>. Permanent, no command line, no git.</p>'+
+   '<p>▸ Netlify Drop also works <i>if</i> you have an account in good standing — claim the site so it is permanent; unclaimed drops get swept.</p>'+
+   '<p style="color:var(--dim);font-size:11px;margin-top:8px">This sandbox preview is temporary; your GitHub Pages URL is the address your installed app will live at.</p></div>'+
+  '<div class="panel"><h3>2 · INSTALL IT LIKE A REAL APP</h3>'+
+   '<p>▸ <b>Laptop (Chrome/Edge):</b> open your Pages URL → the install icon in the address bar (or menu → Install Life OS Console). It gets its own window and icon, no browser chrome. If the app is installable, an <b>⤓ INSTALL</b> button also appears in this header — one click.</p>'+
+   '<p>▸ <b>Edge, exact path if the icon is missing:</b> ⋯ menu → <b>Apps → Install this site as an app</b>. That works on any https page even when the PWA criteria are not met.</p>'+
+   '<p>▸ <b>Android (Chrome):</b> menu → Add to Home screen / Install app.</p>'+
+   '<p>▸ <b>iPhone (Safari):</b> Share → Add to Home Screen. It opens fullscreen with the reactor icon.</p>'+
+   '<p style="color:var(--am);font-size:11px;margin-top:8px">▸ If install fails in Edge, it is almost always one of these: you opened the downloaded FILE (file:// cannot install — it must be an https URL like your GitHub Pages or the preview link), or you are inside another app\u2019s embedded viewer (open the raw URL in its own tab first).</p>'+
+   '<p>▸ The service worker caches the app, so it still opens offline; your vault (localStorage + IndexedDB) lives per-device in that browser profile.</p></div>'+
+  '<div class="panel"><h3>3 · SYNC PHONE ↔ LAPTOP <span>// zero-knowledge Drive</span></h3>'+
+   '<p style="margin-bottom:8px">Google Drive carries ONLY ciphertext. Google never sees plaintext; the passphrase never leaves the device.</p>'+
+   '<p>▸ <b>Once, on a laptop:</b> console.cloud.google.com → new project (lifeos) → APIs &amp; Services → Library → enable <b>Google Drive API</b> → Credentials → Create credentials → OAuth client ID → Web application.</p>'+
+   '<p>▸ In that client: <b>Authorized JavaScript origins</b> → add your Pages URL. No redirect URIs needed.</p>'+
+   '<p>▸ Paste the Client ID below, SEAL, then CONNECT on each device. Turn AUTO on and the ring takes care of itself: edits push ~6 s after you stop typing, and opening or refocusing the app pulls. Edits made on two devices merge row-by-row (newest field wins) instead of clobbering.</p>'+
+   '<label>google oauth client id</label><input class="inp" id="gcid" value="'+esc(S.sync.cid)+'" placeholder="xxxx.apps.googleusercontent.com">'+
+   '<div class="row" style="margin-top:10px"><button class="btn" id="gcsave">SEAL ID</button><button class="btn" id="gcon">CONNECT</button><button class="btn '+(SYNC.auto?"":"warn")+'" id="gauto">AUTO: '+(SYNC.auto?"ON":"OFF")+'</button><button class="btn" id="gpush">PUSH ↑</button><button class="btn warn" id="gpull">PULL ↓</button></div>'+
+   '<p style="margin-top:10px;color:var(--dim);font-size:11px">device '+esc(SYNC.dev)+' · last push: '+(LS.get("lifeos.synced")||"never")+' · ciphertext stored hidden in Drive appDataFolder as lifeos.vault · one CONNECT per device per session (Google tokens expire hourly).</p></div>'+
+  '<div class="panel"><h3>4 · THE HONEST LIMITS</h3>'+
+   '<p>▸ AUTO sync merges row-by-row; a record edited on both devices keeps the newer edit. Known wrinkle: a row DELETED on one device can resurrect from the other in merge mode — prefer status changes over deletes while multi-device, or use manual PULL (which asks first) for big culls.</p>'+
+   '<p>▸ Tokens last ~1 h per session: one CONNECT tap per device per sitting. That is the entire price of having no server that can read you.</p>'+
+   '<p>▸ iOS Add to Home Screen keeps storage in Safari\u2019s world; use the same browser on the phone for PULL.</p>'+
+   '<p>▸ True live multi-device sync + accounts = the backend build (weeks of work). This design deliberately has no server that can read you.</p></div></div>';
+  $("#gcsave").onclick=()=>{ S.sync.cid=$("#gcid").value.trim(); save(); toast("client id sealed in vault."); };
+  $("#gcon").onclick=gConnect;
+  $("#gauto").onclick=()=>{ SYNC.auto=!SYNC.auto; LS.set("lifeos.auto",SYNC.auto?1:0);
+    $("#gauto").textContent="AUTO: "+(SYNC.auto?"ON":"OFF"); $("#gauto").classList.toggle("warn",!SYNC.auto);
+    if(SYNC.auto&&!SYNC.tok)gConnect(); if(SYNC.auto&&SYNC.tok)syncNow(true);
+    toast("auto-sync "+(SYNC.auto?"on — the ring is live.":"off — manual buttons only.")); };
+  $("#gpush").onclick=gPush; $("#gpull").onclick=gPull;
+}
+
+/* ---------- themes & motto ---------- */
+const THEMES=[
+ {id:"hud", label:"HUD", fx:"constellation", col:"#59d8ff", motto:"PROTECT THE OPERATOR'S TIME, HEALTH AND OPTIONS"},
+ {id:"academia", label:"DARK ACADEMIA", fx:"embers", col:"#d2a75a", motto:"DISCE AUT PERI · STUDY, OR PERISH"},
+ {id:"neon", label:"NEON", fx:"streaks", col:"#ff3df2", motto:"STAY HUNGRY · STAY NEON"},
+ {id:"crt", label:"CRT TERMINAL", fx:"matrix", col:"#4dff7a", motto:"THE TERMINAL IS THE LIBRARY"},
+ {id:"starlight", label:"STARLIGHT", fx:"stars", col:"#8fb3ff", motto:"PER ASPERA AD ASTRA"},
+ {id:"daylight", label:"DAYLIGHT LIBRARY", fx:"orbs", col:"#b3a689", motto:"LUX ET VERITAS"}
+];
+function applyTheme(t){ const T=THEMES.find(x=>x.id===t)||THEMES[0];
+  if(T.id==="hud") document.body.removeAttribute("data-theme"); else document.body.dataset.theme=T.id;
+  LS.set("lifeos.theme",T.id);
+  const m=$("#motto"); if(m)m.textContent=T.motto;
+  const b=$("#btntheme"); if(b)b.textContent="◐ "+T.label;
+}
+$("#btntheme").onclick=()=>{ const cur=LS.get("lifeos.theme")||"hud";
+  applyTheme(THEMES[(THEMES.findIndex(x=>x.id===cur)+1)%THEMES.length].id); };
+
+/* ---------- living background ---------- */
+const FX={cv:null,x:null,p:[],on:false,
+ start(){ this.cv=$("#fx"); if(!this.cv||this.on)return; this.on=true; this.x=this.cv.getContext("2d");
+  const rs=()=>{ this.cv.width=innerWidth; this.cv.height=innerHeight; }; rs(); addEventListener("resize",rs); this.loop(); },
+ T(){ return THEMES.find(x=>x.id===(document.body.dataset.theme||"hud"))||THEMES[0]; },
+ spawn(){ const W=this.cv.width,H=this.cv.height,m=this.T();
+  if(m.fx==="matrix")return {x:Math.random()*W,y:-20,v:1+Math.random()*2.5,ch:"01アカサタナハマヤラワイキシチニヒミリ"[Math.floor(Math.random()*19)],a:.2+Math.random()*.45};
+  if(m.fx==="streaks")return {x:Math.random()*W,y:Math.random()*H,vx:-(3+Math.random()*4),vy:2+Math.random()*2,l:30+Math.random()*50,a:.12+Math.random()*.28};
+  if(m.fx==="embers")return {x:Math.random()*W,y:H+10,vy:-(.25+Math.random()*.6),sw:Math.random()*6.28,a:.12+Math.random()*.35,r:.8+Math.random()*1.6};
+  if(m.fx==="stars")return {x:Math.random()*W,y:Math.random()*H,tw:Math.random()*6.28,sp:.5+Math.random()*1.5,r:Math.random()<.9?1.2:2};
+  if(m.fx==="orbs")return {x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.25,vy:(Math.random()-.5)*.2,r:30+Math.random()*70,a:.05+Math.random()*.05};
+  return {x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.4,vy:(Math.random()-.5)*.4,a:.25+Math.random()*.4}; },
+ loop(){ requestAnimationFrame(()=>this.loop()); if(document.hidden||!this.x)return;
+  const m=this.T(),x=this.x,W=this.cv.width,H=this.cv.height,col=m.col;
+  x.clearRect(0,0,W,H);
+  const N=m.fx==="matrix"?34:m.fx==="orbs"?12:60;
+  if(this.p.length&&this.p[0].mode!==m.id)this.p=[];
+  while(this.p.length<N)this.p.push(Object.assign(this.spawn(),{mode:m.id}));
+  for(const p of this.p){
+   if(m.fx==="constellation"){ p.x+=p.vx;p.y+=p.vy; if(p.x<0||p.x>W)p.vx*=-1; if(p.y<0||p.y>H)p.vy*=-1;
+     x.globalAlpha=p.a; x.fillStyle=col; x.fillRect(p.x,p.y,1.7,1.7); }
+   else if(m.fx==="embers"){ p.y+=p.vy; p.sw+=.02; p.x+=Math.sin(p.sw)*.3; if(p.y<-12)Object.assign(p,this.spawn(),{mode:m.id});
+     x.globalAlpha=p.a; x.fillStyle=col; x.beginPath(); x.arc(p.x,p.y,p.r,0,7); x.fill(); }
+   else if(m.fx==="streaks"){ p.x+=p.vx; p.y+=p.vy; if(p.x<-p.l||p.y>H+p.l)Object.assign(p,this.spawn(),{mode:m.id});
+     x.globalAlpha=p.a; x.strokeStyle=col; x.lineWidth=1; x.beginPath(); x.moveTo(p.x,p.y); x.lineTo(p.x+p.l,p.y-p.l*.6); x.stroke(); }
+   else if(m.fx==="matrix"){ p.y+=p.v; if(p.y>H+20)Object.assign(p,this.spawn(),{mode:m.id});
+     x.globalAlpha=p.a; x.fillStyle=col; x.font="12px monospace"; x.fillText(p.ch,p.x,p.y); }
+   else if(m.fx==="stars"){ p.tw+=.03*p.sp; x.globalAlpha=.2+Math.abs(Math.sin(p.tw))*.6; x.fillStyle=col; x.fillRect(p.x,p.y,p.r,p.r); }
+   else { p.x+=p.vx;p.y+=p.vy; if(p.x<-p.r)p.x=W+p.r; if(p.x>W+p.r)p.x=-p.r; if(p.y<-p.r)p.y=H+p.r; if(p.y>H+p.r)p.y=-p.r;
+     const g=x.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r); x.globalAlpha=p.a; g.addColorStop(0,col); g.addColorStop(1,"rgba(0,0,0,0)");
+     x.fillStyle=g; x.beginPath(); x.arc(p.x,p.y,p.r,0,7); x.fill(); } }
+  if(m.fx==="constellation"){ x.globalAlpha=.13; x.strokeStyle=col; x.lineWidth=.6;
+    for(let i=0;i<this.p.length;i++)for(let j=i+1;j<this.p.length;j++){ const a=this.p[i],b=this.p[j],dx=a.x-b.x,dy=a.y-b.y;
+      if(dx*dx+dy*dy<12100){ x.beginPath(); x.moveTo(a.x,a.y); x.lineTo(b.x,b.y); x.stroke(); } } }
+  x.globalAlpha=1; }
+};
+
+/* ---------- toxic-scholarship quotes ---------- */
+const QUOTES=[
+ ["The library is open, and someone with your exact dream is already at the desk.","marginalia"],
+ ["You do not rise to the occasion. You fall to the level of your revision notes.","exam season"],
+ ["Candlelight does not ask whether you feel motivated.","dark academia"],
+ ["Your future self is watching this semester. Impress them.","the vault"],
+ ["Discipline is remembering what you actually want.","marginalia"],
+ ["The vault encrypts your notes. Nothing encrypts your hours.","the vault"],
+ ["Read the paper. Then read it again. Then build it.","lab rule"],
+ ["A CGPA is only the sum of evenings you did not waste.","exam season"],
+ ["Obsession, properly aimed, is a virtue.","dark academia"],
+ ["Somewhere in Delft, an admissions file just got stronger. Not yours. Yet.","the vault"]
+];
+let QI=0;
+function fillQuote(){ const q=$("#quotepanel"); if(!q)return;
+  q.innerHTML="“"+esc(QUOTES[QI][0])+"”<span class='src'>"+esc(QUOTES[QI][1])+" · tap for another</span>";
+  q.onclick=()=>{ QI=(QI+1)%QUOTES.length; fillQuote(); };
+}
+const _vd0=vDash;
+vDash=function(){ _vd0(); const v=$("#view");
+  if(v && !$("#quotepanel")) v.insertAdjacentHTML("beforeend",'<div class="panel quotebox" id="quotepanel" style="margin-top:14px"></div>');
+  fillQuote();
+};
+
+/* ================= GAMES ================= */
+let GAME="2048";
+/* --- 2048 core --- */
+/*===G2-CORE===*/
+function g2line(l){ const a=l.filter(x=>x); const out=[]; let gain=0;
+  for(let i=0;i<a.length;i++){ if(a[i]===a[i+1]){ out.push(a[i]*2); gain+=a[i]*2; i++; } else out.push(a[i]); }
+  while(out.length<4)out.push(0); return {out:out,gain:gain}; }
+function g2idx(dir,k,j){ return dir===0?k*4+j : dir===2?k*4+(3-j) : dir===1?j*4+k : (3-j)*4+k; }
+function g2move(b,dir){ const nb=b.slice(); let gain=0;
+  for(let k=0;k<4;k++){ const l=[]; for(let j=0;j<4;j++) l.push(b[g2idx(dir,k,j)]);
+    const r=g2line(l); gain+=r.gain; for(let j=0;j<4;j++) nb[g2idx(dir,k,j)]=r.out[j]; }
+  return {b:nb,gain:gain,moved:nb.join(",")!==b.join(",")}; }
+function g2add(b){ const e=[]; b.forEach((v,i)=>{ if(!v)e.push(i); }); if(!e.length)return false;
+  b[e[Math.floor(Math.random()*e.length)]]=Math.random()<0.9?2:4; return true; }
+function g2over(b){ for(let d=0;d<4;d++) if(g2move(b,d).moved)return false; return true; }
+/*===END-G2-CORE===*/
+function g2state(){ if(!S.games)S.games={}; if(!S.games.g2048){ S.games.g2048={b:Array(16).fill(0),score:0}; g2add(S.games.g2048.b); g2add(S.games.g2048.b); } return S.games.g2048; }
+function g2play(dir){ const g=g2state(); const r=g2move(g.b,dir); if(!r.moved)return;
+  g.b=r.b; g.score+=r.gain; g2add(g.b); save(); vGames(); }
+
+/* --- chess core --- */
+/*===CH-CORE===*/
+function chInit(){ const rows=["rnbqkbnr","pppppppp","........","........","........","........","PPPPPPPP","RNBQKBNR"];
+  return {g:rows.join("").split(""), turn:"w", ep:-1, cast:{K:true,Q:true,k:true,q:true}}; }
+const chW=p=>p===p.toUpperCase();
+function chAttacked(st,idx,byWhite){ const r=idx>>3,c=idx&7;
+  const KN=[[1,2],[2,1],[-1,2],[-2,1],[1,-2],[2,-1],[-1,-2],[-2,-1]];
+  for(const a of KN){ const rr=r+a[0],cc=c+a[1]; if(rr<0||rr>7||cc<0||cc>7)continue; const q=st.g[rr*8+cc];
+    if(q!=="."&&chW(q)===byWhite&&q.toLowerCase()==="n")return true; }
+  for(const a of [[1,1],[1,-1],[-1,1],[-1,-1],[1,0],[-1,0],[0,1],[0,-1]]){ const rr=r+a[0],cc=c+a[1];
+    if(rr<0||rr>7||cc<0||cc>7)continue; const q=st.g[rr*8+cc];
+    if(q!=="."&&chW(q)===byWhite&&q.toLowerCase()==="k")return true; }
+  const pr=byWhite?r+1:r-1;
+  for(const dc of[-1,1]){ const cc=c+dc; if(pr<0||pr>7||cc<0||cc>7)continue; const q=st.g[pr*8+cc];
+    if(q!=="."&&chW(q)===byWhite&&q.toLowerCase()==="p")return true; }
+  for(const a of [[1,1],[1,-1],[-1,1],[-1,-1]]){ let rr=r+a[0],cc=c+a[1];
+    while(rr>=0&&rr<8&&cc>=0&&cc<8){ const q=st.g[rr*8+cc]; if(q!=="."){ if(chW(q)===byWhite&&(q.toLowerCase()==="b"||q.toLowerCase()==="q"))return true; break; } rr+=a[0];cc+=a[1]; } }
+  for(const a of [[1,0],[-1,0],[0,1],[0,-1]]){ let rr=r+a[0],cc=c+a[1];
+    while(rr>=0&&rr<8&&cc>=0&&cc<8){ const q=st.g[rr*8+cc]; if(q!=="."){ if(chW(q)===byWhite&&(q.toLowerCase()==="r"||q.toLowerCase()==="q"))return true; break; } rr+=a[0];cc+=a[1]; } }
+  return false; }
+function chMoves(st,i){ const p=st.g[i]; if(p===".")return[]; const w=chW(p); const r=i>>3,c=i&7; const out=[];
+  const push=(rr,cc)=>{ if(rr<0||rr>7||cc<0||cc>7)return; const j=rr*8+cc,q=st.g[j]; if(q==="."||(chW(q)!==w))out.push({f:i,t:j}); };
+  const slide=dirs=>{ for(const a of dirs){ let rr=r+a[0],cc=c+a[1];
+    while(rr>=0&&rr<8&&cc>=0&&cc<8){ const j=rr*8+cc,q=st.g[j]; if(q===".")out.push({f:i,t:j}); else { if(chW(q)!==w)out.push({f:i,t:j}); break; } rr+=a[0];cc+=a[1]; } } };
+  const pl=p.toLowerCase();
+  if(pl==="p"){ const d=w?-1:1, sr=w?6:1;
+    if(r+d>=0&&r+d<8&&st.g[(r+d)*8+c]==="."){ out.push({f:i,t:(r+d)*8+c});
+      if(r===sr&&st.g[(r+2*d)*8+c]===".")out.push({f:i,t:(r+2*d)*8+c,two:true}); }
+    for(const dc of[-1,1]){ const cc=c+dc,rr=r+d; if(cc<0||cc>7||rr<0||rr>7)continue; const j=rr*8+cc,q=st.g[j];
+      if(q!=="."&&chW(q)!==w)out.push({f:i,t:j}); else if(q==="."&&j===st.ep)out.push({f:i,t:j,ep:true}); }
+  } else if(pl==="n"){ for(const a of[[1,2],[2,1],[-1,2],[-2,1],[1,-2],[2,-1],[-1,-2],[-2,-1]])push(r+a[0],c+a[1]);
+  } else if(pl==="b"){ slide([[1,1],[1,-1],[-1,1],[-1,-1]]);
+  } else if(pl==="r"){ slide([[1,0],[-1,0],[0,1],[0,-1]]);
+  } else if(pl==="q"){ slide([[1,1],[1,-1],[-1,1],[-1,-1],[1,0],[-1,0],[0,1],[0,-1]]);
+  } else if(pl==="k"){ for(const a of[[1,1],[1,-1],[-1,1],[-1,-1],[1,0],[-1,0],[0,1],[0,-1]])push(r+a[0],c+a[1]);
+    const home=w?7:0;
+    if(r===home&&c===4&&!chAttacked(st,i,!w)){
+      if((w?st.cast.K:st.cast.k)&&st.g[home*8+5]==="."&&st.g[home*8+6]==="."&&!chAttacked(st,home*8+5,!w)&&!chAttacked(st,home*8+6,!w))out.push({f:i,t:home*8+6,ck:"k"});
+      if((w?st.cast.Q:st.cast.q)&&st.g[home*8+1]==="."&&st.g[home*8+2]==="."&&st.g[home*8+3]==="."&&!chAttacked(st,home*8+3,!w)&&!chAttacked(st,home*8+2,!w))out.push({f:i,t:home*8+2,ck:"q"});
+    } }
+  return out; }
+function chApply(st,m){ const g=st.g.slice(); const p=g[m.f]; const w=chW(p);
+  g[m.t]=p; g[m.f]=".";
+  if(m.ep){ g[((m.t>>3)+(w?1:-1))*8+(m.t&7)]="."; }
+  st.ep = m.two ? (((m.f>>3)+(m.t>>3))/2)*8+(m.f&7) : -1;
+  if(m.ck){ const h=w?7:0; if(m.ck==="k"){ g[h*8+5]=g[h*8+7]; g[h*8+7]="."; } else { g[h*8+3]=g[h*8+0]; g[h*8+0]="."; } }
+  if(p==="P"&&(m.t>>3)===0)g[m.t]="Q"; if(p==="p"&&(m.t>>3)===7)g[m.t]="q";
+  if(p==="K"){st.cast.K=false;st.cast.Q=false;} if(p==="k"){st.cast.k=false;st.cast.q=false;}
+  if(m.f===63||m.t===63)st.cast.K=false; if(m.f===56||m.t===56)st.cast.Q=false;
+  if(m.f===7||m.t===7)st.cast.k=false; if(m.f===0||m.t===0)st.cast.q=false;
+  st.g=g; st.turn=w?"b":"w"; }
+function chSim(st,m){ const n={g:st.g.slice(),turn:st.turn,ep:st.ep,cast:{K:st.cast.K,Q:st.cast.Q,k:st.cast.k,q:st.cast.q}}; chApply(n,m); return n; }
+function chKing(st,w){ const k=w?"K":"k"; return st.g.indexOf(k); }
+function chLegal(st){ const out=[]; const w=st.turn==="w";
+  for(let i=0;i<64;i++){ const p=st.g[i]; if(p==="."||chW(p)!==w)continue;
+    for(const m of chMoves(st,i)){ const n=chSim(st,m); if(!chAttacked(n,chKing(n,w),!w))out.push(m); } }
+  return out; }
+const CHVAL={p:1,n:3,b:3.2,r:5,q:9,k:0};
+function chAI(st){ const ms=chLegal(st); if(!ms.length)return null; let best=null,bs=-1e9;
+  for(const m of ms){ const tgt=st.g[m.t]; let s=(tgt==="."?0:CHVAL[tgt.toLowerCase()])+(m.ep?1:0);
+    const n=chSim(st,m);
+    if(chAttacked(n,m.t,st.turn!=="w")) s-=CHVAL[n.g[m.t].toLowerCase()]*0.9;
+    s+=(m.ck?0.6:0)+(((m.t&7)>=2&&(m.t&7)<=5)?0.15:0)+Math.random()*0.2;
+    if(s>bs){bs=s;best=m;} }
+  return best; }
+function chStatus(st){ const ms=chLegal(st); const w=st.turn==="w";
+  const inCh=chAttacked(st,chKing(st,w),!w);
+  if(!ms.length) return inCh?(w?"BLACK WINS — CHECKMATE":"WHITE WINS — CHECKMATE"):"STALEMATE";
+  return inCh?"CHECK":""; }
+/*===END-CH-CORE===*/
+let CHST=null, CHMODE="ai", CHSEL=-1;
+const CHGLYPH={K:"♔",Q:"♕",R:"♖",B:"♗",N:"♘",P:"♙",k:"♚",q:"♛",r:"♜",b:"♝",n:"♞",p:"♟"};
+function chClick(i){ if(!CHST)return;
+  if(CHMODE==="ai"&&CHST.turn!=="w")return;
+  if(CHSEL===-1){ if(CHST.g[i]!=="."&&chW(CHST.g[i])===(CHST.turn==="w"))CHSEL=i; return; }
+  const mv=chLegal(CHST).find(m=>m.f===CHSEL&&m.t===i);
+  if(!mv){ CHSEL=-1; if(CHST.g[i]!=="."&&chW(CHST.g[i])===(CHST.turn==="w"))CHSEL=i; vGames(); return; }
+  CHSEL=-1; chApply(CHST,mv); vGames();
+  if(CHMODE==="ai"&&CHST.turn==="b"&&!chStatus(CHST).includes("WINS")&&chStatus(CHST)!=="STALEMATE"){
+    setTimeout(()=>{ const m=chAI(CHST); if(m)chApply(CHST,m); vGames(); },420);
+  }
+}
+
+/* --- mahjong solitaire --- */
+function mjLayout(){ const pos=[];
+  for(let r=0;r<4;r++)for(let c=0;c<8;c++)pos.push({l:0,r:r*2,c:c*2});
+  for(let r=0;r<2;r++)for(let c=0;c<6;c++)pos.push({l:1,r:r*2+1,c:c*2+2});
+  pos.push({l:2,r:2,c:6},{l:2,r:2,c:8});
+  return pos; }
+function mjKinds(n){ const K=[]; for(let i=1;i<=9;i++)K.push("D"+i,"B"+i,"C"+i); K.push("WE","WS","WW","WN","DR","DG","DW");
+  for(let i=K.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); const t=K[i];K[i]=K[j];K[j]=t; }
+  return K.slice(0,n); }
+function mjDeal(){ const pos=mjLayout(); const pairs=pos.length/2; const kinds=mjKinds(pairs);
+  const bag=[]; kinds.forEach(k=>bag.push(k,k));
+  for(let i=bag.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); const t=bag[i];bag[i]=bag[j];bag[j]=t; }
+  return pos.map((p,i)=>({id:i,l:p.l,r:p.r,c:p.c,k:bag[i],gone:false})); }
+function mjFree(t,tiles){
+  for(const u of tiles){ if(u.gone||u.id===t.id)continue;
+    if(u.l>t.l&&Math.abs(u.r-t.r)<2&&Math.abs(u.c-t.c)<2)return false; }
+  let L=false,R=false;
+  for(const u of tiles){ if(u.gone||u.id===t.id||u.l!==t.l||Math.abs(u.r-t.r)>1)continue;
+    if(u.c===t.c-2)L=true; if(u.c===t.c+2)R=true; }
+  return !(L&&R); }
+function mjFace(k){ const s=k[0],v=k.slice(1);
+  if(s==="D")return "<b>"+v+"</b><i>dot</i>"; if(s==="B")return "<b>"+v+"</b><i>bam</i>"; if(s==="C")return "<b>"+v+"</b><i>chr</i>";
+  if(s==="W")return "<b>"+v+"</b><i>wind</i>";
+  return "<b>"+(v==="R"?"中":v==="G"?"發":"白")+"</b><i>drg</i>"; }
+let MJT=null, MJSEL=-1;
+function mjClick(id){ if(!MJT)return; const t=MJT.find(x=>x.id===id); if(!t||t.gone||!mjFree(t,MJT))return;
+  if(MJSEL===-1){ MJSEL=id; vGames(); return; }
+  if(MJSEL===id){ MJSEL=-1; vGames(); return; }
+  const a=MJT.find(x=>x.id===MJSEL);
+  if(a.k===t.k){ a.gone=true; t.gone=true; MJSEL=-1; } else { MJSEL=id; }
+  vGames(); }
+function mjStuck(){ const free=MJT.filter(t=>!t.gone&&mjFree(t,MJT));
+  for(let i=0;i<free.length;i++)for(let j=i+1;j<free.length;j++)if(free[i].k===free[j].k)return false;
+  return free.length>0; }
+function mjShuffle(){ const rem=MJT.filter(t=>!t.gone); const bag=rem.map(t=>t.k);
+  for(let i=bag.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); const t=bag[i];bag[i]=bag[j];bag[j]=t; }
+  rem.forEach((t,i)=>{ t.k=bag[i]; }); MJSEL=-1; vGames(); }
+
+/* --- games view --- */
+function vGames(){
+  const tabs='<div class="row" style="margin-bottom:14px">'+["2048","chess","mahjong"].map(g=>
+    '<button class="btn '+(GAME===g?"":"warn")+'" data-g="'+g+'">'+g.toUpperCase()+'</button>').join("")+'</div>';
+  let body="";
+  if(GAME==="2048"){ const g=g2state();
+    body='<div class="grid"><div class="panel"><h3>2048 <span>// score '+g.score+(g2over(g.b)?" · GAME OVER":"")+'</span></h3>'+
+      '<div class="g2048">'+g.b.map(v=>'<div style="'+(v?"background:#123047;":"")+'font-size:'+(v>=1024?16:v>=128?19:22)+'px">'+(v||"")+'</div>').join("")+'</div>'+
+      '<div class="row" style="margin-top:12px"><button class="btn" data-d="1">↑</button><button class="btn" data-d="0">←</button><button class="btn" data-d="2">→</button><button class="btn" data-d="3">↓</button><button class="btn warn" id="g2n">NEW</button></div>'+
+      '<p style="margin-top:10px;color:var(--dim);font-size:11px">arrows / WASD also work · equal tiles merge · the board is saved in your vault</p></div>'+
+      '<div class="panel"><h3>WHY THIS IS HERE <span>// the honesty bit</span></h3><p>Games are part of the system, not a betrayal of it. §15 protects hobbies; a 10-minute 2048 between pomodoros is a rest protocol. The trap is the third hour. The timer in the Study Hall is the referee.</p></div></div>';
+  } else if(GAME==="chess"){ if(!CHST)CHST=chInit();
+    const st=chStatus(CHST); const legal=CHSEL>=0?chLegal(CHST).filter(m=>m.f===CHSEL):[];
+    let cells=""; for(let r=0;r<8;r++)for(let c=0;c<8;c++){ const i=r*8+c; const p=CHST.g[i];
+      const cls=((r+c)%2===0?"l":"d")+(CHSEL===i?" sel":"")+(legal.some(m=>m.t===i)?(p!=="."?" cap":" mv"):"");
+      cells+='<div class="sq '+cls+'" data-i="'+i+'">'+(p==="."?"":CHGLYPH[p])+'</div>'; }
+    body='<div class="grid"><div class="panel"><h3>CHESS <span>// '+(st||(CHST.turn==="w"?"your move (white)":"console thinking…"))+'</span></h3>'+
+      '<div class="cb">'+cells+'</div>'+
+      '<div class="row" style="margin-top:12px"><button class="btn" id="chn">NEW GAME</button>'+
+      '<button class="btn" id="chm">'+(CHMODE==="ai"?"MODE: vs CONSOLE":"MODE: two players")+'</button></div></div>'+
+      '<div class="panel"><h3>HOW TO PLAY <span>// the whole ruleset in one breath</span></h3>'+
+      '<p>▸ White moves first. Pieces: pawn (1 square forward, 2 from start, captures diagonally), knight (L-shape, jumps), bishop (diagonals), rook (lines), queen (both), king (1 square).</p>'+
+      '<p>▸ Check = king attacked; you must escape it. Checkmate = no escape; game over. Stalemate = not in check but no legal move; draw.</p>'+
+      '<p>▸ Castling: king two squares toward an unmoved rook, if neither moved, the path is empty and not attacked. En passant: a pawn that slips past your pawn by moving two squares can be captured as if it moved one — immediately or never. Promotion: pawn on the last rank becomes a queen.</p>'+
+      '<p>▸ Openings for beginners: control the centre, develop knights then bishops, castle early, do not send the queen out to chase pawns. The console opponent plays greedy material chess — beat it by not hanging pieces.</p></div></div>';
+  } else { if(!MJT)MJT=mjDeal();
+    const left=MJT.filter(t=>!t.gone).length;
+    const stuck=mjStuck();
+    body='<div class="grid"><div class="panel"><h3>MAHJONG SOLITAIRE <span>// '+left+' tiles left'+(left===0?" · CLEARED — magnificently":"")+(stuck?" · NO MOVES":"")+'</span></h3>'+
+      '<div class="mjboard">'+MJT.filter(t=>!t.gone).map(t=>{
+        const free=mjFree(t,MJT);
+        return '<div class="mjtile'+(free?"":" locked")+(MJSEL===t.id?" sel":"")+'" data-id="'+t.id+'" style="left:'+(t.c*21+t.l*7+8)+'px; top:'+(t.r*27-t.l*8+30)+'px">'+mjFace(t.k)+'</div>';
+      }).join("")+'</div>'+
+      '<div class="row" style="margin-top:12px"><button class="btn" id="mjn">NEW DEAL</button><button class="btn warn" id="mjs">SHUFFLE REMAINING</button></div></div>'+
+      '<div class="panel"><h3>HOW TO PLAY <span>// mahjong solitaire, not the 4-player game</span></h3>'+
+      '<p>▸ A tile is FREE if nothing sits on it and its left or right side is open. Only free tiles can be picked.</p>'+
+      '<p>▸ Match two identical free tiles to remove them. Winds match winds of the same letter; dragons match their own; suits match same suit + number.</p>'+
+      '<p>▸ Clear the board to win. Stuck? Shuffle the remaining tiles (button) — purists will sigh; do it anyway.</p>'+
+      '<p>▸ Strategy: free the buried layers first; never remove a pair just because you can. The same discipline as your project ladder: unlock bottlenecks before polishing.</p>'+
+      '<p style="color:var(--dim)">(The four-player game — rummy-like, with scoring and walls — is a different beast; if you want that one, say so and I will build its trainer too.)</p></div></div>';
+  }
+  $("#view").innerHTML=tabs+body;
+  document.querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>{ GAME=b.dataset.g; vGames(); });
+  if(GAME==="2048"){
+    document.querySelectorAll("[data-d]").forEach(b=>b.onclick=()=>g2play(+b.dataset.d));
+    $("#g2n").onclick=()=>{ S.games.g2048={b:Array(16).fill(0),score:0}; g2add(S.games.g2048.b); g2add(S.games.g2048.b); save(); vGames(); };
+  }
+  if(GAME==="chess"){
+    document.querySelectorAll(".sq").forEach(s=>s.onclick=()=>chClick(+s.dataset.i));
+    $("#chn").onclick=()=>{ CHST=chInit(); CHSEL=-1; vGames(); };
+    $("#chm").onclick=()=>{ CHMODE=CHMODE==="ai"?"2p":"ai"; CHST=chInit(); CHSEL=-1; vGames(); };
+  }
+  if(GAME==="mahjong"){
+    document.querySelectorAll(".mjtile").forEach(t=>t.onclick=()=>mjClick(+t.dataset.id));
+    $("#mjn").onclick=()=>{ MJT=mjDeal(); MJSEL=-1; vGames(); };
+    $("#mjs").onclick=mjShuffle;
+  }
+}
+document.addEventListener("keydown",e=>{
+  if(CUR!=="games"||GAME!=="2048")return;
+  if(/input|textarea|select/i.test(document.activeElement.tagName))return;
+  const m={ArrowUp:1,ArrowLeft:0,ArrowRight:2,ArrowDown:3,w:1,a:0,d:2,s:3}[e.key];
+  if(m!==undefined){ e.preventDefault(); g2play(m); }
+});
+
+/* ================= COURSE ORACLE ================= */
+const COURSES={
+ "KIX1001":{n:"Engineering Mathematics 1",b:"Thomas' Calculus (Thomas, Weir, Hass)",w:"the canonical calculus text; work the exercises, don't read it like a novel",f:"3B1B Essence of Calculus + MIT OCW 18.01"},
+ "KIX1002":{n:"Engineering Mathematics 2",b:"Thomas' Calculus + MIT OCW 18.03 (differential equations)",w:"Sem 2 maths is ODE country; 18.03 is the best free course on it",f:"MIT OCW 18.03"},
+ "KIB1009":{n:"Statistics for BME",b:"Naked Statistics (Wheelan) first, Wasserman's All of Statistics after",w:"intuition before rigour; Wasserman is the bridge to real inference",f:"Harvard Stat 110 (free)"},
+ "KIB1010":{n:"Anatomy & Physiology",b:"Marieb's Human Anatomy",w:"the standard picture-book of the body; learn structures by drawing them",f:"open anatomy atlases online"},
+ "KIB1011":{n:"Statics & Mechanics of Materials",b:"Hibbeler, Engineering Mechanics: Statics",w:"the worked-example king; do every sample problem twice",f:"—"},
+ "KIB1012":{n:"Circuit Theory",b:"Nilsson & Riedel, Electric Circuits",w:"clear, exercise-rich; pair with the lab to make it stick",f:"MIT OCW 6.002 (reference)"},
+ "KIB1013":{n:"BME Lab 1",b:"no book — Webster's Medical Instrumentation, intro chapters",w:"labs are learned with hands; read what each instrument actually measures",f:"—"},
+ "KIB1014":{n:"Human Musculoskeletal System",b:"Nordin, Basic Biomechanics of the Musculoskeletal System",w:"the biomechanics classic for joints and loads",f:"—"},
+ "KIB1015":{n:"Dynamics",b:"Hibbeler, Engineering Mechanics: Dynamics",w:"same method as Statics: examples, then your own reps",f:"—"},
+ "KIB1016":{n:"Electronic Devices",b:"Sedra & Smith, Microelectronic Circuits (selected parts)",w:"the canon for devices; read only what the course touches, deeply",f:"—"},
+ "KIB2009":{n:"BME Lab 2",b:"Webster, Medical Instrumentation (lab-relevant chapters)",w:"connect each experiment to a measurement principle",f:"—"},
+ "KIB2010":{n:"BME, Healthcare & Ethics",b:"Singer & Kuhse (eds), A Companion to Bioethics (selected essays)",w:"primary-case reasoning over slogans; also read EU MDR recitals for law-flavour",f:"EU MDR 2017/745 (EUR-Lex)"},
+ "KIB2011":{n:"Biomaterials",b:"Ratner et al., Biomaterials Science",w:"the field's textbook; focus on host response and biocompatibility",f:"—"},
+ "KIB2012":{n:"BME Design 1",b:"Norman, The Design of Everyday Things",w:"design thinking before CAD: affordances, failure, human error",f:"—"},
+ "KIB2013":{n:"Fundamentals of Prosthetics & Orthotics",b:"Burke & Noble, Introduction to Orthotics",w:"clinical-reasoning framing; UM's P&O minor is a real advantage — take it seriously",f:"—"},
+ "KIB2014":{n:"Numerical Methods & Programming",b:"Kiusalaas, Numerical Methods in Engineering with Python 3",w:"two credits is not enough; this book plus your own implementations is the truth",f:"—"},
+ "KIX2005":{n:"Law, Ethics & Sustainability",b:"no canon — read primary documents",w:"statutes and standards beat commentary; skim EU MDR + Malaysia's relevant acts",f:"EUR-Lex"},
+ "KIB2016":{n:"Fluid Mechanics & Transport Processes",b:"Munson, Fundamentals of Fluid Mechanics",w:"worked examples again; add the limit-checks habit from §5",f:"—"},
+ "KIB2017":{n:"Electromagnetism & Biomedical Devices",b:"Griffiths, Introduction to Electrodynamics (ch 1-7)",w:"the clearest EM book alive; consult Art of Electronics for the device side",f:"—"},
+ "KIB2018":{n:"Biomechanics of Human Motion",b:"Winter, Biomechanics and Motor Control of Human Movement",w:"the gait-analysis bible; your Cluster B foundation",f:"—"},
+ "KIB2019":{n:"BME Lab 3",b:"Webster, Medical Instrumentation",w:"instrumentation is the theme; quantify uncertainty in every report",f:"—"},
+ "KIB2020":{n:"BME Design 2",b:"Norman + ISO 14971 (intro)",w:"design with risk management from day one; that is the professional difference",f:"ISO 14971 via UM library"},
+ "KIX2006":{n:"Engineering Economics & Project Mgmt",b:"Sullivan, Wicks & Koelling, Engineering Economy",w:"time value of money + project logic; useful for your own budget too",f:"—"},
+ "KIB3015":{n:"Sustainability & Practice in BME",b:"no canon — IMDRF + EU MDR guidance",w:"regulatory literacy IS the sustainability story for devices",f:"IMDRF documents (free)"},
+ "KIB3016":{n:"Biomedical Signal Processing",b:"Oppenheim & Willsky, Signals and Systems",w:"THE course of your degree for you; this book plus OCW 6.003, then Oppenheim & Schafer if bitten",f:"MIT OCW 6.003"},
+ "KIB3018":{n:"Experimental & Computational Biomechanics",b:"Winter + Özkaya, Fundamentals of Biomechanics",w:"experiment and model side by side; validate everything",f:"—"},
+ "KIB3019":{n:"BME Integrated Design Project 1",b:"Booth, Colomb & Williams, The Craft of Research",w:"projects die in the writing; this book is the antidote",f:"—"},
+ "KIB2015":{n:"Safety & Standards in BME",b:"primary: ISO 14971 · IEC 60601-1",w:"read the actual standards; they are the field",f:"via UM library standards access"},
+ "KIB3030":{n:"BME Integrated Design Project 2",b:"The Craft of Research + IEC 62304",w:"software lifecycle enters here for device projects",f:"—"},
+ "KIB4020":{n:"Final Year Project",b:"The Craft of Research + Feibelman, A PhD Is Not Enough!",w:"write it as if a Delft committee will read it — one will",f:"—"},
+ "KIB3017":{n:"Medical Imaging",b:"Bushberg, The Essential Physics of Medical Imaging",w:"the physics-first classic; lands in Sem 8, self-study earlier if imaging pulls you",f:"—"},
+ "KIB3022":{n:"Biomedical Control System",b:"Ogata, Modern Control Engineering",w:"the standard text; pair with your closed-loop Project 5",f:"—"},
+ "KIB4021":{n:"AI in BME",b:"James et al., An Introduction to Statistical Learning (free)",w:"honest ML with proper validation; skip the hype shelf",f:"free legal PDF + Stat Rethinking lectures"},
+ "KIB4015":{n:"Computational Modelling in BME",b:"MacKay, Information Theory, Inference and Learning Algorithms (free)",w:"stretch text that makes modelling coherent",f:"free legal PDF"},
+ "KIB4026":{n:"Biomechatronics",b:"no single canon — Winter + Art of Electronics",w:"mechanics + electronics + control; the cluster blend",f:"UT Austin Embedded Systems (edX)"},
+ "KIB3023":{n:"Microcomputer & Digital System",b:"White, Making Embedded Systems",w:"practical embedded thinking over datasheet soup",f:"—"},
+ "KIB4024":{n:"Assistive Technology in Rehabilitation",b:"Cook & Hussey, Assistive Technologies",w:"the field's reference; human-matching over hardware specs",f:"—"},
+ "KIB3020":{n:"Electrical Safety Design of Medical Devices",b:"primary: IEC 60601-1",w:"the standard IS the course content; learn to read it",f:"via UM library"},
+ "KIB4014":{n:"Instrumentation & Measurement",b:"Webster, Medical Instrumentation",w:"the instrumentation spine",f:"—"},
+ "KIB3024":{n:"Medical Electronics",b:"Art of Electronics (Horowitz & Hill) + Webster",w:"consult, build, break, fix",f:"—"},
+ "KIB4029":{n:"Medical IT & Telemedicine",b:"no canon — IEC 81001-5-1 + EU MDR software guidance",w:"security of health software is where your Cluster C lives",f:"IMDRF (free)"},
+ "CYB101":{n:"YOUR EXTERNAL CYBERSECURITY / ETHICAL HACKING COURSE",b:"Aumasson, Serious Cryptography + Kurose & Ross, Computer Networking (Top-Down)",w:"crypto and networks are the two load-bearing walls of security; everything else sits on them",f:"PortSwigger Web Security Academy · TryHackMe · OverTheWire · OWASP Top 10 — all free, all legal gyms"}
+};
+function vCourses(){
+  const keys=Object.keys(COURSES);
+  $("#view").innerHTML='<div class="grid"><div class="panel"><h3>COURSE ORACLE <span>// which book for the course you are doing</span></h3>'+
+   '<input class="inp" id="cq" placeholder="search course code or name… (e.g. KIB3016, imaging, hacking)">'+
+   '<div id="cres" style="margin-top:12px"></div></div>'+
+   '<div class="panel"><h3>THE RULE <span>// how to use this</span></h3>'+
+   '<p>▸ One primary book per course. The book is the spine; lectures are the commentary.</p>'+
+   '<p>▸ Library and free-legal first. Buy only what you will annotate.</p>'+
+   '<p>▸ A book assigned is not a book read: log it in the Reading view with an extraction note, or it didn\'t happen.</p>'+
+   '<p style="margin-top:8px;color:var(--dim)">Entries cover every verified course of your 148-credit programme (2025/26 guidebook) plus your external security course. Editions vary; confirm availability.</p></div></div>';
+  const render=list=>{ $("#cres").innerHTML=list.map(k=>{const c=COURSES[k];
+    return '<div style="border:1px solid var(--line); padding:10px 12px; margin-bottom:8px"><b style="color:var(--cy)">'+esc(k)+'</b> <span style="color:var(--dim)">— '+esc(c.n)+'</span>'+
+    '<p style="margin-top:4px"><b style="color:var(--am)">BOOK</b> — '+esc(c.b)+'</p>'+
+    '<p><b style="color:var(--am)">WHY</b> — '+esc(c.w)+'</p>'+
+    (c.f!=="—"?'<p><b style="color:var(--am)">FREE</b> — '+esc(c.f)+'</p>':"")+'</div>'; }).join("")||'<p style="color:var(--dim)">no match.</p>'; };
+  const all=keys;
+  render(all.slice(0,4));
+  $("#cq").oninput=()=>{ const q=$("#cq").value.toLowerCase().trim();
+    if(!q){ render(all.slice(0,4)); return; }
+    render(all.filter(k=>(k+" "+COURSES[k].n+" "+COURSES[k].b).toLowerCase().includes(q))); };
+}
+
+/* ================= STUDY HALL ================= */
+let POMO={left:1500, run:false, iv:null};
+function cardSeed(){ return [
+ {f:"KIB3031 Industrial Training: credits and timing?",b:"5 credits, Special Semester — fixed 7-week block Jul–Sep after Year 3. One slot, one use.",box:0,due:"2000-01-01"},
+ {f:"The two minors UM BME offers?",b:"Biomedical Engineering; and Prosthetics & Orthotics Engineering — the second is UM's hidden strength.",box:0,due:"2000-01-01"},
+ {f:"Why does the Washington Accord matter for you?",b:"EAC-accredited UM degree is recognised by NL/DE/CH technical master's admissions without remedial pre-masters. Your degree is portable.",box:0,due:"2000-01-01"},
+ {f:"Legal work ceiling on a Malaysian Student Pass?",b:"20 h/week, breaks >7 days only, 4 sectors, Immigration approval via UM; self-employment NOT permitted. ≈RM 960–1,560/yr — pocket money.",box:0,due:"2000-01-01"},
+ {f:"Dutch naturalisation, core requirements?",b:"5 consecutive years + non-temporary permit at application/during/ceremony + A2 civic integration + renunciation; IND decision 12 months.",box:0,due:"2000-01-01"},
+ {f:"What permit purpose is a Dutch PhD?",b:"Researcher under Directive (EU) 2016/801 = NON-temporary. Salaried. It is the permit you need, paying you.",box:0,due:"2000-01-01"},
+ {f:"Erasmus Mundus (EMJM) economics?",b:"€1,400/month up to 24 months + 100% tuition + travel + insurance. Acceptance ~2–5%; ≤10% of awards per nationality.",box:0,due:"2000-01-01"},
+ {f:"Nyquist, in one line?",b:"Sample below twice the signal bandwidth and frequencies alias; you must filter BEFORE you sample.",box:0,due:"2000-01-01"},
+ {f:"What does IEC 62304 cover?",b:"Medical device software life-cycle processes — the Cluster C spine.",box:0,due:"2000-01-01"},
+ {f:"A p-value is NOT…",b:"…the probability the null is true, nor the size of the effect. It is P(data ≥ this extreme | null).",box:0,due:"2000-01-01"},
+ {f:"Why must Project 2 beat a naive baseline?",b:"The comparison is what makes it credible: it proves your denoising did something. Credibility > cleverness.",box:0,due:"2000-01-01"},
+ {f:"Mu rhythm — why should you care?",b:"The EEG basis of motor-imagery BCIs; your advisor published on extracting it (IEEE TBME 2009). His record is your entry ramp.",box:0,due:"2000-01-01"}
+]; }
+const BOXD=[1,2,4,8,16,32];
+function vStudy(){
+  if(!S.study)S.study={log:[],target:120};
+  if(!S.cards)S.cards=cardSeed();
+  const now=today();
+  const mins=d=>S.study.log.filter(l=>l.when===d).reduce((a,l)=>a+l.min,0);
+  let streak=0; for(let i=0;;i++){ const d=new Date(Date.now()-i*86400000).toISOString().slice(0,10);
+    if(mins(d)>0)streak++; else if(i===0)continue; else break; if(i>400)break; }
+  const wk=[0,1,2,3,4,5,6].map(i=>mins(new Date(Date.now()-i*86400000).toISOString().slice(0,10)));
+  const due=S.cards.filter(c=>c.due<=now);
+  const mm=String(Math.floor(POMO.left/60)).padStart(2,"0"), ss=String(POMO.left%60).padStart(2,"0");
+  $("#view").innerHTML='<div class="grid">'+
+   '<div class="panel"><h3>POMODORO <span>// 25 on, 5 off — the referee of the Sanctum</span></h3>'+
+    '<div class="pomodoro">'+mm+":"+ss+'</div>'+
+    '<div class="row"><input class="inp" id="psub" placeholder="subject (e.g. KIB1009, cyber course, P2)" style="max-width:240px">'+
+    '<button class="btn" id="pstart">'+(POMO.run?"PAUSE":"START")+'</button><button class="btn warn" id="preset">RESET</button></div>'+
+    '<p style="margin-top:10px">today: <b style="color:var(--cy)">'+mins(now)+' min</b> · target: <input class="inp" id="ptgt" value="'+S.study.target+'" style="width:60px;display:inline-block"> min · streak: <b style="color:var(--am)">'+streak+' day(s)</b></p>'+
+    '<p style="margin-top:6px;color:var(--dim)">last 7 days: '+wk.slice().reverse().map(m=>m||"·").join(" ")+'</p>'+
+    '<p style="margin-top:8px;color:var(--dim);font-size:11px">honesty metric: log REAL minutes. faked streaks train you to fake reports, and you will meet your own fakes in a lab notebook one day.</p></div>'+
+   '<div class="panel"><h3>SPACED REPETITION <span>// '+due.length+' due · Leitner boxes</span></h3>'+
+    '<div id="fcwrap"></div>'+
+    '<div class="row" style="margin-top:12px"><input class="inp" id="cf" placeholder="front (question)"><input class="inp" id="cb" placeholder="back (answer)"><button class="btn" id="ca">ADD CARD</button></div>'+
+    '<p style="margin-top:8px;color:var(--dim);font-size:11px">'+S.cards.length+' cards · fail → box 1 (1d) · pass → next box ('+BOXD.join("/")+'d)</p></div></div>';
+  $("#pstart").onclick=()=>{ POMO.run=!POMO.run;
+    if(POMO.run){ POMO.iv=setInterval(()=>{ POMO.left--;
+      if(POMO.left<=0){ clearInterval(POMO.iv); POMO.run=false; POMO.left=1500;
+        S.study.log.push(stamp({when:today(),subj:($("#psub")?$("#psub").value:"")||"unspecified",min:25})); save(); toast("25 minutes sealed. Stand up, look far, drink water."); }
+      vStudyKeepTimer(); },1000); }
+    else { clearInterval(POMO.iv); }
+    vStudy(); };
+  $("#preset").onclick=()=>{ clearInterval(POMO.iv); POMO={left:1500,run:false,iv:null}; vStudy(); };
+  $("#ptgt").onchange=()=>{ S.study.target=+$("#ptgt").value||120; save(); };
+  $("#ca").onclick=()=>{ const f=$("#cf").value.trim(),b=$("#cb").value.trim(); if(!f||!b)return;
+    S.cards.push(stamp({f:f,b:b,box:0,due:"2000-01-01"})); save(); vStudy(); };
+  renderCards(due);
+}
+function vStudyKeepTimer(){ const p=$("#view .pomodoro"); if(p&&POMO.run){ p.textContent=String(Math.floor(POMO.left/60)).padStart(2,"0")+":"+String(POMO.left%60).padStart(2,"0"); } }
+let FCFLIP=false;
+function renderCards(due){ const w=$("#fcwrap"); if(!w)return;
+  if(!due.length){ w.innerHTML='<p style="color:var(--dim)">nothing due. add cards from your courses — the oracle tells you what to know, cards make you keep it.</p>'; return; }
+  const c=due[0];
+  w.innerHTML='<div class="fc" id="fc">'+esc(FCFLIP?c.b:c.f)+'</div>'+
+   '<div class="row" style="margin-top:10px">'+(FCFLIP?
+     '<button class="btn danger" id="fb">FAILED — box 1</button><button class="btn" id="fp">PASSED — next box</button>':
+     '<button class="btn" id="ff">SHOW ANSWER</button>')+' <span style="color:var(--dim)">'+(due.length-1)+' more due</span></div>';
+  $("#fc").onclick=()=>{ FCFLIP=true; renderCards(due); };
+  if(FCFLIP){
+    $("#fb").onclick=()=>{ stamp(c).box=0; c.due=addD(1); FCFLIP=false; save(); renderCards(S.cards.filter(x=>x.due<=today())); };
+    $("#fp").onclick=()=>{ stamp(c).box=Math.min(c.box+1,5); c.due=addD(BOXD[c.box]); FCFLIP=false; save(); renderCards(S.cards.filter(x=>x.due<=today())); };
+  } else { $("#ff").onclick=()=>{ FCFLIP=true; renderCards(due); }; }
+}
+function addD(n){ return new Date(Date.now()+n*86400000).toISOString().slice(0,10); }
+
+/* ================= LOCKER (files, music, spotify, noise) ================= */
+const IDB={db:null,
+ open(){ if(this.db)return Promise.resolve(this.db);
+  return new Promise((res,rej)=>{ const r=indexedDB.open("lifeos-files",1);
+   r.onupgradeneeded=()=>r.result.createObjectStore("files",{keyPath:"id"});
+   r.onsuccess=()=>{ this.db=r.result; res(this.db); }; r.onerror=()=>rej(r.error); }); },
+ async all(){ const db=await this.open(); return new Promise(res=>{ const q=db.transaction("files").objectStore("files").getAll(); q.onsuccess=()=>res(q.result||[]); q.onerror=()=>res([]); }); },
+ async put(r){ const db=await this.open(); return new Promise(res=>{ const t=db.transaction("files","readwrite"); t.objectStore("files").put(r); t.oncomplete=res; }); },
+ async del(id){ const db=await this.open(); return new Promise(res=>{ const t=db.transaction("files","readwrite"); t.objectStore("files").delete(id); t.oncomplete=res; }); },
+ async get(id){ const db=await this.open(); return new Promise(res=>{ const q=db.transaction("files").objectStore("files").get(id); q.onsuccess=()=>res(q.result); q.onerror=()=>res(null); }); }
+};
+async function vLocker(){
+  if(!canCrypto){ $("#view").innerHTML='<div class="panel"><h3>LOCKER</h3><p>This viewer blocks WebCrypto; the locker needs it. Open the live preview or the downloaded file.</p></div>'; return; }
+  let rows="";
+  try{ const files=(await IDB.all()).sort((a,b)=>a.added<b.added?1:-1);
+    rows=files.map(f=>'<tr><td>'+esc(f.name)+'</td><td style="color:var(--dim)">'+esc(f.type.split("/")[0])+'</td><td style="text-align:right">'+(f.size/1024).toFixed(0)+' KB</td><td>'+esc(f.added)+'</td>'+
+     '<td><button class="btn lk-open" data-id="'+f.id+'" style="padding:3px 8px">OPEN</button> <button class="btn lk-dl" data-id="'+f.id+'" style="padding:3px 8px">SAVE</button> <button class="del lk-del" data-id="'+f.id+'">✕</button></td></tr>').join("");
+  }catch(e){ rows='<tr><td colspan="5" style="color:var(--rd)">storage unavailable here: '+esc(String(e))+'</td></tr>'; }
+  $("#view").innerHTML='<div class="grid">'+
+   '<div class="panel"><h3>LOCKER <span>// encrypted at rest, AES-256-GCM, your key only</span></h3>'+
+    '<p style="margin-bottom:10px;color:var(--dim)">PDFs, notes, your mixes — stored as ciphertext in this browser\'s IndexedDB. Decrypts only while unlocked, only on this device.</p>'+
+    '<div class="row"><button class="btn" id="lk-up">UPLOAD FILES</button><input type="file" id="lk-f" multiple class="hidden"></div>'+
+    '<table style="margin-top:12px"><tr><th>file</th><th>kind</th><th style="text-align:right">size</th><th>added</th><th></th></tr>'+rows+'</table>'+
+    '<div id="lk-prev" style="margin-top:12px"></div></div>'+
+   '<div class="panel"><h3>MUSIC <span>// legal routes only</span></h3>'+
+    '<p style="margin-bottom:8px">▸ <b>Your files:</b> upload your own audio to the locker; it plays here, ad-free, offline, yours. That is the honest "no ads" — ownership.</p>'+
+    '<p style="margin-bottom:8px">▸ <b>Spotify, legally:</b> paste a track/playlist link; the console embeds Spotify\'s own official player. Free accounts hear 30-second previews; Premium plays full. I will not build ad-stripping or stream-ripping — that is copyright infringement and ToS breach, and it is the one thing on your list I will refuse.</p>'+
+    '<input class="inp" id="sp-url" placeholder="https://open.spotify.com/playlist/…"><div id="sp-emb" style="margin-top:10px"></div>'+
+    '<p style="margin:12px 0 8px;color:var(--dim)">▸ <b>Study noise, generated on-device:</b></p>'+
+    '<div class="row"><button class="btn nz" data-k="brown">BROWN NOISE</button><button class="btn nz" data-k="pink">PINK NOISE</button><button class="btn nz" data-k="rain">RAIN</button><button class="btn warn" id="nz-off">SILENCE</button></div></div></div>';
+  $("#lk-up").onclick=()=>$("#lk-f").click();
+  $("#lk-f").onchange=async e=>{ for(const f of e.target.files){
+      const buf=await f.arrayBuffer();
+      await IDB.put({id:Date.now()+"-"+f.name, name:f.name, type:f.type||"application/octet-stream", size:f.size, added:today(), data:await SK.encB(buf)});
+      toast("sealed: "+f.name); }
+    vLocker(); };
+  document.querySelectorAll(".lk-open").forEach(b=>b.onclick=async ()=>{
+    const rec=await IDB.get(b.dataset.id); const buf=await SK.decB(rec.data);
+    const url=URL.createObjectURL(new Blob([buf],{type:rec.type}));
+    const p=$("#lk-prev");
+    if(rec.type.startsWith("pdf"))p.innerHTML='<iframe src="'+url+'" style="width:100%;height:480px;border:1px solid var(--line2)"></iframe>';
+    else if(rec.type.startsWith("audio"))p.innerHTML='<audio controls src="'+url+'" style="width:100%"></audio>';
+    else if(rec.type.startsWith("image"))p.innerHTML='<img src="'+url+'" style="max-width:100%">';
+    else if(rec.type.startsWith("text")){ const t=await new Blob([buf]).text(); p.innerHTML='<pre style="max-height:300px;overflow:auto">'+esc(t)+'</pre>'; }
+    else { p.innerHTML='<p style="color:var(--dim)">no inline preview for this type — use SAVE.</p>'; }
+  });
+  document.querySelectorAll(".lk-dl").forEach(b=>b.onclick=async ()=>{
+    const rec=await IDB.get(b.dataset.id); const buf=await SK.decB(rec.data);
+    const a=el("a"); a.href=URL.createObjectURL(new Blob([buf],{type:rec.type})); a.download=rec.name; a.click(); });
+  document.querySelectorAll(".lk-del").forEach(b=>b.onclick=async ()=>{ await IDB.del(b.dataset.id); vLocker(); });
+  $("#sp-url").onchange=()=>{ const m=$("#sp-url").value.match(/open\.spotify\.com\/(?:embed\/)?(track|album|playlist|artist)\/([A-Za-z0-9]+)/);
+    $("#sp-emb").innerHTML = m ? '<iframe src="https://open.spotify.com/embed/'+m[1]+'/'+m[2]+'" width="100%" height="152" style="border:1px solid var(--line2)"></iframe>' : '<p style="color:var(--rd)">not a spotify link.</p>'; };
+  document.querySelectorAll(".nz").forEach(b=>b.onclick=()=>Noise.start(b.dataset.k));
+  $("#nz-off").onclick=()=>Noise.stop();
+}
+const Noise={ctx:null,src:null,
+ start(kind){ this.stop(); const C=this.ctx=this.ctx||new (window.AudioContext||window.webkitAudioContext)();
+  const len=2*C.sampleRate, buf=C.createBuffer(1,len,C.sampleRate), d=buf.getChannelData(0); let last=0,b=0;
+  for(let i=0;i<len;i++){ const w=Math.random()*2-1;
+    if(kind==="brown"){ last=(last+0.02*w)/1.02; d[i]=last*3.5; }
+    else if(kind==="pink"){ b=0.98*b+0.02*w; d[i]=(b+w*0.25)*0.7; }
+    else d[i]=w*0.5; }
+  const src=C.createBufferSource(); src.buffer=buf; src.loop=true;
+  const g=C.createGain(); g.gain.value=0.12; let node=src;
+  if(kind==="rain"){ const f=C.createBiquadFilter(); f.type="lowpass"; f.frequency.value=850; src.connect(f); node=f; }
+  node.connect(g); g.connect(C.destination); src.start(); this.src=src; toast(kind+" on — silence button stops it."); },
+ stop(){ try{ this.src&&this.src.stop(); }catch(e){} this.src=null; } };
+
+/* ================= ORACLE AI (bring your own key) ================= */
+let AICHAT=[];
+function aiDigest(){ const ph=phase();
+ return ["OPERATOR PROFILE — from her encrypted Life OS console, "+today()+":",
+ "18 y/o Indian national, BME undergraduate at Universiti Malaya (from Oct 2026); academic advisor Dr Ng Siew Cheok (EEG artefact removal, mu-rhythm/BCI-relevant).",
+ "Phase: "+ph.name+". Priorities: "+ph.pri+".",
+ "Hard constraints: family education loan => ONLY funded postgraduate study; Malaysian Student Pass => no freelance/self-employment, part-time capped (~120 h/yr); plan: research from Year 1 -> overseas rehearsal 2028 -> KIB3031 overseas 2029 -> funded NL route (EMJM or PhD) 2030; Dutch citizenship is a bonus, never a dependency. Leaning specialisation: physiological signals + safety/security of regulated medical devices. Also taking an external cybersecurity/ethical-hacking course.",
+ "Open tasks: "+(S.tasks.filter(t=>!t.done).map(t=>t.t).join(" | ")||"none"),
+ "CGPA: "+(Object.entries(S.cgpa).map(e=>e[0]+"="+e[1]).join(", ")||"not logged yet")+". Reading now: "+(S.reading.filter(r=>r.s==="reading").map(r=>r.t).join(", ")||"—"),
+ "STYLE RULES: brutally honest, no flattery, show the maths, distinguish verified fact from inference from estimate, protect her sleep/guitar/friendships, legal compliance absolute, never invent sources."].join("\n"); }
+function vOracle(){
+  if(!S.ai)S.ai={provider:"gemini",key:"",model:"gemini-2.0-flash"};
+  $("#view").innerHTML='<div class="grid">'+
+   '<div class="panel"><h3>ORACLE <span>// a frontier brain that knows you — BYO key</span></h3>'+
+    '<p style="color:var(--dim);margin-bottom:10px">Paste your own API key (Gemini or OpenAI). It is stored INSIDE your encrypted vault. Every request is prefixed with your Life OS profile, so it knows who you are — your phase, constraints, tasks, CGPA — and answers in the house style: honest, no flattery.</p>'+
+    '<label>provider</label><select class="inp" id="aipro"><option value="gemini"'+(S.ai.provider==="gemini"?" selected":"")+'>Google Gemini</option><option value="openai"'+(S.ai.provider==="openai"?" selected":"")+'>OpenAI</option></select>'+
+    '<label>model</label><input class="inp" id="aimod" value="'+esc(S.ai.model)+'">'+
+    '<label>api key</label><input type="password" class="inp" id="aikey" placeholder="stored encrypted, never sent anywhere except the provider">'+
+    '<div class="row" style="margin-top:10px"><button class="btn" id="aisave">SEAL SETTINGS</button></div>'+
+    '<p style="margin-top:12px;color:var(--am);font-size:11px">PRIVACY, PLAINLY: with a provider key, the text you send goes to that provider. Your vault stays on-device; the conversation does not. If "stays with me only" is absolute, use the offline Console instead — it is dumber but it is sealed. NotebookLM-type tools send your documents to Google; this design sends only what you type. Choose with eyes open.</p></div>'+
+   '<div class="panel"><h3>SESSION <span>// knows the profile automatically</span></h3>'+
+    '<div id="ailog" style="max-height:46vh;overflow-y:auto;display:flex;flex-direction:column;gap:8px">'+
+     AICHAT.map(m=>'<div class="msg '+m.who+'"><span class="who">'+(m.who==="j"?"ORACLE":"YOU")+'</span>'+esc(m.t)+'</div>').join("")+
+     (AICHAT.length?"":'<div class="msg j"><span class="who">ORACLE</span>Seal settings and speak. I arrive already knowing your semester, your constraints and your open tasks.</div>')+
+    '</div>'+
+    '<div class="row" style="margin-top:10px"><input class="inp" id="aiin" placeholder="ask anything about your life, courses, plans…"><button class="btn" id="aisend">ASK</button></div></div></div>';
+  $("#aisave").onclick=()=>{ S.ai={provider:$("#aipro").value,model:$("#aimod").value.trim()||"gemini-2.0-flash",key:$("#aikey").value.trim()||S.ai.key}; save(); toast("oracle settings sealed in vault."); };
+  const send=async ()=>{ const q=$("#aiin").value.trim(); if(!q)return; $("#aiin").value="";
+    if(!S.ai.key){ toast("seal an API key first — or use the offline Console."); return; }
+    AICHAT.push({who:"u",t:q}); vOracle();
+    try{
+      let reply="";
+      if(S.ai.provider==="gemini"){
+        const r=await fetch("https://generativelanguage.googleapis.com/v1beta/models/"+encodeURIComponent(S.ai.model)+":generateContent?key="+encodeURIComponent(S.ai.key),
+          {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({systemInstruction:{parts:[{text:aiDigest()}]},contents:[{parts:[{text:q}]}]})});
+        const j=await r.json(); reply=(j.candidates&&j.candidates[0]&&j.candidates[0].content.parts.map(p=>p.text).join(""))||("error: "+JSON.stringify(j).slice(0,300));
+      } else {
+        const r=await fetch("https://api.openai.com/v1/chat/completions",{method:"POST",
+          headers:{"Content-Type":"application/json","Authorization":"Bearer "+S.ai.key},
+          body:JSON.stringify({model:S.ai.model,messages:[{role:"system",content:aiDigest()},{role:"user",content:q}]})});
+        const j=await r.json(); reply=(j.choices&&j.choices[0].message.content)||("error: "+JSON.stringify(j).slice(0,300));
+      }
+      AICHAT.push({who:"j",t:reply});
+    }catch(e){ AICHAT.push({who:"j",t:"network/provider error: "+String(e)}); }
+    vOracle(); const l=$("#ailog"); if(l)l.scrollTop=l.scrollHeight; };
+  $("#aisend").onclick=send;
+  $("#aiin").onkeydown=e=>{ if(e.key==="Enter")send(); };
+}
+
+
+/* ================= v2.0 rooms ================= */
+(function(){
+  const rm=i=>{const k=VIEWS.findIndex(v=>v[0]===i); if(k>=0)VIEWS.splice(k,1)};
+  rm("decisions"); rm("weekly");
+  const pv=VIEWS.find(v=>v[0]==="priv"); if(pv)pv[1]="Pride Room";
+  const pi=VIEWS.findIndex(v=>v[0]==="priv");
+  VIEWS.splice(pi,0,["timetable","Timetable"],["daily","Daily"],["bench","Bench"],["keys","Keys"]);
+})();
+
+/* ---- TIMETABLE ---- */
+function vTimetable(){
+  if(!S.tt)S.tt=[];
+  const DAYS=["MON","TUE","WED","THU","FRI","SAT","SUN"];
+  const PAL=["#7fd8e8","#e8b34a","#c98fd0","#8fd08a","#b09aff","#e8875f","#d0d0d0"];
+  const cols=DAYS.map((d,di)=>'<div class="ttday"><h4>'+d+'</h4>'+
+    S.tt.filter(t=>t.day===di).map((t,)=>'<div class="ttc" style="background:'+t.col+'" data-id="'+t.id+'" title="click to remove"><b>'+esc(t.code)+'</b><br>'+esc(t.start)+'–'+esc(t.end)+(t.room?' · '+esc(t.room):'')+'</div>').join("")+
+    '</div>').join("");
+  $("#view").innerHTML='<div class="panel"><h3>UM TIMETABLE <span>// your week at a glance · click a class to remove</span></h3>'+
+   '<div class="ttgrid">'+cols+'</div>'+
+   '<div class="grid" style="margin-top:12px"><select class="inp" id="ttd" style="max-width:90px">'+DAYS.map((d,i)=>'<option value="'+i+'">'+d+'</option>').join("")+'</select>'+
+   '<input class="inp" id="tts" placeholder="start 08:00" style="max-width:90px"><input class="inp" id="tte" placeholder="end 10:00" style="max-width:90px">'+
+   '<input class="inp" id="ttc" placeholder="course (KIB1011)"><input class="inp" id="ttr" placeholder="room" style="max-width:110px">'+
+   '<button class="btn" id="tta">ADD CLASS</button></div></div>';
+  $("#tta").onclick=()=>{ const c=$("#ttc").value.trim(); if(!c)return toast("course code first.");
+    S.tt.push(stamp({id:Date.now(),day:+$("#ttd").value,start:$("#tts").value.trim()||"?",end:$("#tte").value.trim()||"?",code:c,room:$("#ttr").value.trim(),col:PAL[S.tt.length%PAL.length]})); save(); vTimetable(); };
+  document.querySelectorAll(".ttc").forEach(x=>x.onclick=()=>{ S.tt=S.tt.filter(t=>String(t.id)!==x.dataset.id); save(); vTimetable(); });
+}
+
+/* ---- DAILY TRACKER + MOTIVATION ---- */
+const MOTQ=[
+ "Romanticise the grind: dim light, warm tea, a problem set that fears you.",
+ "Soft life is earned in hard seasons.",
+ "You are the main character. Main characters revise Chapter 3.",
+ "Camus says imagine Sisyphus happy. Also imagine yourself finishing the set. One of these is harder.",
+ "Nietzsche: he who has a why can bear almost any how. Your why is the Netherlands; your how is 25 minutes.",
+ "Descartes: I think therefore I am. You: I think at 3am therefore tired. Sleep is also philosophy.",
+ "Aristotle: we are what we repeatedly do. Change the repetition, change the biography.",
+ "Your bed filed a complaint about you. So did your CGPA. Only one of them funds the future.",
+ "The Netherlands does not care about your feelings. It cares about your documents. Get the documents.",
+ "You cannot manifest a 4.0. You can do 25 minutes. Do 25 minutes.",
+ "The crate will not solve itself. It has no hands.",
+ "Water: free, legal, effective at 2am. Drink some and continue.",
+ "Dark academia is studying with better lighting and worse sleep hygiene. Keep the lighting, fix the sleep.",
+ "Your future self is watching you right now. Impress her — she pays for the cyberdeck.",
+ "You read papers for fun. Act like that person during exams too.",
+ "What doesn't kill you makes you stronger. Statics won't kill you. Probably."];
+function vDaily(){
+  if(!S.daily)S.daily={};
+  const HAB=["MOVE","SLEEP 7H+","WATER","DEEP STUDY","GUITAR","READ"];
+  const now=today();
+  if(!S.daily[now])S.daily[now]={};
+  const q=MOTQ[Math.floor((Date.now()/86400000))%MOTQ.length];
+  const dayOk=d=>{const o=S.daily[d]||{};return HAB.filter(h=>o[h]).length;};
+  let streak=0; for(let i=0;i<400;i++){ const d=new Date(Date.now()-i*86400000).toISOString().slice(0,10);
+    if(i===0&&dayOk(d)===0){continue;} if(dayOk(d)>=3)streak++; else break; }
+  const strip=[6,5,4,3,2,1,0].map(i=>{const d=new Date(Date.now()-i*86400000).toISOString().slice(0,10);const n=dayOk(d);
+    return '<span style="color:'+(n>=3?"var(--am)":n>0?"var(--cy)":"var(--dim)")+'">'+(n||"·")+"</span>";}).join(" ");
+  $("#view").innerHTML='<div class="grid">'+
+   '<div class="panel"><h3>TODAY <span>// '+now+' · tap to seal</span></h3>'+
+    '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">'+HAB.map(h=>'<div class="hab'+(S.daily[now][h]?" on":"")+'" data-h="'+h+'">'+h+'</div>').join("")+'</div>'+
+    '<p style="margin-top:12px">last 7 days: '+strip+' · streak (3+/day): <b style="color:var(--am)">'+streak+'</b></p>'+
+    '<p style="margin-top:6px;color:var(--dim);font-size:11px">movement counts as anything that raises your heart rate: a walk, a stairwell, a dance in your room.</p></div>'+
+   '<div class="panel"><h3>FUEL <span>// rotation '+ (Math.floor(Date.now()/86400000)%MOTQ.length+1) +'/'+MOTQ.length+'</span></h3>'+
+    '<p class="quote">“'+q+'”</p>'+
+    '<p style="margin-top:12px;color:var(--dim);font-size:11px">new line every day. if one lands, write it on your wall.</p></div></div>';
+  document.querySelectorAll(".hab").forEach(x=>x.onclick=()=>{ const h=x.dataset.h; S.daily[now][h]=!S.daily[now][h]; save(); vDaily(); });
+}
+
+/* ---- BENCH (cyberdeck / mapping / digicam) ---- */
+function vBench(){
+  if(!S.bench)S.bench={deck:{st:"dreaming",n:""},map:{st:"dreaming",n:""},cam:{st:"dreaming",n:""}};
+  const STS=["dreaming","saving","parts hunted","building","alive"];
+  const card=(k,title,sub,parts)=>{const b=S.bench[k];
+    return '<div class="panel"><h3>'+title+' <span>// '+sub+'</span></h3>'+
+    '<div class="row"><select class="inp" data-k="'+k+'" style="max-width:150px">'+STS.map(s=>'<option'+(s===b.st?" selected":"")+'>'+s+'</option>').join("")+'</select></div>'+
+    '<div class="bar"><i style="width:'+(STS.indexOf(b.st)/(STS.length-1)*100)+'%"></i></div>'+
+    '<p style="color:var(--dim);font-size:11px;margin:8px 0">'+parts+'</p>'+
+    '<textarea class="inp" rows="2" data-n="'+k+'" placeholder="build log note…">'+esc(b.n||"")+'</textarea></div>';};
+  $("#view").innerHTML='<div class="grid">'+
+   card("deck","CLOTH SPOTIFY DECK","the first win","Pi Zero 2 W kit ~RM150 · PAM8403 amp · speaker · protected 18650 + board · bookcloth wrap · spotifyd")+
+   card("map","PROJECTION MAPPING","reuses the deck's Pi","used projector RM100–250 (ask lamp hours) · TouchDesigner / MapMap free · white objects + fabric")+
+   card("cam","DIGICAM","buy, don't build","Canon IXUS / Sony Cybershot / Nikon Coolpix 2003–10 · RM150–400 used · test in person")+'</div>'+
+   '<div class="panel"><h3>BENCH TERMINAL <span>// because a deck needs a voice</span></h3><div class="tterm" id="tterm"></div></div>';
+  document.querySelectorAll("select[data-k]").forEach(s=>s.onchange=()=>{ S.bench[s.dataset.k].st=s.value; save(); vBench(); });
+  document.querySelectorAll("textarea[data-n]").forEach(t=>t.onchange=()=>{ S.bench[t.dataset.n].n=t.value; save(); toast("log saved."); });
+  const LINES=["bench@lifeos:~$ ./dream --build","[ ok ] solder iron hot","[ ok ] cloth glued, edges clean","[ .. ] spotifyd connecting…","[ ok ] music plays. you made this.","bench@lifeos:~$ █"];
+  const tt=$("#tterm"); let li=0,ci=0,out="";
+  clearInterval(window._ttiv);
+  window._ttiv=setInterval(()=>{ if(li>=LINES.length){clearInterval(window._ttiv);return;}
+    ci++; out=LINES.slice(0,li).join("\n")+(li?"\n":"")+LINES[li].slice(0,ci);
+    tt.innerHTML=esc(out)+'<span class="c"> </span>';
+    if(ci>=LINES[li].length){li++;ci=0;} },28);
+}
+
+/* ---- KEYS (passwords, sealed in the vault) ---- */
+function vKeys(){
+  if(!S.keys)S.keys=[];
+  const rows=S.keys.map((k,i)=>'<tr><td>'+esc(k.l)+'</td><td>'+esc(k.u)+'</td><td style="font-family:var(--mono)">'+(k.show?esc(k.p):"••••••••")+'</td>'+
+   '<td><button class="btn" data-e="'+i+'">'+(k.show?"HIDE":"SHOW")+'</button> <button class="btn" data-c="'+i+'">COPY</button> <button class="del" data-i="'+i+'">✕</button></td></tr>').join("");
+  $("#view").innerHTML='<div class="panel"><h3>KEYS <span>// passwords, sealed inside your encrypted vault</span></h3>'+
+   '<p style="color:var(--dim);font-size:11px;margin-bottom:10px">Stored in the same AES-256 vault as everything else — decrypted only while you are inside, never leaving this device.</p>'+
+   '<table><tr><th>label</th><th>user / email</th><th>secret</th><th></th></tr>'+rows+'</table>'+
+   '<div class="grid" style="margin-top:12px"><input class="inp" id="kl" placeholder="label (netlify, um, bank…)"><input class="inp" id="ku" placeholder="user / email">'+
+   '<input class="inp" id="kp" type="text" placeholder="secret"><button class="btn" id="ka">SEAL KEY</button></div>'+
+   '<div class="row" style="margin-top:8px"><button class="btn" id="kgen">GENERATE STRONG SECRET</button><span id="kgo" style="font-family:var(--mono);color:var(--am)"></span></div></div>';
+  $("#ka").onclick=()=>{ const l=$("#kl").value.trim(); if(!l||!$("#kp").value)return toast("label + secret needed.");
+    S.keys.push(stamp({l:l,u:$("#ku").value.trim(),p:$("#kp").value,show:false})); save(); vKeys(); };
+  $("#kgen").onclick=()=>{ const a=new Uint8Array(16); crypto.getRandomValues(a);
+    const s=[...a].map(b=>"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!-_"[b%67]).join("");
+    $("#kgo").textContent=s; $("#kp").value=s; };
+  document.querySelectorAll("[data-e]").forEach(b=>b.onclick=()=>{ S.keys[+b.dataset.e].show=!S.keys[+b.dataset.e].show; save(); vKeys(); });
+  document.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>{ navigator.clipboard&&navigator.clipboard.writeText(S.keys[+b.dataset.c].p); toast("copied — clear your clipboard after."); });
+  bindDel(".del", S.keys, vKeys);
+}
+
+/* ---- BUDGET v2: pockets + actuals ---- */
+vBudget=function(){
+  if(!S.pockets)S.pockets={pad:{saved:0,rate:150,goal:2300,name:"PAD (tab)"},bench:{saved:0,rate:50,goal:400,name:"BENCH (hobby)"}};
+  const pk=(k)=>{const P=S.pockets[k]; const pct=Math.min(100,P.saved/P.goal*100);
+    const months=P.rate>0?Math.max(0,Math.ceil((P.goal-P.saved)/P.rate)):0;
+    return '<div class="panel"><h3>'+P.name.toUpperCase()+' <span>// RM'+P.saved+' of RM'+P.goal+'</span></h3>'+
+    '<div class="bar"><i style="width:'+pct+'%"></i></div>'+
+    '<p style="font-size:11px;color:var(--dim)">rate RM'+P.rate+'/mo · '+months+' month(s) to goal at rate</p>'+
+    '<div class="row" style="margin-top:8px"><input class="inp" data-amt="'+k+'" placeholder="+RM" style="max-width:90px">'+
+    '<button class="btn" data-add="'+k+'">DEPOSIT</button><input class="inp" data-rate="'+k+'" value="'+P.rate+'" style="max-width:80px" title="monthly rate"></div></div>';};
+  const rows=S.budget.map((b,i)=>'<tr><td>'+esc(b.m)+'</td><td>'+esc(b.item)+'</td><td>'+esc(b.cat)+'</td><td style="text-align:right">'+(+b.amt).toFixed(2)+'</td><td><button class="del" data-i="'+i+'">✕</button></td></tr>').join("");
+  const total=S.budget.reduce((a,b)=>a+(+b.amt||0),0);
+  $("#view").innerHTML='<div class="grid">'+pk("pad")+pk("bench")+
+   '<div class="panel"><h3>ACTUALS <span>// RM'+total.toFixed(2)+' logged · 2 months of actuals before trusting any plan</span></h3><table>'+
+   '<tr><th>month</th><th>item</th><th>category</th><th style="text-align:right">RM</th><th></th></tr>'+rows+'</table>'+
+   '<div class="grid" style="margin-top:10px"><input class="inp" id="bm" placeholder="month (2026-10)" style="max-width:120px"><input class="inp" id="bi" placeholder="item"><input class="inp" id="bc" placeholder="category"><input class="inp" id="ba" placeholder="RM" style="max-width:90px"><button class="btn" id="bb">ADD</button></div></div></div>';
+  document.querySelectorAll("[data-add]").forEach(b=>b.onclick=()=>{ const k=b.dataset.add; const a=+($('[data-amt="'+k+'"]').value)||0;
+    S.pockets[k].saved=Math.max(0,S.pockets[k].saved+a); save(); vBudget(); toast((a>=0?"+":"")+"RM"+a+" → "+S.pockets[k].name); });
+  document.querySelectorAll("[data-rate]").forEach(b=>b.onchange=()=>{ S.pockets[b.dataset.rate].rate=+b.value||0; save(); vBudget(); });
+  $("#bb").onclick=()=>{ const i=$("#bi").value.trim(); if(!i)return; S.budget.push(stamp({m:$("#bm").value.trim()||today().slice(0,7),item:i,cat:$("#bc").value.trim(),amt:$("#ba").value||0})); save(); vBudget(); };
+  bindDel(".del", S.budget, vBudget);
+};
+
+/* ---- STUDY HALL v2: PDF/text -> flashcards ---- */
+function makeCards(text){
+  const stop=new Set(("the and of in to is are was were be been a an it its for on with as by at from that this which or not no yes can will has have had").split(" "));
+  const out=[]; const lines=text.split(/\n+/).map(s=>s.trim()).filter(s=>s.length>=25&&s.length<=240);
+  for(const ln of lines.slice(0,60)){
+    if(/:/.test(ln)&&ln.split(":")[0].length<60){ const [f,...r]=ln.split(":"); out.push({f:f.trim()+"?",b:r.join(":").trim()}); continue; }
+    const words=ln.replace(/[.!?]+$/,"").split(/\s+/);
+    let key=null; for(const w of words){ const c=w.replace(/[^A-Za-z0-9-]/g,""); if(c.length>=5&&!stop.has(c.toLowerCase())&&(!key||c.length>key.length))key=c; }
+    const num=ln.match(/\d+(?:\.\d+)?\s*(?:N|kN|kg|m|mm|cm|s|°|%)?/);
+    const hide=key|| (num?num[0]:null); if(!hide)continue;
+    out.push({f:ln.replace(hide,"_____")+"  — recall the blank.",b:hide});
+    if(out.length>=40)break;
+  }
+  return out;
+}
+const vStudyOld=vStudy;
+vStudy=function(){
+  vStudyOld();
+  const wrap=$("#view");
+  const extra=document.createElement("div");
+  extra.innerHTML='<div class="panel" style="margin-top:12px"><h3>FEED IT A DOCUMENT <span>// paste notes or drop a PDF → instant cards</span></h3>'+
+   '<textarea class="inp" id="fsrc" rows="5" placeholder="Paste lecture notes / textbook paragraphs here…"></textarea>'+
+   '<div class="row" style="margin-top:8px"><input type="file" id="fpdf" accept="application/pdf" style="font-size:11px;color:var(--dim)"><button class="btn" id="fgo">GENERATE CARDS</button><span id="fmsg" style="font-size:11px;color:var(--am)"></span></div>'+
+   '<p style="margin-top:8px;color:var(--dim);font-size:11px">PDF reading needs the internet (hosted version). Offline? paste the text instead. Lines with “:” become Q/A; facts become fill-the-blank.</p></div>';
+  wrap.appendChild(extra);
+  $("#fgo").onclick=async ()=>{
+    let text=$("#fsrc").value;
+    const f=$("#fpdf").files[0];
+    if(f){ try{
+      if(!window.pdfjsLib){ const s=document.createElement("script"); s.src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"; document.head.appendChild(s); await new Promise((res,rej)=>{s.onload=res;s.onerror=rej;}); }
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+      const doc=await window.pdfjsLib.getDocument(await f.arrayBuffer()).promise;
+      for(let i=1;i<=Math.min(doc.numPages,30);i++){ const pg=await doc.getPage(i); const c=await pg.getTextContent();
+        text+="\n"+c.items.map(it=>it.str).join(" "); }
+    }catch(e){ $("#fmsg").textContent="PDF import needs internet (open the hosted app) — paste text instead."; return; } }
+    const cards=makeCards(text); if(!cards.length){ $("#fmsg").textContent="nothing card-worthy found — paste fuller sentences."; return; }
+    for(const c of cards)S.cards.push(stamp({f:c.f,b:c.b,box:0,due:"2000-01-01"}));
+    save(); $("#fmsg").textContent="+"+cards.length+" cards added to the deck."; toast(cards.length+" cards minted.");
+    setTimeout(vStudy,600);
+  };
+};
+
+/* ---- SOUNDS v2: library / cafe / fire ---- */
+(function(){
+  const oldStart=Noise.start.bind(Noise), oldStop=Noise.stop.bind(Noise);
+  Noise.stop=function(){ clearInterval(this.iv); this.iv=null; oldStop(); };
+  Noise.start=function(kind){
+    if(!["library","cafe","fire"].includes(kind))return oldStart(kind);
+    this.stop(); const C=this.ctx=this.ctx||new (window.AudioContext||window.webkitAudioContext)();
+    const len=2*C.sampleRate, buf=C.createBuffer(1,len,C.sampleRate), d=buf.getChannelData(0); let last=0,b=0;
+    for(let i=0;i<len;i++){ const w=Math.random()*2-1;
+      if(kind==="fire"){ last=(last+0.03*w)/1.03; d[i]=last*3.2; }
+      else { b=0.98*b+0.02*w; d[i]=(b+w*0.25)*0.7; } }
+    const src=C.createBufferSource(); src.buffer=buf; src.loop=true;
+    const g=C.createGain(); g.gain.value=kind==="library"?0.05:0.09;
+    let node=src;
+    if(kind==="cafe"){ const f=C.createBiquadFilter(); f.type="bandpass"; f.frequency.value=500; f.Q.value=0.6; src.connect(f); node=f; }
+    if(kind==="fire"){ const f=C.createBiquadFilter(); f.type="lowpass"; f.frequency.value=400; src.connect(f); node=f; }
+    node.connect(g); g.connect(C.destination); src.start(); this.src=src;
+    const self=this;
+    this.iv=setInterval(()=>{ // page turns / crackles / clinks
+      if(kind==="library"&&Math.random()<0.5){ // page turn: short swish
+        const n=C.createBufferSource(), bb=C.createBuffer(1,C.sampleRate*0.35,C.sampleRate), dd=bb.getChannelData(0);
+        for(let i=0;i<dd.length;i++){ const t=i/dd.length; dd[i]=(Math.random()*2-1)*Math.sin(t*Math.PI)*0.5; }
+        n.buffer=bb; const f=C.createBiquadFilter(); f.type="highpass"; f.frequency.value=1200;
+        const gg=C.createGain(); gg.gain.value=0.12; n.connect(f); f.connect(gg); gg.connect(C.destination); n.start();
+      }
+      if(kind==="fire"){ for(let k=0;k<2;k++)if(Math.random()<0.7){ // crackle
+        const n=C.createBufferSource(), bb=C.createBuffer(1,C.sampleRate*0.05,C.sampleRate), dd=bb.getChannelData(0);
+        for(let i=0;i<dd.length;i++)dd[i]=(Math.random()*2-1)*Math.pow(1-i/dd.length,2);
+        n.buffer=bb; const gg=C.createGain(); gg.gain.value=0.25*Math.random()+0.05; n.connect(gg); gg.connect(C.destination); n.start(); } }
+      if(kind==="cafe"&&Math.random()<0.25){ // distant clink
+        const o=C.createOscillator(); o.frequency.value=1800+Math.random()*900;
+        const gg=C.createGain(); gg.gain.setValueAtTime(0.03,C.currentTime); gg.gain.exponentialRampToValueAtTime(0.0001,C.currentTime+0.4);
+        o.connect(gg); gg.connect(C.destination); o.start(); o.stop(C.currentTime+0.45); }
+    }, kind==="fire"?220:5200);
+    toast(kind+" on — the room is yours.");
+  };
+})();
+
+/* ---- ORACLE v2: works with zero keys ---- */
+const QBANK=[
+ ["A crate hangs from a vertical cable joined to two ropes at A. Name every arrow on the FBD of A.","Cable pull DOWN (=W), rope AB pull toward B, rope AC pull toward C. Three arrows, nothing else."],
+ ["Roller on a horizontal floor: how many unknowns, which direction?","One. Perpendicular to the floor — straight up."],
+ ["Smooth collar on a rod at 45°: direction of its reaction?","Perpendicular to the rod — one arrow at 90° to it."],
+ ["Why start the lamp problem at joint D?","Only two unknowns meet there, and the known weight hangs there. Two unknowns, two equations."],
+ ["The member doesn't move. What must the arrows do?","Cancel: ΣF=0 and ΣM=0. The tug-of-war is a draw."]];
+let QSTATE=null;
+function localOracle(q){
+  const t=q.toLowerCase();
+  if(/show|answer|reveal/.test(t)&&QSTATE){ const a=QSTATE[1]; QSTATE=null; return a; }
+  if(/quiz|statics|fbd|free body|equilibrium/.test(t)){ QSTATE=QBANK[Math.floor(Math.random()*QBANK.length)]; return "OFFLINE QUIZ — "+QSTATE[0]+"  (say “show” when you've answered.)"; }
+  if(/money|budget|pad|tablet|tab|pocket|save/.test(t)){ const P=S.pockets&&S.pockets.pad?S.pockets.pad:{saved:0,rate:150,goal:2300};
+    const m=P.rate>0?Math.ceil((P.goal-P.saved)/P.rate):0;
+    return "PAD pocket: RM"+P.saved+" of RM"+P.goal+", at RM"+P.rate+"/mo that's "+m+" month(s). BENCH pocket: RM"+((S.pockets&&S.pockets.bench)||{saved:0}).saved+". Prizes always flow to whichever pocket is behind."; }
+  if(/bench|deck|mapping|digicam|build/.test(t)){ const b=S.bench||{}; return "Bench status — deck: "+((b.deck||{}).st||"dreaming")+" · mapping: "+((b.map||{}).st||"dreaming")+" · digicam: "+((b.cam||{}).st||"dreaming")+". One win every 6–8 weeks; parts are immortal."; }
+  if(/tired|down|sad|motivat|cry|burn|lonel/.test(t)){ return MOTQ[Math.floor(Math.random()*MOTQ.length)]+"  And remember: interest dies from guilt and exhaustion, not waiting. Sleep is a performance constraint."; }
+  if(/now|today|what next|priorit/.test(t)){ const ph=phase(); return "Phase: "+ph.name+". Priority: "+ph.pri+". Today's brick: the next assessment first, then one 25-minute pomodoro, then one bench or club thing. Order matters."; }
+  if(/fbd|concept|explain|teach/.test(t)){ return "Forces come from touches, plus gravity. First sentence on every page: “The body is ___. Touching it: ___.” Everything grows from that."; }
+  return "I'm the sealed oracle — no key needed. I know your plan, your pockets, your bench, your statics. Try: “quiz me” · “where's my money” · “what now” · “talk me down” · “bench status”. For anything beyond me, seal a provider key above and I become a frontier brain that already knows you.";
+}
+const vOracleOld=vOracle;
+vOracle=function(){
+  vOracleOld();
+  const sendBox=$("#aiin");
+  if(sendBox&&!S.ai.key){
+    const chips=document.createElement("div"); chips.className="chips";
+    chips.innerHTML=["quiz me on statics","where's my money","what now","talk me down","bench status","explain FBD in one line"].map(c=>'<span class="chip">'+c+'</span>').join("");
+    sendBox.parentNode.parentNode.insertBefore(chips, sendBox.parentNode);
+    chips.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{ sendBox.value=c.textContent; $("#aisend").click(); });
+  }
+  const origSend=$("#aisend").onclick;
+  $("#aisend").onclick=async ()=>{ const q=sendBox?sendBox.value.trim():""; if(!q)return;
+    if(!S.ai.key){ sendBox.value=""; AICHAT.push({who:"u",t:q}); AICHAT.push({who:"j",t:localOracle(q)}); vOracle(); const l=$("#ailog"); if(l)l.scrollTop=l.scrollHeight; return; }
+    return origSend(); };
+  if(sendBox)sendBox.onkeydown=e=>{ if(e.key==="Enter")$("#aisend").click(); };
+};
+
+/* ---------- go ---------- */
+applyTheme(LS.get("lifeos.theme")||"hud");
+FX.start();
+setInterval(()=>{ if(SYNC.auto&&SYNC.tok&&!document.hidden&&SK)syncNow(true); },90000);
+document.addEventListener("visibilitychange",()=>{ if(!document.hidden&&SYNC.auto&&SYNC.tok&&SK)syncNow(true); });
+if("serviceWorker" in navigator && location.protocol==="https"){ navigator.serviceWorker.register("sw.js").catch(()=>{}); }
+let DEFERRED=null;
+addEventListener("beforeinstallprompt",e=>{ e.preventDefault(); DEFERRED=e; const b=$("#btninstall"); if(b)b.classList.remove("hidden"); });
+addEventListener("appinstalled",()=>{ toast("installed — it lives with your apps now."); const b=$("#btninstall"); if(b)b.classList.add("hidden"); });
+$("#btninstall").onclick=async ()=>{ if(DEFERRED){ DEFERRED.prompt(); await DEFERRED.userChoice; DEFERRED=null; $("#btninstall").classList.add("hidden"); } };
+boot();
+</script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+LIFE OS — DOWNLOAD & INSTALL (read this first)
+================================================
+
+WHAT IS IN THIS ZIP (all 6 files are needed):
+  index.html  manifest.json  sw.js  icon.svg  icon-192.png  icon-512.png
+
+STEP 1 — PUT IT ONLINE (a PWA only installs from https, never from a file on your disk)
+  1. Unzip this archive to a folder.
+  2. Go to https://app.netlify.com/drop
+  3. Drag the UNZIPPED FOLDER onto the page (or the whole zip). Wait for the https URL.
+  4. IMPORTANT: immediately claim the site with a free Netlify account, otherwise
+     anonymous drops can be swept and your link dies ("netlify not working").
+     Dashboard → claim site → Site settings → Change site name (something typable).
+  (Alternative permanent home: GitHub Pages — steps inside the app, Deploy panel.)
+
+STEP 2 — INSTALL AS AN APP
+  Edge/Chrome on laptop:
+     Open YOUR https URL (not this file, not a preview window).
+     → click the ⤓ INSTALL button in the app header, OR the install icon in the
+       address bar, OR Edge: ⋯ menu → Apps → "Install this site as an app".
+  Android (Chrome/Edge): menu → Install app / Add to Home screen.
+  iPhone (Safari): Share → Add to Home Screen.
+
+IF INSTALL DOES NOT APPEAR, you are in one of these traps:
+  - you opened index.html from disk (file://...) → never installable. Use the https URL.
+  - you are inside a sandboxed/iframe preview → never installable. Open the URL directly.
+  - the site was deployed without the two PNG icons → re-upload ALL SIX files.
+  - the drop was never claimed and got swept → redeploy and claim within minutes.
+
+SECURITY MODEL (one line): Netlify hosts only the shell. Your vault is encrypted
+in YOUR browser before anything leaves it. Your Netlify account (use 2FA) is the
+perimeter. Export your vault regularly.
