@@ -1,37 +1,38 @@
 LIFE//OS v3 — INSTALL / UPDATE (GitHub Pages)
 =============================================
-Files to upload (keep the assets FOLDER — it holds the artwork):
-  index.html
+Upload these 7 files. Nothing else. No assets folder, no images to drag —
+the artwork is baked into index.html itself.
+
+  index.html        (the app — big file, contains everything including art)
   manifest.json
   sw.js
   icon.svg
   icon-192.png
   icon-512.png
   INSTALL.txt
-  assets/   (8 .jpg files inside)
 
-UPDATE AN EXISTING INSTALL
-1. Extract this zip somewhere (never upload the zip itself — Pages does not unzip).
+UPDATE (2 minutes)
+1. Extract this zip somewhere (never upload the zip itself).
 2. github.com -> your lifeos repo -> Add file -> Upload files.
-3. Drag in ALL files above, INCLUDING the assets folder. Same names overwrite.
+3. Drag in ALL 7 files. Same names overwrite the old ones.
 4. Commit changes. Wait 1-2 minutes.
-5. Close the app/tab, reopen your Pages URL, reload TWICE (old worker first, new worker second).
-   Never clear "cookies and site data" (that deletes the vault).
-6. Check: sidebar on the left, v3 badge, Today room opens first, Archive loads.
+5. Close the app/tab, reopen your Pages URL, reload TWICE
+   (first reload gets the new worker, second shows the new build).
+   Never clear "cookies and site data" — that deletes the vault.
+6. Check: v3 badge next to LIFE//OS, poster wall shows IMAGES now,
+   Today opens first, Archive opens.
 
-FIRST-TIME INSTALL
-New repo (Public) -> upload the same files -> Settings -> Pages -> Deploy from branch ->
-main / (root) -> open https://USER.github.io/lifeos/ in Edge -> menu -> then INSTALL.
-file:// never installs (must be an https URL).
+If you earlier uploaded an "assets" folder and it shows broken files in the
+repo, you can leave it there (nothing references it) or delete it via each
+file's page -> trash icon.
 
 HIDDEN ROOMS
   Pride Room : ctrl+shift+P (desktop) · long-press the LIFE//OS logo · or search "pride" + Enter.
-  The Archive is visible in the sidebar under VAULT.
+  Archive: sidebar under VAULT. Search bar finds anything in the vault.
 
-WHAT'S NEW IN v3
-  sidebar nav + global search · Today room (anchors, mood, three things, 25-min timer)
-  Plan room (dated gates, finish-date maths, controlled variables, bench bars)
-  Journal · Rabbit Hole (rabbit-holes, logic vault, learn-something cards)
-  Feeds (curated live sources + RSS attempt) · Budget v2 (card / TnG / cash)
-  Music & Studio (your own uploads + a beat composer) · Teacher (no key needed)
-  in-app file viewer · Archive (paste with formatting kept) · Pride Room (hidden, key combo)
+NEW IN v3
+  sidebar + search · Today (anchors, mood, 3 things, 25-min timer) · Journal
+  Plan (dated gates, red when late, finish-date maths, controlled variables)
+  Rabbit Hole (deep dives, murder-mystery logic vault, learn-something cards)
+  Reading (booklist with progress) · Budget (CARD / TnG / CASH) · Music & Studio (upload + beat composer)
+  Feeds (live sources) · Teacher (no key needed) · in-app file viewer · hidden Pride Room
