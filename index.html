@@ -237,6 +237,98 @@ html::after{content:"";position:fixed;inset:-10%;pointer-events:none;z-index:0;o
 .ttday h4{font-size:10px;letter-spacing:.2em;color:var(--dim);margin-bottom:6px}
 .ttc{font-size:10px;padding:5px 6px;border-radius:4px;margin-bottom:5px;color:#0a0f12;cursor:pointer;line-height:1.35}
 .quote{font-style:italic;font-size:15px;line-height:1.6;color:var(--parch,#e9dfc8)}
+
+/* ================== LIFE OS v3 — SKIN ================== */
+#side nav{position:static; margin:0; padding:0; border:0; background:transparent; flex-wrap:nowrap}
+#side .row{display:flex; align-items:center}
+:root{ --serif: Georgia, "Iowan Old Style", "Times New Roman", serif; --paper:#efe6d2; }
+h1,h2,h3,.logo,.poster .cap,.polaroid,.quote{letter-spacing:.06em}
+h3{font-family:var(--serif); letter-spacing:.04em}
+h3 span{font-family:var(--mono)}
+#app{display:grid; grid-template-columns:224px 1fr; min-height:100vh; align-items:start}
+#side{position:sticky; top:0; height:100vh; display:flex; flex-direction:column; gap:10px;
+  padding:14px 10px 12px; border-right:1px solid var(--line); background:rgba(4,10,15,.82); backdrop-filter:blur(7px); z-index:50}
+#brand{display:flex; align-items:baseline; gap:8px; padding:2px 6px 0}
+#brand #ver{color:var(--dim); font-size:9.5px; letter-spacing:.24em}
+#ssearch{position:relative}
+#ssearch .inp{font-size:12px}
+#searchwrap{position:absolute; left:0; right:0; top:calc(100% + 6px); z-index:80; background:#071119;
+  border:1px solid var(--line2); max-height:58vh; overflow:auto; box-shadow:0 14px 34px rgba(0,0,0,.6)}
+.sr{display:block; width:100%; text-align:left; padding:8px 10px; border:0; border-bottom:1px solid #0d2230;
+  background:none; color:var(--tx); cursor:pointer; font-family:var(--mono); font-size:11.5px; line-height:1.45}
+.sr:hover{background:#0d2230}
+.sr b{color:var(--cy)} .sr i{color:var(--dim); font-style:normal; font-size:10px; letter-spacing:.14em}
+.sr small{color:var(--dim); display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+#nav{display:block; overflow-y:auto; flex:1; padding-right:2px}
+#nav .navgh{color:var(--dim); font-size:9px; letter-spacing:.26em; margin:12px 6px 5px; text-transform:uppercase}
+#nav button{display:flex; align-items:center; gap:9px; width:100%; text-align:left; cursor:pointer;
+  background:none; border:0; border-left:2px solid transparent; color:var(--tx); font-family:var(--mono);
+  font-size:12px; letter-spacing:.06em; padding:7px 8px; border-radius:0 4px 4px 0}
+#nav button .ic{width:16px; text-align:center; color:var(--dim)}
+#nav button:hover{background:#0a1a26; color:var(--cy2)}
+#nav button.on{background:linear-gradient(90deg,rgba(89,216,255,.13),transparent); border-left-color:var(--cy); color:var(--cy)}
+#nav button.on .ic{color:var(--cy)}
+#sideft{border-top:1px solid var(--line); padding-top:10px; display:flex; flex-direction:column; gap:8px}
+#sideft #clock{color:var(--dim); font-size:10px; margin:0}
+#maincol{padding:0 20px 46px; width:100%; max-width:1180px; margin:0 auto; min-width:0}
+#topstrip{display:flex; align-items:center; gap:14px; padding:12px 0 6px; border-bottom:1px solid var(--line); margin-bottom:16px}
+#topstrip #ecg .base{stroke:var(--line2)} #topstrip #ecg .run{stroke:var(--cy)}
+#jarvisline{flex:1; display:flex; align-items:center; gap:8px; min-width:0}
+#jarvisline .prompt{color:var(--cy)}
+#jarvisline .inp{border:0; background:transparent; padding:4px 0}
+#footbar{display:flex; gap:16px; flex-wrap:wrap; color:var(--dim); font-size:10px; letter-spacing:.08em; padding:14px 0 6px; border-top:1px solid var(--line); margin-top:26px}
+/* poster wall */
+.posterwall{display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:14px}
+.poster{position:relative; border:1px solid var(--line2); border-radius:4px; overflow:hidden; min-height:210px;
+  background:#08131d; cursor:pointer; display:block; width:100%; padding:0; text-align:left; color:var(--tx)}
+.poster img{width:100%; height:100%; min-height:210px; object-fit:cover; display:block; opacity:.86; transition:transform .6s ease, opacity .3s}
+.poster:hover img{transform:scale(1.06); opacity:1}
+.poster .cap{position:absolute; left:0; right:0; bottom:0; padding:12px 13px 11px; font-family:var(--serif);
+  font-size:13.5px; background:linear-gradient(transparent, rgba(2,6,10,.94)); letter-spacing:.02em}
+.poster .cap i{display:block; font-family:var(--mono); font-style:normal; font-size:9.5px; color:var(--dim); letter-spacing:.2em; margin-top:3px}
+.hero{position:relative; border:1px solid var(--line2); border-radius:4px; overflow:hidden; min-height:240px; margin-bottom:16px}
+.hero img.bg{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:.5}
+.hero .in{position:relative; padding:24px 22px; max-width:640px}
+.hero h2{font-family:var(--serif); font-size:24px; letter-spacing:.02em; color:#f2ece0; text-shadow:0 2px 14px rgba(0,0,0,.8)}
+.hero p.s{color:var(--cy2); font-size:11px; letter-spacing:.22em; margin-top:8px; text-transform:uppercase}
+.polaroid{background:var(--paper); color:#28231c; padding:9px 9px 40px; box-shadow:0 8px 22px rgba(0,0,0,.55);
+  transform:rotate(-1.4deg); font-family:var(--serif); font-size:12.5px; border-radius:2px}
+.polaroid img{width:100%; display:block; margin-bottom:8px; filter:saturate(.92)}
+.washi{position:relative}
+.washi::before{content:""; position:absolute; top:-9px; left:50%; width:74px; height:18px; transform:translateX(-50%) rotate(-2deg);
+  background:rgba(232,179,74,.35); border-left:1px dashed rgba(255,255,255,.25); border-right:1px dashed rgba(255,255,255,.25)}
+.tag{display:inline-block; border:1px solid var(--line2); color:var(--dim); font-size:9.5px; letter-spacing:.2em; padding:2px 7px; border-radius:3px; margin:0 4px 4px 0}
+.stepgrid{display:grid; grid-template-columns:64px repeat(16,1fr); gap:3px; align-items:center}
+.stepgrid .rl{font-size:9.5px; color:var(--dim); letter-spacing:.12em}
+.stp{height:22px; border:1px solid var(--line); border-radius:3px; background:#08141d; cursor:pointer}
+.stp.on{background:linear-gradient(160deg,var(--cy),#2f7fd6); border-color:var(--cy); box-shadow:0 0 8px rgba(89,216,255,.4)}
+.stp.beat{background:#0c1f2c}
+.stp.on.beat{background:linear-gradient(160deg,var(--am),#e8875f); border-color:var(--am)}
+.rbtitle{font-family:var(--serif); font-size:16px}
+.flash{animation:flashcard .8s}
+@keyframes flashcard{0%{filter:brightness(2.2)}100%{filter:none}}
+#viewer{position:fixed; inset:0; z-index:200; background:rgba(2,5,9,.94); display:flex; flex-direction:column; padding:16px}
+#viewer .bar{display:flex; gap:10px; align-items:center; margin-bottom:10px}
+#viewer .body{flex:1; overflow:auto; display:flex; align-items:flex-start; justify-content:center}
+#viewer img{max-width:100%; max-height:100%}
+#viewer iframe{width:100%; height:100%; border:1px solid var(--line2); background:#fff}
+#viewer pre{background:#06121c; padding:16px; width:100%; max-width:900px; white-space:pre-wrap; word-break:break-word}
+@media (max-width:880px){
+  #app{display:block; padding-bottom:96px}
+  #side{position:fixed; left:0; right:0; bottom:0; top:auto; height:auto; max-height:52vh; border-right:0;
+    border-top:1px solid var(--line2); padding:8px 8px 10px}
+  #brand{display:none} #sideft{display:none}
+  #nav{display:flex; gap:4px; overflow-x:auto; padding-bottom:2px}
+  #nav .navgh{display:none}
+  #nav button{width:auto; white-space:nowrap; border-left:0; border-bottom:2px solid transparent; border-radius:4px 4px 0 0; font-size:11px; padding:6px 9px}
+  #nav button.on{border-bottom-color:var(--cy); background:rgba(89,216,255,.10)}
+  #maincol{padding:0 12px 40px}
+  #topstrip{flex-wrap:wrap; gap:8px}
+  .posterwall{grid-template-columns:repeat(2,1fr); gap:10px}
+  .stepgrid{grid-template-columns:48px repeat(16,minmax(0,1fr)); gap:2px}
+  .stp{height:18px}
+}
+
 </style>
 </head>
 <body>
@@ -271,31 +363,41 @@ html::after{content:"";position:fixed;inset:-10%;pointer-events:none;z-index:0;o
 
 <!-- ============ APP ============ -->
 <div id="app" class="hidden">
-  <header>
-    <span class="logo glow">LIFE<b>//</b>OS</span>
-    <svg id="ecg" viewBox="0 0 120 24" width="110" height="22" aria-hidden="true">
-      <path class="base" d="M0 12 L18 12 L24 4 L30 20 L36 12 L58 12 L64 7 L70 17 L76 12 L120 12" fill="none" stroke-width="1.2"/>
-      <path class="run" d="M0 12 L18 12 L24 4 L30 20 L36 12 L58 12 L64 7 L70 17 L76 12 L120 12" fill="none" stroke-width="1.6" pathLength="100"/>
-    </svg>
-    <div id="jarvisline">
-      <span class="prompt">≫</span>
-      <input class="inp" id="jinput" placeholder="ask the console… (try: priorities / deadlines / money / sleep)" autocomplete="off">
+  <aside id="side">
+    <div id="brand"><span class="logo glow" id="brandlogo" title="press ctrl+shift+p">LIFE<b>//</b>OS</span><span id="ver">v3</span></div>
+    <div id="ssearch">
+      <input class="inp" id="gsearch" placeholder="⌕ search everything…" autocomplete="off">
+      <div id="searchwrap" class="hidden"></div>
     </div>
-    <span id="clock"></span>
-    <button class="btn hidden" id="btninstall" title="install as an app">⤓ INSTALL</button>
-    <button class="btn" id="btntheme" title="cycle aesthetic">◐ THEME</button>
-    <button class="btn warn" id="btnlock" title="lock and clear keys from memory">LOCK</button>
-  </header>
-  <nav id="nav"></nav>
-  <main>
+    <nav id="nav"></nav>
+    <div id="sideft">
+      <span id="clock"></span>
+      <div class="row" style="gap:6px;flex-wrap:wrap">
+        <button class="btn hidden" id="btninstall" title="install as an app">⤓ INSTALL</button>
+        <button class="btn" id="btntheme" title="cycle aesthetic">◐</button>
+        <button class="btn warn" id="btnlock" title="lock and clear keys from memory">LOCK</button>
+      </div>
+      <span id="ftmode"></span>
+    </div>
+  </aside>
+  <main id="maincol">
+    <div id="topstrip">
+      <div id="jarvisline">
+        <span class="prompt">≫</span>
+        <input class="inp" id="jinput" placeholder="ask the console… priorities / deadlines / money / sleep" autocomplete="off">
+      </div>
+      <svg id="ecg" viewBox="0 0 120 24" width="96" height="20" aria-hidden="true">
+        <path class="base" d="M0 12 L18 12 L24 4 L30 20 L36 12 L58 12 L64 7 L70 17 L76 12 L120 12" fill="none" stroke-width="1.2"/>
+        <path class="run" d="M0 12 L18 12 L24 4 L30 20 L36 12 L58 12 L64 7 L70 17 L76 12 L120 12" fill="none" stroke-width="1.6" pathLength="100"/>
+      </svg>
+    </div>
     <div id="banner" class="hidden"></div>
     <div id="view"></div>
+    <footer id="footbar">
+      <span id="motto">PROTECT THE OPERATOR'S TIME, HEALTH AND OPTIONS</span>
+      <span>DATA: THIS DEVICE ONLY</span>
+    </footer>
   </main>
-  <footer>
-    <span id="ftmode"></span>
-    <span id="motto">PROTECT THE OPERATOR'S TIME, HEALTH AND OPTIONS</span>
-    <span>DATA: THIS DEVICE ONLY</span>
-  </footer>
 </div>
 
 <div id="toasts"></div>
@@ -560,32 +662,44 @@ function enter(){
   $("#lock").classList.add("hidden"); $("#app").classList.remove("hidden");
   $("#ftmode").textContent = "CRYPTO: " + (canCrypto ? "AES-256-GCM · PBKDF2-SHA256 250k" : "OBFUSCATION (NOT SECURITY)");
   if(!canCrypto) $("#banner").classList.remove("hidden"), $("#banner").textContent = "RESTRICTED PREVIEW — storage is session-only and encryption is simulated. Open the live preview or download this file for the real vault.";
-  buildNav(); show("dashboard"); startClock();
+  buildNav(); show("today"); startClock();
 }
 
 /* ---------- nav ---------- */
 const VIEWS = [
- ["dashboard","Dashboard"],["jarvis","Console"],["roadmap","Roadmap"],["projects","Projects"],
- ["applications","Applications"],["skills","Skills"],["courses","Course Oracle"],["study","Study Hall"],
- ["reading","Reading"],["decisions","Decisions"],["budget","Budget"],["weekly","Weekly Review"],
- ["games","Sanctum"],["locker","Locker"],["oracle","Oracle AI"],["deploy","Ship & Sync"],["priv","Private Room"],["settings","Settings"]
+ ["today","Today"],["dashboard","Dashboard"],["journal","Journal"],["plan","Plan"],
+ ["projects","Projects"],["applications","Applications"],["skills","Skills"],["courses","Course Oracle"],["study","Study Hall"],["reading","Reading"],
+ ["budget","Budget"],["music","Music & Studio"],["rabbit","Rabbit Hole"],["feeds","Feeds"],["games","Sanctum"],
+ ["archive","Archive"],["locker","Locker"],["oracle","Oracle AI"],["keys","Keys"],["jarvis","Console"],["deploy","Ship & Sync"],["settings","Settings"]
 ];
+const NAVGROUPS=[
+ ["today",["today","dashboard","journal","plan"]],
+ ["work",["projects","applications","skills","courses","study","reading"]],
+ ["life",["budget","music","rabbit","feeds","games"]],
+ ["vault",["archive","locker","oracle","keys","jarvis","deploy","settings"]]
+];
+const NAVIC={today:"◉",dashboard:"◈",journal:"✎",plan:"▤",projects:"⬡",applications:"✉",skills:"✦",courses:"◎",study:"◫",reading:"❖",budget:"⛁",music:"♪",rabbit:"◍",feeds:"≋",games:"⬢",archive:"▣",locker:"⧉",oracle:"◐",keys:"⚿",jarvis:">_",deploy:"⤴",settings:"⚙",priv:"✿"};
 function buildNav(){
   const n=$("#nav"); n.innerHTML="";
-  for(const [id,label] of VIEWS){
-    const b=el("button",null,esc(label)); b.dataset.v=id;
-    b.onclick=()=>show(id);
-    n.appendChild(b);
+  const lbl=id=>{const v=VIEWS.find(x=>x[0]===id); return v?v[1]:id;};
+  for(const [g,ids] of NAVGROUPS){
+    const h=el("div","navgh",g==="today"?"daily":g); n.appendChild(h);
+    for(const id of ids){
+      const b=el("button"); b.innerHTML='<span class="ic">'+(NAVIC[id]||"·")+'</span>'+esc(lbl(id)); b.dataset.v=id;
+      b.onclick=()=>show(id);
+      n.appendChild(b);
+    }
   }
 }
 function show(id){
   CUR=id;
   document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on", b.dataset.v===id));
   if(id!=="priv") PK=null;
-  const R = {dashboard:vDash, jarvis:vJarvis, roadmap:vRoadmap, projects:vProjects, applications:vApps,
-             skills:vSkills, reading:vReading, decisions:vDecisions, budget:vBudget, weekly:vWeekly,
-             priv:vPriv, settings:vSettings, courses:vCourses, study:vStudy, games:vGames,
-             locker:vLocker, oracle:vOracle, deploy:vDeploy, timetable:vTimetable, daily:vDaily, bench:vBench, keys:vKeys}[id];
+  const R = {today:vToday, dashboard:vDash, journal:vJournal, plan:vPlan, projects:vProjects, applications:vApps,
+             skills:vSkills, reading:vReading, archive:vArchive, budget:vBudget, music:vMusic, rabbit:vRabbit,
+             feeds:vFeeds, priv:vPriv, settings:vSettings, courses:vCourses, study:vStudy, games:vGames,
+             locker:vLocker, oracle:vOracle, deploy:vDeploy, keys:vKeys, jarvis:vJarvis}[id];
+  if(!R){ toast("that room isn't wired — tell the developer."); return; }
   R();
 }
 
@@ -722,34 +836,6 @@ function vWeekly(){
 }
 
 /* ---------- private room ---------- */
-function vPriv(){
-  const has=!!LS.get("lifeos.prilock");
-  if(!PK){
-    $("#view").innerHTML='<div class="panel" style="max-width:520px"><h3>PRIDE ROOM <span>// second passphrase · a sealed, safe space</span></h3>'+
-     '<div style="height:6px;border-radius:3px;background:linear-gradient(90deg,#e8452c,#f28c28,#f6d02f,#3fae5a,#2f7fd6,#8a5cd6);margin:8px 0 12px"></div>'+
-     '<p style="color:var(--dim);margin-bottom:10px">A room that is yours: pride, wins, quotes, and anything unshareable. Encrypted under a DIFFERENT passphrase from the main vault, never decrypted while sealed, never synced anywhere.</p>'+
-     '<label>'+(has?"private passphrase":"create private passphrase (min 8)")+'</label><input type="password" class="inp" id="pp">'+
-     (has?'':'<label>confirm</label><input type="password" class="inp" id="pp2">')+
-     '<div class="row" style="margin-top:12px"><button class="btn" id="po">'+(has?"UNSEAL":"CREATE ROOM")+'</button></div><div id="pm" style="color:var(--rd);font-size:11px;margin-top:8px"></div></div>';
-    $("#po").onclick=async ()=>{
-      const a=$("#pp").value, m=$("#pm");
-      if(!has){
-        if(a.length<8){m.textContent="min 8 characters.";return;}
-        if(a!==$("#pp2").value){m.textContent="does not match.";return;}
-        PK=await Vault.setup(a,"lifeos.prilock");
-        LS.set("lifeos.priv", await PK.enc([]));
-        renderPrivBody();
-      } else {
-        const r=await Vault.open(a,"lifeos.prilock");
-        if(typeof r==="string"){ m.textContent = r==="badpass"?"wrong private passphrase.":"open in a browser."; return; }
-        PK=r; renderPrivBody();
-      }
-    };
-    return;
-  }
-  renderPrivBody();
-}
-let PRIDEI=null;
 const PQUOTES=[
  ["No pride for some of us without liberation for all of us.","Marsha P. Johnson"],
  ["Hope will never be silent.","Harvey Milk"],
@@ -764,38 +850,59 @@ const PQUOTES=[
  ["Love is not a phase. Your doubt about it might be.","the room"],
  ["Somewhere a version of you is loud, safe and loved. Study like her.","the room"]
 ];
-async function renderPrivBody(){
-  const all = await PK.dec(LS.get("lifeos.priv")||await PK.enc([]));
-  const wins=all.filter(n=>n.kind==="win"), notes=all.filter(n=>n.kind!=="win");
+let PRIDEI=null;
+function vPriv(){
+  if(!S.pride)S.pride={wins:[],notes:[]};
+  if(LS.get("lifeos.prilock") && !LS.get("lifeos.pridemoved")){
+    $("#view").innerHTML='<div class="panel" style="max-width:520px"><h3>PRIDE ROOM <span>// one-time key transplant</span></h3>'+
+     '<div style="height:6px;border-radius:3px;background:linear-gradient(90deg,#e8452c,#f28c28,#f6d02f,#3fae5a,#2f7fd6,#8a5cd6);margin:8px 0 12px"></div>'+
+     '<p style="color:var(--dim);margin-bottom:10px">Your old sealed room still exists (separate passphrase). Enter that OLD passphrase once and everything inside moves into the new room, which opens with the key combination only.</p>'+
+     '<input type="password" class="inp" id="pq1" placeholder="old pride-room passphrase"><div class="row" style="margin-top:10px"><button class="btn" id="pimp">IMPORT &amp; RETIRE OLD LOCK</button><button class="btn warn" id="pskip">SKIP</button></div>'+
+     '<div id="pqm" style="color:var(--rd);font-size:11px;margin-top:8px"></div></div>';
+    $("#pimp").onclick=async ()=>{
+      const r=await Vault.open($("#pq1").value,"lifeos.prilock");
+      if(typeof r==="string"){ $("#pqm").textContent=r==="badpass"?"wrong passphrase.":"open in a browser."; return; }
+      try{ const arr=await r.dec(LS.get("lifeos.priv")||"[]")||[];
+        (arr||[]).forEach(n=>{ if(n.kind==="win")S.pride.wins.push(n); else S.pride.notes.push(n); }); }
+      catch(e){}
+      finishMigrate(); toast("imported. the old lock is retired.");
+    };
+    $("#pskip").onclick=finishMigrate;
+    return;
+  }
+  renderPride();
+}
+function finishMigrate(){ if(LS.del)LS.del("lifeos.prilock"); if(LS.del)LS.del("lifeos.priv"); LS.set("lifeos.pridemoved","1"); save(); renderPride(); }
+function renderPride(){
+  if(!S.pride)S.pride={wins:[],notes:[]};
   const qi = PRIDEI==null ? (new Date().getDate()-1)%PQUOTES.length : PRIDEI%PQUOTES.length;
-  const q = PQUOTES[qi];
-  const wlist=wins.map(n=>{const i=all.indexOf(n);return '<div class="panel" style="margin-bottom:10px;border-color:var(--am)"><h3 style="color:var(--am)">★ '+esc(n.when)+'</h3><p style="font-size:14px;white-space:pre-wrap">'+esc(n.w)+'</p>'+(n.why?'<p style="color:var(--dim);font-size:11px;margin-top:4px">why it matters: '+esc(n.why)+'</p>':'')+'<button class="del" data-i="'+i+'">delete</button></div>';}).join("");
-  const nlist=notes.map(n=>{const i=all.indexOf(n);return '<div class="panel" style="margin-bottom:10px"><h3>'+esc(n.when)+'</h3><p style="white-space:pre-wrap">'+esc(n.t)+'</p><button class="del" data-i="'+i+'">delete</button></div>';}).join("");
-  $("#view").innerHTML='<div class="panel"><h3>PRIDE ROOM <span>// sealed · safe space · nothing here leaves this device</span></h3>'+
-   '<div style="height:6px;border-radius:3px;background:linear-gradient(90deg,#e8452c,#f28c28,#f6d02f,#3fae5a,#2f7fd6,#8a5cd6);margin-bottom:12px"></div>'+
-   '<p style="font-size:15px;line-height:1.6;font-style:italic">“'+esc(q[0])+'”</p>'+
-   '<p style="color:var(--am);font-size:11px;margin-top:4px">— '+esc(q[1])+'</p>'+
-   '<div class="row" style="margin-top:8px"><button class="btn" id="pq">ANOTHER</button></div>'+
-   '<label style="margin-top:14px">seal a win</label><input class="inp" id="pw" placeholder="the win — got the lab slot · solved it cold · wore it out anyway">'+
-   '<input class="inp" id="py" style="margin-top:6px" placeholder="why it matters (optional)">'+
-   '<div class="row" style="margin-top:8px"><button class="btn" id="wa">SEAL WIN</button></div>'+
-   '<label style="margin-top:14px">or write freely</label><textarea class="inp" id="nt" rows="4" style="font-family:var(--mono);font-size:12px" placeholder="anything you can’t say out loud yet. sealed exactly as written, line breaks and all."></textarea>'+
-   '<div class="row" style="margin-top:10px"><button class="btn" id="ns">SEAL NOTE</button><button class="btn warn" id="nx">SEAL ROOM</button></div>'+
-   '<p style="color:var(--dim);font-size:11px;margin-top:10px">This room is separate from the main vault — its own passphrase, its own encryption, never synced. Same second passphrase opens it every time.</p></div>'+
-   '<div style="margin-top:14px"><h3 style="font-size:12px;color:var(--dim);margin-bottom:8px">THE SHELF · '+wins.length+' win(s)</h3>'+(wlist||'<p style="color:var(--dim)">nothing on the shelf yet. the first one is coming this week.</p>')+'</div>'+
+  const q=PQUOTES[qi];
+  const wlist=S.pride.wins.slice().reverse().map(n=>{const i=S.pride.wins.indexOf(n);
+    return '<div class="panel" style="margin-bottom:10px;border-color:var(--am)"><h3 style="color:var(--am)">\u2605 '+esc(n.when)+'</h3><p style="font-size:14px;white-space:pre-wrap">'+esc(n.w)+'</p>'+(n.why?'<p style="color:var(--dim);font-size:11px;margin-top:4px">why it matters: '+esc(n.why)+'</p>':'')+'<button class="del pwd" data-i="'+i+'">delete</button></div>';}).join("");
+  const nlist=S.pride.notes.slice().reverse().map(n=>{const i=S.pride.notes.indexOf(n);
+    return '<div class="panel" style="margin-bottom:10px"><h3>'+esc(n.when)+'</h3><p style="white-space:pre-wrap">'+esc(n.t)+'</p><button class="del pnd" data-i="'+i+'">delete</button></div>';}).join("");
+  $("#view").innerHTML=
+   '<div class="hero"><img class="bg" src="assets/girl-robot.jpg" alt=""><div class="in">'+
+    '<h2>PRIDE ROOM</h2><p class="s">sealed \u00b7 safe space \u00b7 nothing here leaves this device</p></div></div>'+
+   '<div class="panel"><div style="height:6px;border-radius:3px;background:linear-gradient(90deg,#e8452c,#f28c28,#f6d02f,#3fae5a,#2f7fd6,#8a5cd6);margin-bottom:12px"></div>'+
+    '<p style="font-size:15px;line-height:1.6;font-style:italic">\u201c'+esc(q[0])+'\u201d</p><p style="color:var(--am);font-size:11px;margin-top:4px">\u2014 '+esc(q[1])+'</p>'+
+    '<div class="row" style="margin-top:8px"><button class="btn" id="pq">ANOTHER</button></div>'+
+    '<label style="margin-top:14px">seal a win</label><input class="inp" id="pw" placeholder="the win \u2014 got the lab slot \u00b7 solved it cold \u00b7 wore it out anyway">'+
+    '<input class="inp" id="py" style="margin-top:6px" placeholder="why it matters (optional)">'+
+    '<div class="row" style="margin-top:8px"><button class="btn" id="wa">SEAL WIN</button></div>'+
+    '<label style="margin-top:14px">or write freely</label><textarea class="inp" id="nt" rows="4" style="font-family:var(--mono);font-size:12px" placeholder="anything you can\u2019t say out loud yet. sealed exactly as written, line breaks and all."></textarea>'+
+    '<div class="row" style="margin-top:10px"><button class="btn" id="ns">SEAL NOTE</button><button class="btn warn" id="nx">SEAL ROOM</button></div>'+
+    '<p style="color:var(--dim);font-size:11px;margin-top:10px">Entry: ctrl+shift+P (desktop), long-press the LIFE//OS logo, or search \u201cpride\u201d and press Enter. No second password \u2014 the room lives inside your already-unlocked vault. Hide the tab before lending the laptop.</p></div>'+
+   '<div style="margin-top:14px"><h3 style="font-size:12px;color:var(--dim);margin-bottom:8px">THE SHELF \u00b7 '+S.pride.wins.length+' win(s)</h3>'+(wlist||'<p style="color:var(--dim)">nothing on the shelf yet. the first one is coming this week.</p>')+'</div>'+
    '<div style="margin-top:14px"><h3 style="font-size:12px;color:var(--dim);margin-bottom:8px">NOTES</h3>'+(nlist||'<p style="color:var(--dim)">empty. quiet is allowed too.</p>')+'</div>';
-  $("#pq").onclick=()=>{ PRIDEI=(qi+1)%PQUOTES.length; renderPrivBody(); };
-  $("#wa").onclick=async ()=>{ const w=$("#pw").value.trim(); if(!w)return;
-    const arr=await PK.dec(LS.get("lifeos.priv")); arr.push(stamp({when:today(),kind:"win",w:w,why:$("#py").value.trim()}));
-    LS.set("lifeos.priv", await PK.enc(arr)); renderPrivBody(); toast("win sealed. this room remembers."); };
-  $("#ns").onclick=async ()=>{
-    const t=$("#nt").value.trim(); if(!t)return;
-    const arr=await PK.dec(LS.get("lifeos.priv")); arr.push({when:today(),t:t});
-    LS.set("lifeos.priv", await PK.enc(arr)); renderPrivBody(); toast("sealed."); };
-  $("#nx").onclick=()=>{ PK=null; toast("room sealed. key cleared."); vPriv(); };
-  document.querySelectorAll("#view .del").forEach(b=>b.onclick=async ()=>{
-    const arr=await PK.dec(LS.get("lifeos.priv")); arr.splice(+b.dataset.i,1);
-    LS.set("lifeos.priv", await PK.enc(arr)); renderPrivBody(); });
+  $("#pq").onclick=()=>{ PRIDEI=(qi+1)%PQUOTES.length; renderPride(); };
+  $("#wa").onclick=()=>{ const w=$("#pw").value.trim(); if(!w)return;
+    S.pride.wins.push(stamp({when:today(),w:w,why:$("#py").value.trim()})); save(); renderPride(); toast("win sealed. this room remembers."); };
+  $("#ns").onclick=()=>{ const t=$("#nt").value.trim(); if(!t)return;
+    S.pride.notes.push({when:today(),t:t}); save(); renderPride(); toast("sealed."); };
+  $("#nx").onclick=()=>{ toast("room sealed \u2014 reopen with ctrl+shift+P."); show("dashboard"); };
+  document.querySelectorAll(".pwd").forEach(b=>b.onclick=()=>{ S.pride.wins.splice(+b.dataset.i,1); save(); renderPride(); });
+  document.querySelectorAll(".pnd").forEach(b=>b.onclick=()=>{ S.pride.notes.splice(+b.dataset.i,1); save(); renderPride(); });
 }
 
 /* ---------- settings ---------- */
@@ -807,6 +914,9 @@ function vSettings(){
   '<div class="panel"><h3>CHANGE MAIN PASSPHRASE</h3>'+
    '<label>current</label><input type="password" class="inp" id="c1"><label>new (min 8)</label><input type="password" class="inp" id="c2">'+
    '<div class="row" style="margin-top:10px"><button class="btn" id="cc">ROTATE KEY</button></div></div>'+
+  '<div class="panel"><h3>HIDDEN ROOMS <span>// the ones that don\u2019t sit in the nav</span></h3>'+
+   '<p style="margin-bottom:8px">▸ <b>Pride Room</b> — press <b>ctrl+shift+P</b> (desktop), long-press the LIFE//OS logo, or search \u201cpride\u201d and press Enter. No password: it lives inside your unlocked vault.</p>'+
+   '<p>▸ Everything else is visible in the sidebar on purpose. Secrets you can\u2019t find again are just loss.</p></div>'+
   '<div class="panel"><h3>THREAT MODEL <span>// honesty section</span></h3>'+
    '<p style="margin-bottom:8px">▸ At rest: everything on this device is AES-256-GCM under a key derived from your passphrase (PBKDF2-SHA256, 250k rounds). No server, no telemetry, no network calls.</p>'+
    '<p style="margin-bottom:8px">▸ While unlocked: data lives decrypted in this tab\'s memory. A locked device or a closed tab protects you; an unlocked, unattended session does not. Hence the LOCK button.</p>'+
@@ -985,9 +1095,9 @@ function vDeploy(){
   $("#view").innerHTML='<div class="grid">'+
   '<div class="panel"><h3>1 · GIVE IT A PERMANENT HOME <span>// 5 minutes, free</span></h3>'+
    '<p>▸ Make a free GitHub account → <b>New repository</b> (name it <code>lifeos</code>).</p>'+
-   '<p>▸ Upload <b>all six files</b> from the <code>app/</code> folder — the two PNG icons are <b>required</b> for app-install, do not skip them: <code>index.html</code>, <code>manifest.json</code>, <code>sw.js</code>, <code>icon.svg</code>, <code>icon-192.png</code>, <code>icon-512.png</code>.</p>'+
+   '<p>▸ Upload <b>all files including the assets folder</b> from the <code>app/</code> folder — the artwork lives in <code>assets/</code> and the two PNG icons are <b>required</b> for app-install, do not skip them: <code>index.html</code>, <code>manifest.json</code>, <code>sw.js</code>, <code>icon.svg</code>, <code>icon-192.png</code>, <code>icon-512.png</code>, <code>INSTALL.txt</code>, <code>assets/</code> (8 images).</p>'+
    '<p>▸ Repository <b>Settings → Pages → Branch: main → Save</b>. In ~1 minute you get <code>https://YOURNAME.github.io/lifeos/</code> — a permanent https home, on every device, free.</p>'+
-   '<p>▸ <b>No-git route:</b> <b>Neocities</b> (free, browser-only) — make an account, upload the six files from your browser, get <code>https://YOURNAME.neocities.org</code>. Permanent, no command line, no git.</p>'+
+   '<p>▸ <b>No-git route:</b> <b>Neocities</b> (free, browser-only) — make an account, upload all files + the assets folder from your browser, get <code>https://YOURNAME.neocities.org</code>. Permanent, no command line, no git.</p>'+
    '<p>▸ Netlify Drop also works <i>if</i> you have an account in good standing — claim the site so it is permanent; unclaimed drops get swept.</p>'+
    '<p style="color:var(--dim);font-size:11px;margin-top:8px">This sandbox preview is temporary; your GitHub Pages URL is the address your installed app will live at.</p></div>'+
   '<div class="panel"><h3>2 · INSTALL IT LIKE A REAL APP</h3>'+
@@ -1477,15 +1587,7 @@ async function vLocker(){
       toast("sealed: "+f.name); }
     vLocker(); };
   document.querySelectorAll(".lk-open").forEach(b=>b.onclick=async ()=>{
-    const rec=await IDB.get(b.dataset.id); const buf=await SK.decB(rec.data);
-    const url=URL.createObjectURL(new Blob([buf],{type:rec.type}));
-    const p=$("#lk-prev");
-    if(rec.type.startsWith("pdf"))p.innerHTML='<iframe src="'+url+'" style="width:100%;height:480px;border:1px solid var(--line2)"></iframe>';
-    else if(rec.type.startsWith("audio"))p.innerHTML='<audio controls src="'+url+'" style="width:100%"></audio>';
-    else if(rec.type.startsWith("image"))p.innerHTML='<img src="'+url+'" style="max-width:100%">';
-    else if(rec.type.startsWith("text")||/\.(md|txt|csv|json|js|py|tex|html?|log|srt)$/i.test(rec.name)){ const t=await new Blob([buf]).text(); p.innerHTML='<pre style="max-height:300px;overflow:auto;white-space:pre-wrap">'+esc(t)+'</pre>'; }
-    else { const ext=(rec.name.split(".").pop()||"").toUpperCase(); p.innerHTML='<p style="color:var(--dim);font-size:12px">Browsers can’t render '+esc(ext)+' files inline — your file is fine and sealed intact. Press <b>SAVE</b> below to open it in its real app (Word/PowerPoint/Excel).</p>'; }
-  });
+    const rec=await IDB.get(b.dataset.id); if(rec) viewRecord(rec); });
   document.querySelectorAll(".lk-dl").forEach(b=>b.onclick=async ()=>{
     const rec=await IDB.get(b.dataset.id); const buf=await SK.decB(rec.data);
     const a=el("a"); a.href=URL.createObjectURL(new Blob([buf],{type:rec.type})); a.download=rec.name; a.click(); });
@@ -1529,6 +1631,14 @@ function vOracle(){
     '<label>api key</label><input type="password" class="inp" id="aikey" placeholder="stored encrypted, never sent anywhere except the provider">'+
     '<div class="row" style="margin-top:10px"><button class="btn" id="aisave">SEAL SETTINGS</button></div>'+
     '<p style="margin-top:12px;color:var(--am);font-size:11px">PRIVACY, PLAINLY: with a provider key, the text you send goes to that provider. Your vault stays on-device; the conversation does not. If "stays with me only" is absolute, use the offline Console instead — it is dumber but it is sealed. NotebookLM-type tools send your documents to Google; this design sends only what you type. Choose with eyes open.</p></div>'+
+   '<div class="panel"><h3>TEACHER <span>// works with NO key — curated, offline, honest</span></h3>'+
+    '<p style="color:var(--dim);margin-bottom:10px">Micro-lessons I wrote for you, and a card factory for your own lectures. Open-ended chat still needs a key (or wait for local-AI support) \u2014 but everything below runs sealed, free, forever.</p>'+
+    LESSONS.map(l=>'<details style="border:1px solid var(--line);border-radius:4px;padding:8px 10px;margin-bottom:8px"><summary style="cursor:pointer;font-family:var(--serif)">'+esc(l.t)+'</summary>'+
+      '<ol style="margin:8px 0 0 18px;font-size:12.5px;line-height:1.7">'+l.s.map(x=>'<li>'+esc(x)+'</li>').join("")+'</ol></details>').join("")+
+    '<label style="margin-top:10px">paste a lecture extract \u2192 flashcards into Study Hall</label>'+
+    '<textarea class="inp" id="tlx" rows="4" placeholder="paste text from a PDF/lecture. lines with \u201c:\u201d become Q/A; facts become fill-the-blank."></textarea>'+
+    '<div class="row" style="margin-top:8px"><button class="btn" id="tlgo">MAKE CARDS</button><button class="btn" id="tlfile">OPEN A LOCKED FILE</button></div>'+
+    '<p id="tlm" style="color:var(--am);font-size:11px;margin-top:8px"></p></div>'+
    '<div class="panel"><h3>SESSION <span>// knows the profile automatically</span></h3>'+
     '<div id="ailog" style="max-height:46vh;overflow-y:auto;display:flex;flex-direction:column;gap:8px">'+
      AICHAT.map(m=>'<div class="msg '+m.who+'"><span class="who">'+(m.who==="j"?"ORACLE":"YOU")+'</span>'+esc(m.t)+'</div>').join("")+
@@ -1558,6 +1668,14 @@ function vOracle(){
     vOracle(); const l=$("#ailog"); if(l)l.scrollTop=l.scrollHeight; };
   $("#aisend").onclick=send;
   $("#aiin").onkeydown=e=>{ if(e.key==="Enter")send(); };
+  wire("#tlgo", ()=>{ const t=$("#tlx").value.trim(); if(!t){ toast("paste some lecture text first."); return; }
+    const cards=makeCards(t); if(!S.cards)S.cards=[];
+    for(const c of cards) S.cards.push(stamp({f:c.f,b:c.b,box:0,due:"2000-01-01"}));
+    save(); $("#tlm").textContent=cards.length+" cards added \u2192 Study Hall."; toast(cards.length+" cards made. go review them."); });
+  wire("#tlfile", async ()=>{ try{ const files=await IDB.all(); if(!files.length){ toast("locker is empty \u2014 upload a file first."); return; }
+    const names=files.map((f,i)=>(i+1)+". "+f.name).join("\n");
+    const pick=prompt("open which file?\n\n"+names+"\n\n(type its number)");
+    const n=parseInt(pick,10); if(!n||!files[n-1])return; viewRecord(files[n-1]); }catch(e){ toast("could not list files."); } });
   $("#aikeep").onclick=()=>{ const last=[...AICHAT].reverse().find(m=>m.who==="j"); if(!last){ toast("nothing from the oracle yet."); return; }
     if(!S.archive) S.archive=[];
     const uq=[...AICHAT].reverse().find(m=>m.who==="u");
@@ -1567,13 +1685,7 @@ function vOracle(){
 
 
 /* ================= v2.0 rooms ================= */
-(function(){
-  const rm=i=>{const k=VIEWS.findIndex(v=>v[0]===i); if(k>=0)VIEWS.splice(k,1)};
-  rm("decisions"); rm("weekly");
-  const pv=VIEWS.find(v=>v[0]==="priv"); if(pv)pv[1]="Pride Room";
-  const pi=VIEWS.findIndex(v=>v[0]==="priv");
-  VIEWS.splice(pi,0,["timetable","Timetable"],["daily","Daily"],["bench","Bench"],["keys","Keys"]);
-})();
+(function(){ /* v3: nav is rebuilt from NAVGROUPS; legacy splices retired */ })();
 
 /* ---- TIMETABLE ---- */
 function vTimetable(){
@@ -1849,6 +1961,521 @@ function vArchive(){
   document.querySelectorAll(".a-dl").forEach(b=>b.onclick=()=>{ S.archive.splice(+b.dataset.i,1); save(); vArchive(); });
 }
 (function(){ const i=VIEWS.findIndex(v=>v[0]==="priv"); if(i>=0) VIEWS.splice(i,0,["archive","Archive"]); })();
+
+
+const LESSONS=[
+ {t:"Free-body diagram — the 6-step recipe",s:[
+  "Isolate ONE object. Draw its outline only — nothing touching it appears as a shape.",
+  "Every contact becomes a force: ropes pull (tension), surfaces push (normal), pins push any direction.",
+  "Weight always: straight down from the centre, W = mg.",
+  "Choose axes. Align one axis with the likely acceleration (or along a slope).",
+  "Resolve every tilted force with sines/cosines against YOUR axes — write the angle next to it.",
+  "Count unknowns before solving: 2 unknowns → start at that joint."]},
+ {t:"Two-force members — the free lunch",s:[
+  "If a bar is pinned at both ends and nothing else touches it, the forces at both pins are equal, opposite, and lie ALONG the bar.",
+  "So its direction is known: along the line joining its ends. Only the magnitude is unknown.",
+  "Members with three forces are NOT two-force members — their direction is not along the bar.",
+  "Collars/sliders: reaction is perpendicular to the rod (for a smooth collar). Rollers: perpendicular to the surface. Pins: both axes."]},
+ {t:"Method of joints — the order matters",s:[
+  "Start at a joint with at most 2 unknown forces (that's usually a two-force member joint).",
+  "Assume all unknown members in TENSION (pulling away from the joint).",
+  "Solve ΣFx = 0, ΣFy = 0. A negative answer means compression — keep the sign until the end.",
+  "Move to the next joint that now has ≤2 unknowns. Never start with 3 unknowns.",
+  "Sanity check at the end: a randomly chosen last joint must balance with the forces already found."]},
+ {t:"Dry friction — three cases, one test",s:[
+  "Static, not slipping: f ≤ μsN. The friction force is whatever keeps things still (up to the limit).",
+  "Impending motion (the moment before sliding): f = μsN. This is the case exam questions mean by 'about to slip'.",
+  "Sliding: f = μkN, and it opposes the velocity.",
+  "Direction of f is the question: it opposes the RELATIVE motion (or the tendency). Ask which way the object wants to escape."]},
+ {t:"Support cheat-table — what reaction each gives",s:[
+  "Roller on a surface: ONE force, perpendicular to the surface.",
+  "Pin/hinge: TWO forces — horizontal and vertical.",
+  "Fixed (cantilever) wall: TWO forces + a moment.",
+  "Smooth collar on a rod / rod in a slot: ONE force, perpendicular to the rod.",
+  "Short link (two-force member): force along the line of the link."]},
+];
+/* ============================================================
+   LIFE OS v3 — rooms
+   ============================================================ */
+const V3HAB=["MOVE","SLEEP 7H+","WATER","DEEP STUDY","GUITAR","READ"];
+const V3PROMPTS=[
+ "What did today cost you, and was it worth it?",
+ "One thing you understand better than yesterday.",
+ "What are you avoiding, and what is it protecting?",
+ "Describe the room you'll be studying in next year. Detail it.",
+ "What did you say no to this week? Write it down; it counts.",
+ "Something beautiful you saw today, in three lines.",
+ "If the next 25 minutes were the only ones that counted, what would you do?",
+ "What would the version of you at the Netherlands be doing tonight?"
+];
+const V3PLAN=[
+ {id:1, d:"2026-10-13", t:"Build the Obsidian vault + first lecture file (notes-kit)", k:"setup"},
+ {id:2, d:"2026-10-13", t:"Set Today anchors; first KEEP in Archive; first win in Pride Room", k:"ritual"},
+ {id:3, d:"2026-10-14", t:"BMESC form: final read, then SUBMIT (deadline 16 Oct — do not ride the edge)", k:"gate"},
+ {id:4, d:"2026-10-14", t:"Statics: 2×25 cold trusses (method of joints), no notes for the second", k:"study"},
+ {id:5, d:"2026-10-15", t:"BMESC form submitted + screenshot proof in Archive", k:"gate"},
+ {id:6, d:"2026-10-17", t:"Interview prep: 10-min walkthrough of your media work, out loud, timed", k:"gate"},
+ {id:7, d:"2026-10-19", t:"BMESC interviews begin (19–21) · SDC registration", k:"gate"},
+ {id:8, d:"2026-10-20", t:"Statics self-test: 3 trusses, cold, 90 min, closed book", k:"test"},
+ {id:9, d:"2026-10-24", t:"Week review in Journal + pockets deposit check", k:"ritual"},
+ {id:10, d:"2026-11-01", t:"Circuit basics: start series (finish by 21 Nov at 2 sessions/day)", k:"study"}
+];
+const V3VARS=[
+ "Wake time fixed (±30 min) — the single strongest variable",
+ "First 90 minutes: no phone, no feeds — deep work before input",
+ "Phone in a drawer while studying, not face-down on the desk",
+ "One playlist per task type; lo-fi for reading, silence for maths",
+ "Same desk, same lamp, same tea — the room becomes the trigger",
+ "Sleep logged nightly; no study after <6h sleep — you know it's wasted input",
+ "One 25-minute block minimum, even on bad days. Especially on bad days."
+];
+const V3SESSIONS=[["Statics — trusses & friction",24],["Circuits — DC + AC basics",18],["MATLAB fundamentals",12],["Python for engineers",20],["Guitar — barre chords & songs",16]];
+const RABBIT=[
+ {t:"The khipu — the Inca's knotted code",h:"The Inca ran an empire without writing: records lived in knotted cords called khipu. Some may even encode narrative — still debated by researchers.",s:["khipu Inca Harvard database","Machu Picchu purpose debate archaeology","Lake Titicaca underwater offerings"],q:["How does a knot store a number?","Why would an empire resist writing?","What would change if khipu turn out to be narrative?"]},
+ {t:"Vampires: the folklore vs the diagnoses",h:"18th-century vampire panics overlapped with epidemic disease and premature-burial terror. Later 'medical explanations' (porphyria, rabies) are popular but contested — perfect practice in weighing a claim.",s:["18th century vampire panic Serbia Peter Plogojowitz","porphyria vampire myth evidence review","rabies hydrophobia folklore"],q:["Which part is documented history, and which is modern retcon?","Why do diseases grow folklore?","What evidence would settle the porphyria question?"]},
+ {t:"Sleep paralysis across cultures",h:"The same terrifying experience — awake, unable to move, feeling a presence — is named differently on every continent: the old hag, kanashibari, 'the shadow'. One brain glitch, many stories.",s:["sleep paralysis REM atonia neuroscience","kanashibari Japan folklore","sleep paralysis cultural interpretations review"],q:["Why does fear come with a felt 'presence'?","What does it say that cultures converge on similar monsters?","Can lucid practice make it bearable?"]},
+ {t:"How to debunk anything (conspiracy literacy)",h:"Not 'which theory is true' — how to test any claim at all: origin, evidence, falsifiability, and who benefits from you believing it. This one is a life skill.",s:["conspiracy theory psychology research","BITE model undue influence","how to falsify a claim logic"],q:["What evidence would change the believer's mind — and yours?","Why are unfalsifiable claims seductive?","Which of your own beliefs fails today's test?"]},
+ {t:"The dark web, without the movie",h:"The 'dark web' is mostly Tor sites: forums, mirrors, scams. Every market story ends the same way — takedown or exit scam. Real research reads like crime reporting, not adventure.",s:["Silk Road takedown investigation","Tor browser how it works EFF","dark web scam research study"],q:["Why do these markets always collapse?","What makes Tor both privacy tool and crime magnet?","What's legal to study here, and what would you never touch?"]},
+ {t:"Rabies — the perfect virus horror",h:"Once symptoms start, rabies is effectively always fatal; the vaccines work only before symptoms. This single fact explains half of all vampire and werewolf folklore.",s:["rabies pathogenesis CNS","rabies post-exposure prophylaxis protocol","rabies hydrophobia history"],q:["Why can't the immune system clear it?","Why is it still ~60,000 deaths a year, mostly children?","What does 'vaccinate the dogs' teach about public health?"]},
+ {t:"Göbekli Tepe — older than the pyramids",h:"A temple complex built ~11,000 years ago, before agriculture in the region. It forces one question: did civilisation need farming first, or the other way around?",s:["Göbekli Tepe excavation results","Pre-Pottery Neolithic transition debate","Klaus Schmidt interpretations criticism"],q:["What counts as 'civilisation'?","Why do origin stories keep getting rewritten?","What's the honest uncertainty here?"]},
+ {t:"The Antikythera mechanism",h:"A 2,000-year-old bronze gear machine that modelled the sun, moon and eclipses. Nothing this complex appears in the record again for over a millennium.",s:["Antikythera mechanism Nature paper","Antikythera shipwreck new dives","ancient Greek astronomical computers"],q:["What did it predict, exactly?","Why did the technology disappear?","What does that say about progress being linear?"]},
+ {t:"BCIs: what's actually working",h:"Brain-computer interfaces are real medicine now — spelling devices, robotic arm control, Parkinson's stimulation. The demos are real; the timelines in the headlines are not.",s:["synchron stentrode clinical trial results","Blackrock Neurotech participant outcomes","deep brain stimulation Parkinson's review"],q:["What's the gap between demo and product?","Which patients gain most today?","What would you want proven before implanting anything?"]},
+ {t:"Prosthetics: peg legs to osseointegration",h:"From wood to carbon fibre to bone-anchored implants wired into nerves. The engineering problem is not power — it's the body refusing foreign objects.",s:["osseointegration prosthetic implant outcomes","targeted muscle reinnervation explained","myoelectric hand control history"],q:["Why is rejection the real enemy?","What does 'sense of ownership' require?","What would you build if materials were free?"]},
+ {t:"The Fermi paradox & the Great Filter",h:"The maths says the galaxy should be full of civilisations. Silence says something kills them off — or that we're early. Which is more frightening is a philosophy question.",s:["Fermi paradox resolutions review","Great Filter explanation","detectability of exoplanet biosignatures"],q:["Which filter step are we most likely to fail?","Why do we assume expansion, not silence?","What would change your mind?"]},
+ {t:"Memory palaces & the art of remembering",h:"Champions memorise decks of cards by walking familiar rooms in their heads. The method is 2,500 years old and fully learnable — a real superpower with no hardware.",s:["method of loci memory training study","memory athlete fMRI study","spaced repetition evidence review"],q:["Why does place beat repetition?","What's your first palace? Map it.","Where does this fail?"]}
+];
+const LEARN=[
+ "Your bone marrow makes roughly 2 million red blood cells per second — a factory that never clocks out.",
+ "An octopus has three hearts and blue blood; two hearts pump to the gills, one to the body.",
+ "The Eiffel Tower grows about 15 cm taller in summer as the iron expands.",
+ "Sharks as a group are older than trees — by roughly 50–100 million years.",
+ "Honey is hygroscopic and acidic: sealed properly, it can stay edible for decades.",
+ "A wavelength of light is about 400–700 nanometres — your retina resolves differences 10 times smaller than that.",
+ "Your brain runs on roughly 20 watts. The laptop you're staring at needs many times more to fake a fraction of it.",
+ "Blood vessels in the adult body would stretch roughly 100,000 km if laid end to end.",
+ "Glass is technically a liquid that lost the argument — ancient windows sag because they were made unevenly, not because they 'flow'.",
+ "The first prosthetic in the historical record is a 3,000-year-old wooden toe on an Egyptian mummy.",
+ "There are more possible legal chess positions than atoms in the observable universe — games are not just long, they're explosive.",
+ "Spaced repetition works because forgetting is a feature: difficulty of recall is what builds storage strength."
+];
+const PUZZLES=[
+ {t:"Murder in the workshop",d:"A bio-lab technician is found dead in a locked workshop. Four people had keys: the PI (claiming she was at a conference), the postdoc (says he was in the freezer room), the undergrad (was doing a 3am gel run), and the security guard (was at his desk). The door logs show exactly one key swipe between 2:00 and 3:00am. The freezer room log has no entry. The gel imager timestamp reads 2:47am. The conference badge was scanned at 9am the next day, 400 km away.",s:"The postdoc lied about the freezer room — the log is empty. But lying isn't killing: the gel run at 2:47 places the undergrad on-site at the right hour, exactly when the imager would be dark and silent. Whoever killed her needed to be present when the door log was blind — between swipes. That leaves the person with the spare swipe... the guard, whose desk is 20 m from the door. His 3am coffee run is on no record at all. Motive, not maths, decides it. (This is a logic exercise — the answer isn't unique. That's the lesson: real evidence rarely shouts.)"},
+ {t:"The three engineers",d:"Three engineers — Ada, Babbage, Curie — each built a device: a pump, a probe, a timer. Ada's device cannot be a probe. The timer's builder has more than 10 years' experience. Curie has 4 years' experience. Babbage built the pump. Who built the timer?",s:"Babbage = pump. Ada ≠ probe, so Ada = timer or pump; pump is taken → Ada = timer. Check: timer built by someone with >10 yrs: Ada must then have >10 years. Curie (4 yrs) built the probe. Consistent. Ada built the timer."}
+];
+const FEEDCATS=[
+ ["Medicine & neurotech",[["Nature","https://www.nature.com/"],["ScienceDaily","https://www.sciencedaily.com/"],["STAT News","https://www.statnews.com/"],["Neuroscience News","https://neurosciencenews.com/"],["Quanta Magazine","https://www.quantamagazine.org/"]]],
+ ["Robots & bionics",[["IEEE Spectrum","https://spectrum.ieee.org/"],["The Robot Report","https://www.therobotreport.com/"],["TechXplore","https://techxplore.com/"],["Wired Science","https://www.wired.com/tag/science/"]]],
+ ["Money & markets",[["Reuters Markets","https://www.reuters.com/markets/"],["The Edge Malaysia","https://theedgemalaysia.com/"],["CNBC","https://www.cnbc.com/"],["Bursa Malaysia","https://www.bursamalaysia.com/"]]],
+ ["World & geopolitics",[["Al Jazeera","https://www.aljazeera.com/"],["Reuters World","https://www.reuters.com/world/"],["Foreign Affairs","https://www.foreignaffairs.com/"],["Our World in Data","https://ourworldindata.org/"]]],
+ ["Long reads (anti-scroll)",[["Aeon","https://aeon.co/"],["Nautilus","https://nautil.us/"],["Longreads","https://longreads.com/"],["The Marginalian","https://www.themarginalian.org/"]]]
+];
+
+/* ---- TODAY ---- */
+function vToday(){
+  if(!S.daily)S.daily={};
+  if(!S.mood)S.mood={};
+  if(!S.prio)S.prio={};
+  const now=today();
+  if(!S.daily[now])S.daily[now]={};
+  const q=MOTQ[Math.floor((Date.now()/86400000))%MOTQ.length];
+  const dayOk=d=>{const o=S.daily[d]||{};return V3HAB.filter(h=>o[h]).length;};
+  let streak=0; for(let i=0;i<400;i++){ const d=new Date(Date.now()-i*86400000).toISOString().slice(0,10);
+    if(i===0&&dayOk(d)===0){continue;} if(dayOk(d)>=3)streak++; else break; }
+  const strip=[6,5,4,3,2,1,0].map(i=>{const d=new Date(Date.now()-i*86400000).toISOString().slice(0,10);const n=dayOk(d);
+    return '<span style="color:'+(n>=3?"var(--am)":n>0?"var(--cy)":"var(--dim)")+'">'+(n||"·")+"</span>";}).join(" ");
+  const MOODS=["steady","fired up","tired","heavy","wired","numb"];
+  const mo=S.mood[now]||"";
+  const pr=S.prio[now]||{a:"",b:"",c:""};
+  $("#view").innerHTML=
+   '<div class="hero"><img class="bg" src="assets/hero-city.jpg" alt=""><div class="in">'+
+    '<h2>WAKE UP.</h2><p class="s">'+now+' · the city does not wait — neither do you</p></div></div>'+
+   '<div class="grid">'+
+   '<div class="panel"><h3>TODAY <span>// tap to seal</span></h3>'+
+    '<div class="habwrap" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">'+V3HAB.map(h=>'<div class="hab'+(S.daily[now][h]?" on":"")+'" data-h="'+h+'">'+h+'</div>').join("")+'</div>'+
+    '<p style="margin-top:12px">last 7 days: '+strip+' · streak (3+/day): <b style="color:var(--am)">'+streak+'</b></p>'+
+    '<label style="margin-top:12px">mood</label><div class="row">'+MOODS.map(m=>'<button class="btn '+(mo===m?"":"warn")+' m-btn" data-m="'+m+'">'+m.toUpperCase()+'</button>').join("")+'</div></div>'+
+   '<div class="panel"><h3>THREE THINGS <span>// tomorrow-you gets no surprises</span></h3>'+
+    '<label>the one that matters</label><input class="inp" id="pa" value="'+esc(pr.a)+'">'+
+    '<label>second</label><input class="inp" id="pb" value="'+esc(pr.b)+'">'+
+    '<label>if there is time</label><input class="inp" id="pc" value="'+esc(pr.c)+'">'+
+    '<div class="row" style="margin-top:10px"><button class="btn" id="pkeep">KEEP</button><button class="btn" id="pmini">START A 25</button><a href="#journal" id="pjour" class="btn" style="text-decoration:none">JOURNAL ✎</a></div>'+
+    '<p style="margin-top:10px;color:var(--dim);font-size:11px">START A 25 opens a timer in the tab title — do the first thing, timer stays honest. </p></div>'+
+   '<div class="panel"><h3>FUEL <span>// rotation '+(Math.floor(Date.now()/86400000)%MOTQ.length+1)+'/'+MOTQ.length+'</span></h3>'+
+    '<p class="quote">“'+q+'”</p>'+
+    '<p style="margin-top:12px;color:var(--dim);font-size:11px">new line every day. if one lands, write it on your wall.</p></div>'+
+   '</div>';
+  document.querySelectorAll(".hab").forEach(x=>x.onclick=()=>{ const h=x.dataset.h; S.daily[now][h]=!S.daily[now][h]; save(); vToday(); });
+  document.querySelectorAll(".m-btn").forEach(b=>b.onclick=()=>{ S.mood[now]=b.dataset.m; save(); vToday(); });
+  $("#pkeep").onclick=()=>{ S.prio[now]={a:$("#pa").value.trim(),b:$("#pb").value.trim(),c:$("#pc").value.trim()}; save(); toast("kept. the day is not a fog anymore."); };
+  $("#pmini").onclick=()=>start25();
+  const j=$("#pjour"); if(j)j.onclick=e=>{e.preventDefault(); show("journal");};
+}
+let V3TIMER=null;
+function start25(){
+  clearInterval(V3TIMER); let left=25*60;
+  const tick=()=>{ const m=String(Math.floor(left/60)).padStart(2,"0"),s=String(left%60).padStart(2,"0");
+    document.title="⏳ "+m+":"+s+" — LIFE//OS"; if(left<=0){ clearInterval(V3TIMER); document.title="LIFE//OS — done. now sleep."; toast("25 up. log it and move."); } left--; };
+  tick(); V3TIMER=setInterval(tick,1000); toast("25 minutes started — title bar is the clock.");
+}
+
+/* ---- PLAN ---- */
+function vPlan(){
+  if(!S.plan)S.plan=JSON.parse(JSON.stringify(V3PLAN));
+  if(!S.vars)S.vars={};
+  if(!S.bars)S.bars={deck:0,map:0,cam:0};
+  const done=S.plan.filter(x=>x.done).length;
+  const rows=S.plan.map((x,i)=>{ const late=!x.done&&x.d<today();
+    return '<tr><td style="white-space:nowrap;color:'+(late?"var(--rd)":x.d===today()?"var(--am)":"var(--dim)")+'">'+esc(x.d)+
+      (x.k?'<br><span class="tag">'+esc(x.k)+'</span>':'')+'</td>'+
+      '<td style="'+(x.done?"color:var(--dim);text-decoration:line-through":"")+'">'+esc(x.t)+'</td>'+
+      '<td style="width:30px"><input type="checkbox" class="plk" data-i="'+i+'" '+(x.done?"checked":"")+'></td>'+
+      '<td style="width:30px"><button class="del pld" data-i="'+i+'">✕</button></td></tr>';}).join("");
+  const calc=(n,per)=>{ let d=n,days=0; while(d>0){days++; d-=per;} const dt=new Date(Date.now()+days*86400000); return dt.toISOString().slice(0,10); };
+  const fin=V3SESSIONS.map(([n,ss])=>'<tr><td>'+esc(n)+'</td><td style="text-align:right">'+ss+'</td><td style="text-align:right;color:var(--am)">'+calc(ss,2)+'</td></tr>').join("");
+  const vars=V3VARS.map((v,i)=>'<label style="display:flex;gap:8px;align-items:flex-start;font-size:12px;margin:6px 0"><input type="checkbox" class="vk" data-i="'+i+'" '+(S.vars[i]?"checked":"")+'><span>'+esc(v)+'</span></label>').join("");
+  const bar=(k,n)=>'<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--dim)"><span>'+n+'</span><span>RM '+S.bars[k]+' / 400</span></div>'+
+    '<div style="height:8px;border:1px solid var(--line2);border-radius:4px;overflow:hidden;margin-top:4px"><div style="height:100%;width:'+Math.min(100,S.bars[k]/4)+'%;background:linear-gradient(90deg,var(--cy),var(--am))"></div></div>'+
+    '<div class="row" style="margin-top:6px"><input class="inp bv" data-b="'+k+'" placeholder="+ RM" style="max-width:90px"><button class="btn badd" data-b="'+k+'">ADD</button></div></div>';
+  $("#view").innerHTML=
+   '<div class="grid">'+
+   '<div class="panel" style="grid-column:1/-1"><h3>PLAN <span>// dated gates · '+done+'/'+S.plan.length+' cleared · late days glow red</span></h3>'+
+    '<table><tr><th>date</th><th>gate / task</th><th>✓</th><th></th></tr>'+rows+'</table>'+
+    '<div class="grid" style="margin-top:12px"><input class="inp" id="pd" type="date" value="'+today()+'"><input class="inp" id="pt" placeholder="new gate — what, specifically"><select class="inp" id="pk"><option>gate</option><option>study</option><option>test</option><option>ritual</option><option>setup</option></select><button class="btn" id="pgo">ADD GATE</button></div></div>'+
+   '<div class="panel"><h3>IF YOU START TODAY <span>// 2 sessions × 25 min per day</span></h3>'+
+    '<table><tr><th>track</th><th style="text-align:right">sessions</th><th style="text-align:right">finish ≈</th></tr>'+fin+'</table>'+
+    '<p style="margin-top:10px;color:var(--dim);font-size:11px">The dates are not magic — they are arithmetic. Miss days, shift them. Never renegotiate the sessions, only the calendar.</p></div>'+
+   '<div class="panel"><h3>CONTROLLED VARIABLES <span>// the experiment is you</span></h3>'+vars+
+    '<p style="margin-top:8px;color:var(--dim);font-size:11px">Change one variable at a time. Everything at once means you learn nothing about what worked.</p></div>'+
+   '<div class="panel"><h3>BENCH BARS <span>// cyberdeck kit</span></h3>'+bar("deck","CYBERDECK")+bar("map","MAPPING KIT")+bar("cam","DIGICAM")+'</div>'+
+   '<div class="panel" style="grid-column:1/-1"><div class="polaroid washi" style="max-width:420px"><img src="assets/dark-academia.jpg" alt=""><b>the desk is the laboratory.</b> control the room, control the day.</div></div>'+
+   '</div>';
+  document.querySelectorAll(".plk").forEach(c=>c.onchange=()=>{ S.plan[+c.dataset.i].done=c.checked; save(); vPlan(); });
+  document.querySelectorAll(".pld").forEach(b=>b.onclick=()=>{ S.plan.splice(+b.dataset.i,1); save(); vPlan(); });
+  wire("#pgo", ()=>{ const t=$("#pt").value.trim(); if(!t)return; S.plan.push({id:Date.now(),d:$("#pd").value||today(),t:t,k:$("#pk").value,done:false}); save(); vPlan(); });
+  document.querySelectorAll(".vk").forEach(c=>c.onchange=()=>{ S.vars[+c.dataset.i]=c.checked; save(); });
+  document.querySelectorAll(".badd").forEach(b=>b.onclick=()=>{ const v=parseFloat(b.parentElement.querySelector(".bv").value)||0; S.bars[b.dataset.b]=Math.max(0,S.bars[b.dataset.b]+v); save(); vPlan(); });
+}
+
+/* ---- JOURNAL ---- */
+function vJournal(){
+  if(!S.journal)S.journal=[];
+  const p=V3PROMPTS[new Date().getDate()%V3PROMPTS.length];
+  const words=S.journal.reduce((a,e)=>a+(e.text||"").split(/\s+/).filter(Boolean).length,0);
+  const rows=S.journal.slice().reverse().map((e,i)=>{ const ix=S.journal.length-1-i;
+    return '<div class="panel" style="margin-bottom:10px"><h3>'+esc(e.when)+' <span>// '+esc(e.mood||"unmarked")+' · '+((e.text||"").split(/\s+/).filter(Boolean).length)+' words</span></h3>'+
+    '<p style="white-space:pre-wrap;font-family:var(--serif);font-size:14.5px;line-height:1.7">'+esc(e.text)+'</p><button class="del jd" data-i="'+ix+'">delete</button></div>';}).join("");
+  $("#view").innerHTML=
+   '<div class="grid">'+
+   '<div class="panel"><h3>JOURNAL <span>// write. not choose. write.</span></h3>'+
+    '<p style="color:var(--am);font-size:12px;margin-bottom:8px">tonight: '+esc(p)+'</p>'+
+    '<label>mood</label><input class="inp" id="jm" placeholder="one word is enough" style="max-width:200px">'+
+    '<label>entry</label><textarea class="inp" id="jx" rows="10" style="font-family:var(--serif);font-size:14.5px;line-height:1.7" placeholder="no one reads this. spell wrong. the point is the row of nights, not any single one."></textarea>'+
+    '<div class="row" style="margin-top:10px"><button class="btn" id="jsave">SEAL ENTRY</button></div>'+
+    '<p style="margin-top:8px;color:var(--dim);font-size:11px">'+S.journal.length+' entries · '+words+' words written. '+ (S.journal.length? "the archive of you is growing." : "the first page is the hardest.") +'</p></div>'+
+   '<div class="panel"><div class="polaroid"><img src="assets/flatlay.jpg" alt=""><b>the night desk.</b> tea, one lamp, one page.</div>'+
+    '<p style="margin-top:12px;color:var(--dim);font-size:11px">Entries are sealed in the vault — same encryption as everything else. If it matters enough, put it in the Pride Room instead; that shelf is for wins.</p></div>'+
+   '</div>'+
+   '<div style="margin-top:16px">'+(rows||'<p style="color:var(--dim)">empty. tonight is a fine first entry: three lines, no editing.</p>')+'</div>';
+  wire("#jsave", ()=>{ const t=$("#jx").value.trim(); if(!t){ toast("write at least one line."); return; }
+    S.journal.push(stamp({when:today(),mood:$("#jm").value.trim(),text:t})); save(); vJournal(); toast("sealed. good night."); });
+  document.querySelectorAll(".jd").forEach(b=>b.onclick=()=>{ S.journal.splice(+b.dataset.i,1); save(); vJournal(); });
+}
+
+/* ---- MUSIC & STUDIO ---- */
+let V3MP=null, V3PAT=null, V3AC=null, V3SEQT=null, V3STEP=0, V3PLAY=false;
+function vMusic(){
+  if(!S.pats)S.pats=[];
+  $("#view").innerHTML=
+   '<div class="row" style="margin-bottom:14px">'+["library","studio","downloads?"].map((t,i)=>'<button class="btn '+(i===0?"":"warn")+'" data-t="'+t+'">'+t.toUpperCase()+'</button>').join("")+'</div>'+
+   '<div id="mbody">loading…</div>';
+  document.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>musicTab(b.dataset.t));
+  musicTab("library");
+}
+async function musicTab(t){
+  const b=$("#mbody"); if(!b)return;
+  if(t==="library"){
+    let files=[]; try{ files=(await IDB.all()).filter(f=>(f.type||"").startsWith("audio")); }catch(e){}
+    const rows=files.map(f=>'<tr><td>'+esc(f.name)+'</td><td style="color:var(--dim)">'+esc(f.type.split("/")[1]||"")+'</td><td style="text-align:right">'+(f.size/1048576).toFixed(1)+' MB</td>'+
+      '<td><button class="btn mp" data-id="'+f.id+'">▶</button></td><td><button class="btn warn md" data-id="'+f.id+'">✕</button></td></tr>').join("");
+    b.innerHTML='<div class="panel"><h3>YOUR LIBRARY <span>// upload from the laptop · plays from the vault, ad-free, offline</span></h3>'+
+      '<div class="row"><button class="btn" id="mu">⤒ UPLOAD MUSIC</button><input type="file" id="mf" accept="audio/*" multiple class="hidden"></div>'+
+      '<table style="margin-top:12px">'+rows+'</table>'+
+      (files.length?"":'<p style="color:var(--dim);margin-top:10px">nothing yet. on the laptop: download your music as files, then upload them here once — they live in the vault on this device forever.</p>')+
+      '<div style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px"><h3 style="font-size:12px">NOW PLAYING</h3>'+
+      '<audio id="mp2" controls style="width:100%;margin-top:8px"></audio><p id="mnow" style="color:var(--dim);font-size:11px;margin-top:6px">pick a track.</p></div></div>';
+    $("#mu").onclick=()=>$("#mf").click();
+    $("#mf").onchange=async e=>{ for(const f of e.target.files){ const buf=await f.arrayBuffer();
+      await IDB.put({id:Date.now()+"-"+f.name,name:f.name,type:f.type||"audio/mpeg",size:f.size,added:today(),data:await SK.encB(buf)}); }
+      toast(e.target.files.length+" track(s) sealed."); musicTab("library"); };
+    document.querySelectorAll(".mp").forEach(x=>x.onclick=async ()=>{ const rec=await IDB.get(x.dataset.id); const buf=await SK.decB(rec.data);
+      const url=URL.createObjectURL(new Blob([buf],{type:rec.type})); const a=$("#mp2"); a.src=url; a.play(); $("#mnow").textContent="now: "+rec.name; });
+    document.querySelectorAll(".md").forEach(x=>x.onclick=async ()=>{ await IDB.del(x.dataset.id); musicTab("library"); });
+  }
+  if(t==="studio"){
+    const ROWS=[["kick","KICK"],["snare","SNARE"],["hat","HAT"],["clap","CLAP"],["tom","TOM"],["rim","RIM"],["bass","BASS"],["strings","STRINGS"]];
+    if(!V3PAT){ V3PAT={bpm:96,steps:16,rows:{}}; ROWS.forEach(([k])=>V3PAT.rows[k]=Array(16).fill(false)); V3PAT.rows.kick[0]=V3PAT.rows.kick[8]=true; V3PAT.rows.hat[2]=V3PAT.rows.hat[6]=V3PAT.rows.hat[10]=V3PAT.rows.hat[14]=true; }
+    const grid=ROWS.map(([k,n])=>'<div class="rl">'+n+'</div>'+V3PAT.rows[k].map((on,i)=>'<div class="stp'+(on?" on":"")+(i%4===0?" beat":"")+'" data-r="'+k+'" data-s="'+i+'"></div>').join("")).join("");
+    const pats=S.pats.map((x,i)=>'<tr><td>'+esc(x.name)+'</td><td>'+x.bpm+' bpm</td><td><button class="btn lp" data-i="'+i+'">LOAD</button></td><td><button class="btn warn dp" data-i="'+i+'">✕</button></td></tr>').join("");
+    b.innerHTML='<div class="panel"><h3>STUDIO <span>// build a beat when the day was loud</span></h3>'+
+      '<div class="stepgrid">'+grid+'</div>'+
+      '<div class="row" style="margin-top:12px"><button class="btn" id="stplay">▶ PLAY</button><button class="btn" id="stclr">CLEAR</button>'+
+      '<label style="margin:0 8px 0 14px;color:var(--dim);font-size:11px">BPM</label><input class="inp" id="stbpm" type="number" min="60" max="160" value="'+V3PAT.bpm+'" style="max-width:80px"></div>'+
+      '<div class="row" style="margin-top:10px"><input class="inp" id="stname" placeholder="pattern name"><button class="btn" id="stsave">SAVE PATTERN</button></div>'+
+      '<p style="margin-top:8px;color:var(--dim);font-size:11px">every 4th column is a beat — kick on beat 1 and 3 is a heartbeat. add the rest until it sounds like the day felt.</p></div>'+
+      '<div class="panel" style="margin-top:14px"><h3>PATTERNS</h3><table>'+(pats||'<tr><td style="color:var(--dim)">none saved yet.</td></tr>')+'</table></div>'+
+      '<div class="panel" style="margin-top:14px"><div class="polaroid" style="max-width:460px;transform:rotate(1deg)"><img src="assets/room-desk.jpg" alt=""><b>the corner studio.</b> guitar on the left, laptop on the right, nonsense in the middle.</div></div>';
+    document.querySelectorAll(".stp").forEach(c=>c.onclick=()=>{ const r=c.dataset.r,s=+c.dataset.s; V3PAT.rows[r][s]=!V3PAT.rows[r][s]; c.classList.toggle("on"); });
+    $("#stbpm").onchange=()=>{ V3PAT.bpm=+$("#stbpm").value||96; };
+    $("#stclr").onclick=()=>{ Object.keys(V3PAT.rows).forEach(k=>V3PAT.rows[k]=Array(16).fill(false)); musicTab("studio"); };
+    $("#stplay").onclick=()=>{ if(V3PLAY){ stopSeq(); $("#stplay").textContent="▶ PLAY"; return; } startSeq(); $("#stplay").textContent="■ STOP"; };
+    $("#stsave").onclick=()=>{ const n=$("#stname").value.trim()||("pattern "+new Date().toLocaleTimeString()); S.pats.push({name:n,bpm:V3PAT.bpm,rows:JSON.parse(JSON.stringify(V3PAT.rows))}); save(); vMusic(); };
+    document.querySelectorAll(".lp").forEach(x=>x.onclick=()=>{ const p=S.pats[+x.dataset.i]; V3PAT.bpm=p.bpm; V3PAT.rows=p.rows; musicTab("studio"); });
+    document.querySelectorAll(".dp").forEach(x=>x.onclick=()=>{ S.pats.splice(+x.dataset.i,1); save(); vMusic(); });
+  }
+  if(t==="downloads?"){
+    b.innerHTML='<div class="panel"><h3>WHERE MUSIC COMES FROM <span>// honestly</span></h3>'+
+     '<p style="margin-bottom:8px">▸ No Spotify syncing, no stream-ripping, no ads removed from anyone\u2019s platform — those are ToS breaches and I won\u2019t build them.</p>'+
+     '<p style="margin-bottom:8px">▸ Legal files you own (Bandcamp purchases, free downloads, your own recordings) → upload here once → play forever, offline, ad-free, in your vault.</p>'+
+     '<p>▸ The guitar in the corner is also legal and never buffering.</p></div>';
+  }
+}
+function v3ac(){ if(!V3AC) V3AC=new (window.AudioContext||window.webkitAudioContext)(); return V3AC; }
+function v3noise(dur){ const a=v3ac(), n=a.sampleRate*dur, b=a.createBuffer(1,n,a.sampleRate), d=b.getChannelData(0); for(let i=0;i<n;i++)d[i]=Math.random()*2-1; const s=a.createBufferSource(); s.buffer=b; return s; }
+function v3out(){ const a=v3ac(); if(!a.__mg){ a.__mg=a.createGain(); a.__mg.gain.value=.75; a.__mg.connect(a.destination); } return a.__mg; }
+function v3hit(kind,t){
+  const a=v3ac(), out=v3out();
+  if(kind==="kick"){ const o=a.createOscillator(),g=a.createGain(); o.frequency.setValueAtTime(150,t); o.frequency.exponentialRampToValueAtTime(44,t+.34);
+    g.gain.setValueAtTime(.95,t); g.gain.exponentialRampToValueAtTime(.001,t+.42); o.connect(g).connect(out); o.start(t); o.stop(t+.45); return; }
+  if(kind==="snare"){ const s=v3noise(.25), f=a.createBiquadFilter(), g=a.createGain(); f.type="bandpass"; f.frequency.value=1800; f.Q.value=.7;
+    g.gain.setValueAtTime(.7,t); g.gain.exponentialRampToValueAtTime(.001,t+.19); s.connect(f).connect(g).connect(out); s.start(t); s.stop(t+.25);
+    const o=a.createOscillator(),g2=a.createGain(); o.type="triangle"; o.frequency.value=180; g2.gain.setValueAtTime(.35,t); g2.gain.exponentialRampToValueAtTime(.001,t+.12);
+    o.connect(g2).connect(out); o.start(t); o.stop(t+.14); return; }
+  if(kind==="hat"){ const s=v3noise(.08), f=a.createBiquadFilter(), g=a.createGain(); f.type="highpass"; f.frequency.value=7500;
+    g.gain.setValueAtTime(.28,t); g.gain.exponentialRampToValueAtTime(.001,t+.06); s.connect(f).connect(g).connect(out); s.start(t); s.stop(t+.09); return; }
+  if(kind==="clap"){ [0,.012,.026].forEach((o,i)=>{ const s=v3noise(.12), f=a.createBiquadFilter(), g=a.createGain(); f.type="bandpass"; f.frequency.value=1150;
+    g.gain.setValueAtTime(.5-i*.12,t+o); g.gain.exponentialRampToValueAtTime(.001,t+o+.11); s.connect(f).connect(g).connect(out); s.start(t+o); s.stop(t+o+.13); }); return; }
+  if(kind==="tom"){ const o=a.createOscillator(),g=a.createGain(); o.frequency.setValueAtTime(210,t); o.frequency.exponentialRampToValueAtTime(85,t+.28);
+    g.gain.setValueAtTime(.6,t); g.gain.exponentialRampToValueAtTime(.001,t+.3); o.connect(g).connect(out); o.start(t); o.stop(t+.32); return; }
+  if(kind==="rim"){ const o=a.createOscillator(),g=a.createGain(),f=a.createBiquadFilter(); o.type="square"; o.frequency.value=480; f.type="highpass"; f.frequency.value=300;
+    g.gain.setValueAtTime(.3,t); g.gain.exponentialRampToValueAtTime(.001,t+.05); o.connect(f).connect(g).connect(out); o.start(t); o.stop(t+.06); return; }
+  if(kind==="bass"){ const o=a.createOscillator(),g=a.createGain(),f=a.createBiquadFilter(); o.type="sawtooth"; o.frequency.value=110;
+    f.type="lowpass"; f.frequency.value=620; g.gain.setValueAtTime(.4,t); g.gain.exponentialRampToValueAtTime(.001,t+.3); o.connect(f).connect(g).connect(out); o.start(t); o.stop(t+.32); return; }
+  if(kind==="strings"){ [220,261.63,329.63].forEach(fr=>{ const o=a.createOscillator(),g=a.createGain(); o.type="sawtooth"; o.frequency.value=fr; o.detune.value=(Math.random()*8-4);
+    g.gain.setValueAtTime(.0001,t); g.gain.linearRampToValueAtTime(.10,t+.06); g.gain.exponentialRampToValueAtTime(.001,t+.55); o.connect(g).connect(out); o.start(t); o.stop(t+.6); }); return; }
+}
+function startSeq(){
+  const a=v3ac(); if(a.state==="suspended")a.resume();
+  V3PLAY=true; V3STEP=0; const spb=()=>60/V3PAT.bpm/4; let next=0;
+  V3SEQT=setInterval(()=>{ if(!V3PLAY)return; const now=a.currentTime;
+    while(next<now+.12){ const s=V3STEP%16, swing=(s%2?spb()*.12:0), t=next+swing;
+      for(const k of Object.keys(V3PAT.rows)) if(V3PAT.rows[k][s]) v3hit(k,t);
+      next+=spb(); V3STEP++; } },25);
+}
+function stopSeq(){ V3PLAY=false; if(V3SEQT)clearInterval(V3SEQT); V3SEQT=null; }
+
+/* ---- RABBIT HOLE ---- */
+function vRabbit(){
+  if(!S.deep)S.deep={};
+  const cards=RABBIT.map((r,i)=>{ const open=!!S.deep[i];
+    return '<div class="panel" style="margin-bottom:10px"><h3 class="rbtitle">'+esc(r.t)+'</h3>'+
+     (open?'<p style="margin:8px 0;line-height:1.6">'+esc(r.h)+'</p>'+
+       '<p style="color:var(--cy);font-size:11px;margin-bottom:6px">SEARCH THESE:</p><p style="margin-bottom:8px">'+r.s.map(x=>'<span class="tag">'+esc(x)+'</span>').join("")+'</p>'+
+       '<p style="color:var(--am);font-size:11px;margin-bottom:6px">THEN ANSWER, FOR YOURSELF:</p><ol style="margin-left:18px;font-size:12.5px;line-height:1.7">'+r.q.map(x=>'<li>'+esc(x)+'</li>').join("")+'</ol>'
+      :'<p style="color:var(--dim);font-size:12px">'+esc(r.h.slice(0,90))+'…</p>')+
+     '<div class="row" style="margin-top:8px"><button class="btn rb" data-i="'+i+'">'+(open?"CLOSE":"GO DEEP")+'</button></div></div>';}).join("");
+  const puzzles=PUZZLES.map((p,i)=>'<div class="panel" style="margin-bottom:10px"><h3 class="rbtitle">🔍 '+esc(p.t)+'</h3><p style="margin:8px 0;line-height:1.6">'+esc(p.d)+'</p>'+
+    '<button class="btn pz" data-i="'+i+'">REVEAL THE REASONING</button><p id="pz'+i+'" style="display:none;color:var(--am);margin-top:8px;line-height:1.6">'+esc(p.s)+'</p></div>').join("");
+  const facts='<div class="row">'+LEARN.map((f,i)=>'<span class="tag">'+esc(f.split(" ").slice(0,4).join(" "))+'…</span>').join("")+'</div>';
+  const fact=LEARN[Math.floor(Math.random()*LEARN.length)];
+  $("#view").innerHTML=
+   '<div class="hero"><img class="bg" src="assets/girl-robot.jpg" alt=""><div class="in"><h2>RABBIT HOLE</h2><p class="s">bored is a doorway · doomscrolling is a trap</p></div></div>'+
+   '<div class="grid"><div class="panel" style="grid-column:1/-1"><h3>LEARN SOMETHING NOW <span>// one true thing</span></h3>'+
+    '<p style="font-size:14.5px;line-height:1.7">'+esc(fact)+'</p><div class="row" style="margin-top:10px"><button class="btn" id="rnext">ANOTHER ONE</button></div></div>'+
+   '<div style="grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px">'+cards+'</div>'+
+   '<div style="grid-column:1/-1"><h3 style="margin:18px 0 10px">LOGIC VAULT <span>// solve before revealing</span></h3><div class="grid">'+puzzles+'</div></div></div>';
+  document.querySelectorAll(".rb").forEach(b=>b.onclick=()=>{ const i=+b.dataset.i; S.deep[i]=!S.deep[i]; save(); vRabbit(); });
+  document.querySelectorAll(".pz").forEach(b=>b.onclick=()=>{ const p=$("#pz"+b.dataset.i); p.style.display=p.style.display==="none"?"block":"none"; });
+  wire("#rnext",()=>vRabbit());
+}
+
+/* ---- FEEDS ---- */
+function vFeeds(){
+  const cats=FEEDCATS.map(([n,ls])=>'<div class="panel"><h3>'+esc(n)+'</h3>'+ls.map(([t,u])=>'<p style="margin:6px 0"><a href="'+esc(u)+'" target="_blank" rel="noopener">'+esc(t)+'</a></p>').join("")+'</div>').join("");
+  $("#view").innerHTML=
+   '<div class="panel" style="margin-bottom:14px"><h3>LIVE WIRES <span>// the sources worth your attention, in one place</span></h3>'+
+    '<p style="color:var(--dim);font-size:12px;margin-bottom:10px">These open in the browser — real journalism and journals, no algorithm deciding what you feel. Read one, close the tab, keep the finding.</p>'+
+    '<div class="row"><input class="inp" id="rssu" placeholder="paste an RSS feed URL (most journals have one)" style="flex:1"><button class="btn" id="rssgo">TRY FEED</button></div><p id="rssm" style="color:var(--am);font-size:11px;margin-top:8px"></p></div>'+
+   '<div class="grid">'+cats+'</div>'+
+   '<p style="color:var(--dim);font-size:11px;margin-top:12px">If a link dies, tell me and I\u2019ll replace it. Keep the list short — a dozen good sources beat a hundred feeds.</p>';
+  wire("#rssgo", async ()=>{ const u=$("#rssu").value.trim(); const m=$("#rssm"); if(!u){m.textContent="paste a URL first.";return;}
+    m.textContent="fetching…"; try{ const r=await fetch(u,{mode:"cors"}); const t=await r.text();
+      const items=[...t.matchAll(/<item[\s\S]*?<title[^>]*>([\s\S]*?)<\/title>[\s\S]*?<link[^>]*>([\s\S]*?)<\/link>/g)].slice(0,8)
+        .map(m2=>[m2[1].replace(/<!\[CDATA\[|\]\]>/g,"").trim(), m2[2].trim()]);
+      if(!items.length){ m.textContent="fetched, but no items parsed — feed format differs. open the site directly."; return; }
+      m.innerHTML=items.map(([ti,li])=>'<a href="'+esc(li)+'" target="_blank" rel="noopener">'+esc(ti)+"</a>").join("<br>"); }
+    catch(e){ m.textContent="this site blocks in-page fetch (CORS). Open it with the direct links above — same content, browser tab."; } });
+}
+
+
+/* ---- in-app file viewer ---- */
+async function viewRecord(rec){
+  try{
+    const buf=await SK.decB(rec.data);
+    const url=URL.createObjectURL(new Blob([buf],{type:rec.type||"application/octet-stream"}));
+    openViewer(rec.name||"file", rec.type||"", url, buf);
+  }catch(e){ toast("could not decrypt view: "+String(e).slice(0,60)); }
+}
+async function openViewer(name,type,url,buf){
+  const old=$("#viewer"); if(old)old.remove();
+  const v=el("div"); v.id="viewer";
+  v.innerHTML='<div class="bar"><b class="glow">'+esc(name)+'</b><span style="color:var(--dim);font-size:11px">'+esc(type||"unknown type")+'</span>'+
+   '<span style="flex:1"></span><button class="btn" id="vwdl">SAVE</button><button class="btn warn" id="vwx">CLOSE</button></div><div class="body" id="vwb"></div>';
+  document.body.appendChild(v);
+  const b=$("#vwb");
+  if((type||"").startsWith("pdf")) b.innerHTML='<iframe src="'+url+'"></iframe>';
+  else if((type||"").startsWith("image")) b.innerHTML='<img src="'+url+'">';
+  else if((type||"").startsWith("audio")) b.innerHTML='<audio controls src="'+url+'" style="width:min(680px,96%)"></audio>';
+  else if((type||"").startsWith("video")) b.innerHTML='<video controls src="'+url+'" style="max-width:100%;max-height:100%"></video>';
+  else if((type||"").startsWith("text")||/\.(md|txt|csv|json|js|py|tex|srt|log)$/i.test(name||"")){
+    const t=buf?await (new Blob([buf]).text()):""; b.innerHTML='<pre>'+esc(t)+'</pre>'; }
+  else b.innerHTML='<div class="panel" style="max-width:560px"><h3>CAN\u2019T RENDER THIS ONE IN-APP</h3><p style="color:var(--dim)">Browsers genuinely cannot draw '+esc((name||"").split(".").pop())+' files on a page — your file is fine and sealed intact. Press <b>SAVE</b> to open it in its real app (Word/PowerPoint/Excel).</p></div>';
+  $("#vwx").onclick=()=>v.remove();
+  $("#vwdl").onclick=()=>{ const a=el("a"); a.href=url; a.download=name; a.click(); };
+  v.onclick=e=>{ if(e.target===v)v.remove(); };
+}
+
+
+/* ---- BUDGET v3 — where, on what, with which money ---- */
+function v3budget(){
+  if(!S.budget)S.budget=[];
+  if(!S.pockets)S.pockets={pad:{saved:0,rate:150,goal:2300,name:"PAD (tab)"},bench:{saved:0,rate:50,goal:400,name:"BENCH (hobby)"}};
+  const CATS=["food","transport","phone/data","study","project parts","health","social (protected)","books/music","travel home","other"];
+  const METH=["CARD","TNG","CASH"];
+  const monthD=today().slice(0,7);
+  const mtag=m=>'<span class="tag">'+m+'</span>';
+  const rows=S.budget.slice().reverse().map(b=>{const i=S.budget.indexOf(b);
+    return '<tr><td style="white-space:nowrap;color:var(--dim)">'+esc(b.m||"")+'</td><td>'+esc(b.item)+'</td><td>'+esc(b.cat||"")+'</td>'+
+    '<td>'+mtag(b.method||"—")+'</td><td style="text-align:right">'+(+b.amt||0).toFixed(2)+'</td><td><button class="del bd" data-i="'+i+'">✕</button></td></tr>';}).join("");
+  const sums={}; METH.forEach(m=>sums[m]=0); sums["—"]=0;
+  const cats={};
+  S.budget.filter(b=>(b.m||"").slice(0,7)===monthD).forEach(b=>{ sums[b.method||"—"]=(sums[b.method||"—"]||0)+(+b.amt||0); cats[b.cat||"other"]=(cats[b.cat||"other"]||0)+(+b.amt||0); });
+  const catRows=Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([k,v])=>'<tr><td>'+esc(k)+'</td><td style="text-align:right">RM '+v.toFixed(2)+'</td></tr>').join("");
+  const totalM=Object.values(sums).reduce((a,b)=>a+b,0);
+  const methRows=METH.map(m=>'<tr><td>'+mtag(m)+'</td><td style="text-align:right">RM '+(sums[m]||0).toFixed(2)+'</td></tr>').join("");
+  const pocket=(k)=>{ const P=S.pockets[k]; const pct=Math.min(100,P.saved/P.goal*100); const mleft=P.rate>0?Math.ceil(Math.max(0,P.goal-P.saved)/P.rate):"—";
+    return '<div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between"><b style="color:var(--am)">'+esc(P.name)+'</b><span style="color:var(--dim);font-size:11px">RM '+P.saved+' / '+P.goal+' · '+mleft+' mo to go at RM'+P.rate+'/mo</span></div>'+
+    '<div style="height:9px;border:1px solid var(--line2);border-radius:4px;overflow:hidden;margin:6px 0"><div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,var(--cy),var(--am))"></div></div>'+
+    '<div class="row"><input class="inp pm" data-k="'+k+'" placeholder="± RM to deposit" style="max-width:150px"><input class="inp pr" data-k="'+k+'" value="'+P.rate+'" style="max-width:90px" title="monthly rate"><button class="btn pdep" data-k="'+k+'">DEPOSIT</button></div></div>'; };
+  $("#view").innerHTML=
+   '<div class="grid">'+
+   '<div class="panel" style="grid-column:1/-1"><h3>BUDGET <span>// every ringgit knows where it went</span></h3>'+
+    '<table><tr><th>date</th><th>what</th><th>category</th><th>paid with</th><th style="text-align:right">RM</th><th></th></tr>'+rows+
+    '<tr><td colspan="4" style="color:var(--am)">'+monthD+' TOTAL</td><td style="text-align:right;color:var(--am)">RM '+totalM.toFixed(2)+'</td><td></td></tr></table>'+
+    '<div class="grid" style="margin-top:12px"><input class="inp" id="bd" type="date" value="'+today()+'"><input class="inp" id="bi" placeholder="what did you spend it on"><input class="inp" id="bc" list="bcat" placeholder="category"><datalist id="bcat">'+CATS.map(c=>'<option value="'+c+'">').join("")+'</datalist>'+
+    '<input class="inp" id="ba" placeholder="RM" style="max-width:100px"><select class="inp" id="bmth"><option>CARD</option><option>TNG</option><option>CASH</option></select><button class="btn" id="bb">ADD</button></div>'+
+    '<p style="margin-top:10px;color:var(--dim);font-size:11px">Touch &#39;n Go for the small life, cash for the unrecorded life, card for the paper trail. Watch which method disappears fastest — that is your real leak.</p></div>'+
+   '<div class="panel"><h3>THIS MONTH BY METHOD</h3><table>'+methRows+'</table></div>'+
+   '<div class="panel"><h3>THIS MONTH BY CATEGORY</h3><table>'+(catRows||'<tr><td style="color:var(--dim)">nothing yet this month.</td></tr>')+'</table></div>'+
+   '<div class="panel" style="grid-column:1/-1"><h3>POCKETS <span>// savings with names</span></h3>'+pocket("pad")+pocket("bench")+'</div>'+
+   '</div>';
+  wire("#bb", ()=>{ const i=$("#bi").value.trim(); if(!i){ toast("name the thing you bought."); return; }
+    S.budget.push(stamp({m:$("#bd").value||today(),item:i,cat:$("#bc").value.trim()||"other",amt:+$("#ba").value||0,method:$("#bmth").value})); save(); vBudget(); });
+  document.querySelectorAll(".bd").forEach(b=>b.onclick=()=>{ S.budget.splice(+b.dataset.i,1); save(); vBudget(); });
+  document.querySelectorAll(".pdep").forEach(b=>b.onclick=()=>{ const k=b.dataset.k;
+    const inp=b.parentElement.querySelector(".pm"); const a=parseFloat(inp.value)||0; if(!a)return;
+    S.pockets[k].saved=Math.max(0,S.pockets[k].saved+a); save(); vBudget(); toast((a>=0?"+":"")+"RM"+a+" \u2192 "+S.pockets[k].name); });
+  document.querySelectorAll(".pr").forEach(x=>x.onchange=()=>{ S.pockets[x.dataset.k].rate=+x.value||0; save(); vBudget(); });
+}
+
+vBudget=v3budget;   /* assign late so runtime overrides of vBudget lose to this */
+
+/* ---- READING v3 — the booklist, actually alive ---- */
+const BOOKSEED=["Biodesign \u2014 Zenios, Makower, Yock","The Body Electric \u2014 Robert O. Becker","The Man Who Mistook His Wife for a Hat \u2014 Oliver Sacks","Livewired \u2014 David Eagleman","The Secret History \u2014 Donna Tartt","Babel \u2014 R.F. Kuang","If We Were Villains \u2014 M.L. Rio","Circe \u2014 Madeline Miller","The Myth of Sisyphus \u2014 Albert Camus","Meditations \u2014 Marcus Aurelius","This Is Your Brain on Music \u2014 Daniel Levitin","Skunk Works \u2014 Ben Rich"];
+function vReading(){
+  if(!S.reading)S.reading=[];
+  const rows=S.reading.slice().reverse().map(r=>{const i=S.reading.indexOf(r);
+    return '<tr><td><b>'+esc(r.t)+'</b><br><span style="color:var(--dim);font-size:11px">'+esc(r.w||"")+'</span>'+(r.y?'<br><span style="color:var(--am);font-size:10.5px">why: '+esc(r.y)+'</span>':'')+'</td>'+
+    '<td><select class="inp rsel" data-i="'+i+'">'+["queued","reading","done"].map(s=>'<option '+(r.s===s?"selected":"")+'>'+s+'</option>').join("")+'</select></td>'+
+    '<td style="width:110px"><input class="inp rpg" type="number" min="0" max="100" value="'+(r.p||0)+'" data-i="'+i+'" style="max-width:80px"><div style="height:5px;background:#0c1f2c;border-radius:3px;margin-top:4px"><div style="height:100%;width:'+Math.min(100,r.p||0)+'%;background:var(--cy);border-radius:3px"></div></div></td>'+
+    '<td><input class="inp xnote" data-i="'+i+'" placeholder="extraction — what changed in you?" value="'+esc(r.x||"")+'" style="min-width:160px"></td>'+
+    '<td><button class="del rd" data-i="'+i+'">✕</button></td></tr>';}).join("");
+  const reading=S.reading.filter(r=>r.s==="reading").length;
+  $("#view").innerHTML=
+   '<div class="panel"><h3>THE BOOKLIST <span>// '+reading+' on the desk \u00b7 max 2 at once, no negotiating</span></h3>'+
+    '<table><tr><th>book</th><th>status</th><th>progress</th><th>extraction</th><th></th></tr>'+(rows||'<tr><td colspan="5" style="color:var(--dim)">the shelf is empty. pick from below.</td></tr>')+'</table>'+
+    '<div class="grid" style="margin-top:12px"><input class="inp" id="rn" placeholder="title — author"><input class="inp" id="rw" placeholder="why this book (the real reason)" style="min-width:200px"><button class="btn" id="ra">ADD</button></div></div>'+
+   '<div class="panel" style="margin-top:14px"><h3>PICK FROM THE SHELF <span>// real books, chosen for you</span></h3>'+
+    '<div class="row">'+BOOKSEED.map((b,i)=>'<button class="btn seed" data-i="'+i+'">'+esc(b.split(" \u2014 ")[0])+'</button>').join("")+'</div>'+
+    '<p style="margin-top:10px;color:var(--dim);font-size:11px">engineering brains, neurology, dark academia, philosophy — one from each column of your personality.</p></div>';
+  wire("#ra", ()=>{ const t=$("#rn").value.trim(); if(!t)return; S.reading.push(stamp({t:t,w:"",y:$("#rw").value.trim(),s:"queued",p:0,x:""})); save(); vReading(); });
+  document.querySelectorAll(".seed").forEach(b=>b.onclick=()=>{ S.reading.push(stamp({t:BOOKSEED[+b.dataset.i],w:"",y:"",s:"queued",p:0,x:""})); save(); vReading(); toast("added. now start it or stop pretending."); });
+  document.querySelectorAll(".rsel").forEach(x=>x.onchange=()=>{ stamp(S.reading[+x.dataset.i]).s=x.value; save(); vReading(); });
+  document.querySelectorAll(".rpg").forEach(x=>x.onchange=()=>{ stamp(S.reading[+x.dataset.i]).p=+x.value||0; save(); vReading(); });
+  document.querySelectorAll(".xnote").forEach(x=>x.onchange=()=>{ stamp(S.reading[+x.dataset.i]).x=x.value; save(); });
+  document.querySelectorAll(".rd").forEach(b=>b.onclick=()=>{ S.reading.splice(+b.dataset.i,1); save(); vReading(); });
+}
+
+/* ---- SEARCH ---- */
+function v3hits(q){
+  q=q.trim().toLowerCase(); if(q.length<2) return [];
+  const out=[];
+  const add=(room,label,snip)=>out.push({room:room,label:label,snip:(snip||"").slice(0,90)});
+  VIEWS.forEach(([id,lab])=>{ if(lab.toLowerCase().includes(q)) add(id,lab,"room"); });
+  (S.tasks||[]).forEach(t=>{ if((t.t||"").toLowerCase().includes(q)) add("dashboard","task: "+t.t,""); });
+  (typeof DEADLINES!=="undefined"?DEADLINES:[]).forEach(d=>{ if((d.label||"").toLowerCase().includes(q)) add("dashboard","deadline: "+d.label,d.d); });
+  [["projects",S.projects],["applications",S.applications],["skills",S.skills]].forEach(([r,arr])=>{
+    (Array.isArray(arr)?arr:[]).forEach(o=>{ const s=JSON.stringify(o); if(s.toLowerCase().includes(q)) add(r,((o.n||o.t||o.title||o.name||"item")+"").slice(0,50),s.slice(0,80)); }); });
+  (S.reading||[]).forEach(o=>{ if(((o.t||"")+(o.x||"")+(o.y||"")).toLowerCase().includes(q)) add("reading","book: "+o.t,o.x||""); });
+  (S.archive||[]).forEach(o=>{ if(((o.title||"")+(o.text||"")).toLowerCase().includes(q)) add("archive",o.title||"note",o.text); });
+  (S.journal||[]).forEach(o=>{ if((o.text||"").toLowerCase().includes(q)) add("journal","journal "+o.when,o.text); });
+  (S.budget||[]).forEach(o=>{ if(((o.item||"")+(o.cat||"")+(o.method||"")).toLowerCase().includes(q)) add("budget","spent: "+o.item+" RM"+(o.amt||0),(o.method||"")+" "+(o.cat||"")); });
+  (S.plan||[]).forEach(o=>{ if((o.t||"").toLowerCase().includes(q)) add("plan",o.d+" \u00b7 "+o.t,""); });
+  RABBIT.forEach(o=>{ if((o.t+" "+o.h).toLowerCase().includes(q)) add("rabbit","rabbit hole: "+o.t,""); });
+  LESSONS.forEach(o=>{ if(o.t.toLowerCase().includes(q)) add("oracle","lesson: "+o.t,""); });
+  if("pride room pride lgbtq".includes(q)) add("priv","\u2726 hidden room","Pride Room (secret entry)");
+  return out.slice(0,26);
+}
+(function(){
+  const inp=$("#gsearch"), wrap=$("#searchwrap"); if(!inp||!wrap) return;
+  const close=()=>wrap.classList.add("hidden");
+  inp.addEventListener("input",()=>{ const hits=v3hits(inp.value);
+    if(!hits.length){ close(); return; }
+    wrap.innerHTML=hits.map(h=>'<button class="sr" data-r="'+h.room+'"><b>'+esc(h.label)+'</b> <i>'+h.room.toUpperCase()+'</i><small>'+esc(h.snip)+'</small></button>').join("");
+    wrap.classList.remove("hidden");
+    wrap.querySelectorAll(".sr").forEach(b=>b.onclick=()=>{ close(); inp.value=""; show(b.dataset.r); });
+  });
+  inp.addEventListener("keydown",e=>{ if(e.key==="Enter"){ const hits=v3hits(inp.value); if(hits.length){ close(); inp.value=""; show(hits[0].room); } } if(e.key==="Escape") close(); });
+  document.addEventListener("click",e=>{ if(!e.target.closest||!e.target.closest("#ssearch")) close(); });
+})();
+
+/* ---- pride key combo + logo long-press ---- */
+(function(){
+  document.addEventListener("keydown",e=>{ if((e.ctrlKey||e.metaKey)&&e.shiftKey&&(e.key==="P"||e.key==="p")){ e.preventDefault(); PK=null; show("priv"); } });
+  const lb=$("#brandlogo"); if(!lb) return;
+  let t=null;
+  const down=()=>{ t=setTimeout(()=>{ t=null; PK=null; show("priv"); }, 850); };
+  const up=()=>{ if(t){ clearTimeout(t); t=null; } };
+  lb.addEventListener("pointerdown",down); lb.addEventListener("pointerup",up); lb.addEventListener("pointerleave",up);
+})();
+
+/* ---- dashboard: poster wall on top ---- */
+const V3_DASH=vDash;
+vDash=function(){
+  V3_DASH();
+  const v=$("#view"); if(!v) return;
+  const P=(img,cap,tag,room)=>'<button class="poster" data-room="'+room+'"><img src="assets/'+img+'" alt=""><span class="cap">'+cap+'<i>'+tag+'</i></span></button>';
+  v.insertAdjacentHTML("afterbegin",
+   '<div class="hero"><img class="bg" src="assets/poster-create.jpg" alt=""><div class="in"><h2>CREATE THE THINGS YOU WISH EXISTED.</h2><p class="s">the wall is the assignment \u00b7 click a poster, enter that world</p></div></div>'+
+   '<div class="posterwall" style="margin-bottom:18px">'+
+    P("collage-bme.jpg","BIOMEDICAL ENGINEER <i>(noun)</i> fix humans, quietly build the bionic future.","projects","projects")+
+    P("badge-among-us.jpg","BME AMONG US","so much to do","rabbit")+
+    P("flatlay.jpg","the night desk: vinyl, Vivaldi, one lamp","journal","journal")+
+    P("room-desk.jpg","the corner studio","music","music")+
+    P("dark-academia.jpg","better systems, healthier people","study","study")+
+    P("hero-city.jpg","WAKE UP \u2014 the city already is","today","today")+
+   '</div>');
+  v.querySelectorAll(".poster").forEach(b=>b.onclick=()=>show(b.dataset.room));
+};
 
 /* ---------- go ---------- */
 applyTheme(LS.get("lifeos.theme")||"hud");

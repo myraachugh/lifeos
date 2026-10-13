@@ -1,32 +1,37 @@
-LIFE OS — DOWNLOAD & INSTALL (read this first)
-================================================
+LIFE//OS v3 — INSTALL / UPDATE (GitHub Pages)
+=============================================
+Files to upload (keep the assets FOLDER — it holds the artwork):
+  index.html
+  manifest.json
+  sw.js
+  icon.svg
+  icon-192.png
+  icon-512.png
+  INSTALL.txt
+  assets/   (8 .jpg files inside)
 
-WHAT IS IN THIS ZIP (all 6 files are needed):
-  index.html  manifest.json  sw.js  icon.svg  icon-192.png  icon-512.png
+UPDATE AN EXISTING INSTALL
+1. Extract this zip somewhere (never upload the zip itself — Pages does not unzip).
+2. github.com -> your lifeos repo -> Add file -> Upload files.
+3. Drag in ALL files above, INCLUDING the assets folder. Same names overwrite.
+4. Commit changes. Wait 1-2 minutes.
+5. Close the app/tab, reopen your Pages URL, reload TWICE (old worker first, new worker second).
+   Never clear "cookies and site data" (that deletes the vault).
+6. Check: sidebar on the left, v3 badge, Today room opens first, Archive loads.
 
-STEP 1 — PUT IT ONLINE (a PWA only installs from https, never from a file on your disk)
-  1. Unzip this archive to a folder.
-  2. Go to https://app.netlify.com/drop
-  3. Drag the UNZIPPED FOLDER onto the page (or the whole zip). Wait for the https URL.
-  4. IMPORTANT: immediately claim the site with a free Netlify account, otherwise
-     anonymous drops can be swept and your link dies ("netlify not working").
-     Dashboard → claim site → Site settings → Change site name (something typable).
-  (Alternative permanent home: GitHub Pages — steps inside the app, Deploy panel.)
+FIRST-TIME INSTALL
+New repo (Public) -> upload the same files -> Settings -> Pages -> Deploy from branch ->
+main / (root) -> open https://USER.github.io/lifeos/ in Edge -> menu -> then INSTALL.
+file:// never installs (must be an https URL).
 
-STEP 2 — INSTALL AS AN APP
-  Edge/Chrome on laptop:
-     Open YOUR https URL (not this file, not a preview window).
-     → click the ⤓ INSTALL button in the app header, OR the install icon in the
-       address bar, OR Edge: ⋯ menu → Apps → "Install this site as an app".
-  Android (Chrome/Edge): menu → Install app / Add to Home screen.
-  iPhone (Safari): Share → Add to Home Screen.
+HIDDEN ROOMS
+  Pride Room : ctrl+shift+P (desktop) · long-press the LIFE//OS logo · or search "pride" + Enter.
+  The Archive is visible in the sidebar under VAULT.
 
-IF INSTALL DOES NOT APPEAR, you are in one of these traps:
-  - you opened index.html from disk (file://...) → never installable. Use the https URL.
-  - you are inside a sandboxed/iframe preview → never installable. Open the URL directly.
-  - the site was deployed without the two PNG icons → re-upload ALL SIX files.
-  - the drop was never claimed and got swept → redeploy and claim within minutes.
-
-SECURITY MODEL (one line): Netlify hosts only the shell. Your vault is encrypted
-in YOUR browser before anything leaves it. Your Netlify account (use 2FA) is the
-perimeter. Export your vault regularly.
+WHAT'S NEW IN v3
+  sidebar nav + global search · Today room (anchors, mood, three things, 25-min timer)
+  Plan room (dated gates, finish-date maths, controlled variables, bench bars)
+  Journal · Rabbit Hole (rabbit-holes, logic vault, learn-something cards)
+  Feeds (curated live sources + RSS attempt) · Budget v2 (card / TnG / cash)
+  Music & Studio (your own uploads + a beat composer) · Teacher (no key needed)
+  in-app file viewer · Archive (paste with formatting kept) · Pride Room (hidden, key combo)
