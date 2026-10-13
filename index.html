@@ -491,7 +491,7 @@ const BOOTLINES = [
  "POWER      ▸ arc reactor online",
  "CRYPTO     ▸ " + (canCrypto ? "AES-256-GCM · PBKDF2-250k [WebCrypto]" : "WebCrypto UNAVAILABLE — restricted preview mode"),
  "STORAGE    ▸ " + (LS.get("lifeos.lock") ? "vault image detected on device" : "no vault image — first boot"),
- "PERSONA    ▸ console assistant: rule-based, offline, zero telemetry",
+ "PERSONA    ▸ console assistant: rule-based, sealed on-device, zero telemetry",
  "DIRECTIVE  ▸ protect the operator's time, health and options",
  "",
  "initialising interface…"
@@ -725,8 +725,9 @@ function vWeekly(){
 function vPriv(){
   const has=!!LS.get("lifeos.prilock");
   if(!PK){
-    $("#view").innerHTML='<div class="panel" style="max-width:520px"><h3>PRIDE ROOM <span>// second passphrase · your sealed room</span></h3>'+
-     '<p style="color:var(--dim);margin-bottom:10px">Your pride room: wins, proud moments, and anything unshareable. Encrypted under a DIFFERENT passphrase and never decrypted while sealed.</p>'+
+    $("#view").innerHTML='<div class="panel" style="max-width:520px"><h3>PRIDE ROOM <span>// second passphrase · a sealed, safe space</span></h3>'+
+     '<div style="height:6px;border-radius:3px;background:linear-gradient(90deg,#e8452c,#f28c28,#f6d02f,#3fae5a,#2f7fd6,#8a5cd6);margin:8px 0 12px"></div>'+
+     '<p style="color:var(--dim);margin-bottom:10px">A room that is yours: pride, wins, quotes, and anything unshareable. Encrypted under a DIFFERENT passphrase from the main vault, never decrypted while sealed, never synced anywhere.</p>'+
      '<label>'+(has?"private passphrase":"create private passphrase (min 8)")+'</label><input type="password" class="inp" id="pp">'+
      (has?'':'<label>confirm</label><input type="password" class="inp" id="pp2">')+
      '<div class="row" style="margin-top:12px"><button class="btn" id="po">'+(has?"UNSEAL":"CREATE ROOM")+'</button></div><div id="pm" style="color:var(--rd);font-size:11px;margin-top:8px"></div></div>';
@@ -748,19 +749,42 @@ function vPriv(){
   }
   renderPrivBody();
 }
+let PRIDEI=null;
+const PQUOTES=[
+ ["No pride for some of us without liberation for all of us.","Marsha P. Johnson"],
+ ["Hope will never be silent.","Harvey Milk"],
+ ["We need, in every community, a group of angelic troublemakers.","Bayard Rustin"],
+ ["Silence = Death.","ACT UP, 1987"],
+ ["It is not our differences that divide us. It is our inability to recognize, accept and celebrate those differences.","Audre Lorde"],
+ ["To love oneself is the beginning of a lifelong romance.","Oscar Wilde"],
+ ["If you can\u2019t love yourself, how in the hell are you gonna love somebody else?","RuPaul"],
+ ["You are not too much. You\u2019re just surrounded by people reading you on a small screen.","the room"],
+ ["Be gay, do homework. The deck pays for the flag collection.","the room"],
+ ["Every closet has a door. You are allowed to open it from your side.","the room"],
+ ["Love is not a phase. Your doubt about it might be.","the room"],
+ ["Somewhere a version of you is loud, safe and loved. Study like her.","the room"]
+];
 async function renderPrivBody(){
   const all = await PK.dec(LS.get("lifeos.priv")||await PK.enc([]));
   const wins=all.filter(n=>n.kind==="win"), notes=all.filter(n=>n.kind!=="win");
-  const wlist=wins.map(n=>{const i=all.indexOf(n);return '<div class="panel" style="margin-bottom:10px;border-color:var(--am)"><h3 style="color:var(--am)">★ '+esc(n.when)+'</h3><p style="font-size:14px">'+esc(n.w)+'</p>'+(n.why?'<p style="color:var(--dim);font-size:11px;margin-top:4px">why it matters: '+esc(n.why)+'</p>':'')+'<button class="del" data-i="'+i+'">delete</button></div>';}).join("");
+  const qi = PRIDEI==null ? (new Date().getDate()-1)%PQUOTES.length : PRIDEI%PQUOTES.length;
+  const q = PQUOTES[qi];
+  const wlist=wins.map(n=>{const i=all.indexOf(n);return '<div class="panel" style="margin-bottom:10px;border-color:var(--am)"><h3 style="color:var(--am)">★ '+esc(n.when)+'</h3><p style="font-size:14px;white-space:pre-wrap">'+esc(n.w)+'</p>'+(n.why?'<p style="color:var(--dim);font-size:11px;margin-top:4px">why it matters: '+esc(n.why)+'</p>':'')+'<button class="del" data-i="'+i+'">delete</button></div>';}).join("");
   const nlist=notes.map(n=>{const i=all.indexOf(n);return '<div class="panel" style="margin-bottom:10px"><h3>'+esc(n.when)+'</h3><p style="white-space:pre-wrap">'+esc(n.t)+'</p><button class="del" data-i="'+i+'">delete</button></div>';}).join("");
-  $("#view").innerHTML='<div class="panel"><h3>PRIDE ROOM <span>// '+wins.length+' win(s) sealed · nobody else gets in</span></h3>'+
-   '<label>seal a win</label><input class="inp" id="pw" placeholder="the win — got the lab slot · solved it cold · said no to the bad trade">'+
+  $("#view").innerHTML='<div class="panel"><h3>PRIDE ROOM <span>// sealed · safe space · nothing here leaves this device</span></h3>'+
+   '<div style="height:6px;border-radius:3px;background:linear-gradient(90deg,#e8452c,#f28c28,#f6d02f,#3fae5a,#2f7fd6,#8a5cd6);margin-bottom:12px"></div>'+
+   '<p style="font-size:15px;line-height:1.6;font-style:italic">“'+esc(q[0])+'”</p>'+
+   '<p style="color:var(--am);font-size:11px;margin-top:4px">— '+esc(q[1])+'</p>'+
+   '<div class="row" style="margin-top:8px"><button class="btn" id="pq">ANOTHER</button></div>'+
+   '<label style="margin-top:14px">seal a win</label><input class="inp" id="pw" placeholder="the win — got the lab slot · solved it cold · wore it out anyway">'+
    '<input class="inp" id="py" style="margin-top:6px" placeholder="why it matters (optional)">'+
    '<div class="row" style="margin-top:8px"><button class="btn" id="wa">SEAL WIN</button></div>'+
-   '<label style="margin-top:14px">or write freely</label><textarea class="inp" id="nt" rows="3" placeholder="anything unshareable. sealed on save."></textarea>'+
-   '<div class="row" style="margin-top:10px"><button class="btn" id="ns">SEAL NOTE</button><button class="btn warn" id="nx">SEAL ROOM</button></div></div>'+
-   '<div style="margin-top:14px">'+(wlist||'<p style="color:var(--dim)">no wins sealed yet. the first one is coming this week.</p>')+'</div>'+
-   '<div style="margin-top:14px">'+nlist+'</div>';
+   '<label style="margin-top:14px">or write freely</label><textarea class="inp" id="nt" rows="4" style="font-family:var(--mono);font-size:12px" placeholder="anything you can’t say out loud yet. sealed exactly as written, line breaks and all."></textarea>'+
+   '<div class="row" style="margin-top:10px"><button class="btn" id="ns">SEAL NOTE</button><button class="btn warn" id="nx">SEAL ROOM</button></div>'+
+   '<p style="color:var(--dim);font-size:11px;margin-top:10px">This room is separate from the main vault — its own passphrase, its own encryption, never synced. Same second passphrase opens it every time.</p></div>'+
+   '<div style="margin-top:14px"><h3 style="font-size:12px;color:var(--dim);margin-bottom:8px">THE SHELF · '+wins.length+' win(s)</h3>'+(wlist||'<p style="color:var(--dim)">nothing on the shelf yet. the first one is coming this week.</p>')+'</div>'+
+   '<div style="margin-top:14px"><h3 style="font-size:12px;color:var(--dim);margin-bottom:8px">NOTES</h3>'+(nlist||'<p style="color:var(--dim)">empty. quiet is allowed too.</p>')+'</div>';
+  $("#pq").onclick=()=>{ PRIDEI=(qi+1)%PQUOTES.length; renderPrivBody(); };
   $("#wa").onclick=async ()=>{ const w=$("#pw").value.trim(); if(!w)return;
     const arr=await PK.dec(LS.get("lifeos.priv")); arr.push(stamp({when:today(),kind:"win",w:w,why:$("#py").value.trim()}));
     LS.set("lifeos.priv", await PK.enc(arr)); renderPrivBody(); toast("win sealed. this room remembers."); };
@@ -851,7 +875,7 @@ function renderChat(animate){
   tick();
 }
 function vJarvis(){
-  $("#view").innerHTML='<div class="panel"><h3>CONSOLE <span>// rule-based advisor · offline · knows the Life OS</span></h3>'+
+  $("#view").innerHTML='<div class="panel"><h3>CONSOLE <span>// rule-based advisor · sealed & private, no network needed · knows the Life OS</span></h3>'+
    '<div id="chatlog"></div></div>';
   renderChat();
   if(CHAT.length===0){
@@ -1459,8 +1483,8 @@ async function vLocker(){
     if(rec.type.startsWith("pdf"))p.innerHTML='<iframe src="'+url+'" style="width:100%;height:480px;border:1px solid var(--line2)"></iframe>';
     else if(rec.type.startsWith("audio"))p.innerHTML='<audio controls src="'+url+'" style="width:100%"></audio>';
     else if(rec.type.startsWith("image"))p.innerHTML='<img src="'+url+'" style="max-width:100%">';
-    else if(rec.type.startsWith("text")){ const t=await new Blob([buf]).text(); p.innerHTML='<pre style="max-height:300px;overflow:auto">'+esc(t)+'</pre>'; }
-    else { p.innerHTML='<p style="color:var(--dim)">no inline preview for this type — use SAVE.</p>'; }
+    else if(rec.type.startsWith("text")||/\.(md|txt|csv|json|js|py|tex|html?|log|srt)$/i.test(rec.name)){ const t=await new Blob([buf]).text(); p.innerHTML='<pre style="max-height:300px;overflow:auto;white-space:pre-wrap">'+esc(t)+'</pre>'; }
+    else { const ext=(rec.name.split(".").pop()||"").toUpperCase(); p.innerHTML='<p style="color:var(--dim);font-size:12px">Browsers can’t render '+esc(ext)+' files inline — your file is fine and sealed intact. Press <b>SAVE</b> below to open it in its real app (Word/PowerPoint/Excel).</p>'; }
   });
   document.querySelectorAll(".lk-dl").forEach(b=>b.onclick=async ()=>{
     const rec=await IDB.get(b.dataset.id); const buf=await SK.decB(rec.data);
@@ -1495,7 +1519,8 @@ function aiDigest(){ const ph=phase();
  "CGPA: "+(Object.entries(S.cgpa).map(e=>e[0]+"="+e[1]).join(", ")||"not logged yet")+". Reading now: "+(S.reading.filter(r=>r.s==="reading").map(r=>r.t).join(", ")||"—"),
  "STYLE RULES: brutally honest, no flattery, show the maths, distinguish verified fact from inference from estimate, protect her sleep/guitar/friendships, legal compliance absolute, never invent sources."].join("\n"); }
 function vOracle(){
-  if(!S.ai)S.ai={provider:"gemini",key:"",model:"gemini-2.0-flash"};
+  if(!S.ai)S.ai={provider:"gemini",key:"",model:"gemini-3.8-flash"};
+  if(S.ai.model==="gemini-2.0-flash")S.ai.model="gemini-3.8-flash";
   $("#view").innerHTML='<div class="grid">'+
    '<div class="panel"><h3>ORACLE <span>// a frontier brain that knows you — BYO key</span></h3>'+
     '<p style="color:var(--dim);margin-bottom:10px">Paste your own API key (Gemini or OpenAI). It is stored INSIDE your encrypted vault. Every request is prefixed with your Life OS profile, so it knows who you are — your phase, constraints, tasks, CGPA — and answers in the house style: honest, no flattery.</p>'+
@@ -1509,8 +1534,9 @@ function vOracle(){
      AICHAT.map(m=>'<div class="msg '+m.who+'"><span class="who">'+(m.who==="j"?"ORACLE":"YOU")+'</span>'+esc(m.t)+'</div>').join("")+
      (AICHAT.length?"":'<div class="msg j"><span class="who">ORACLE</span>Seal settings and speak. I arrive already knowing your semester, your constraints and your open tasks.</div>')+
     '</div>'+
-    '<div class="row" style="margin-top:10px"><input class="inp" id="aiin" placeholder="ask anything about your life, courses, plans…"><button class="btn" id="aisend">ASK</button></div></div></div>';
-  $("#aisave").onclick=()=>{ S.ai={provider:$("#aipro").value,model:$("#aimod").value.trim()||"gemini-2.0-flash",key:$("#aikey").value.trim()||S.ai.key}; save(); toast("oracle settings sealed in vault."); };
+    '<div class="row" style="margin-top:10px"><input class="inp" id="aiin" placeholder="ask anything about your life, courses, plans…"><button class="btn" id="aisend">ASK</button></div>'+
+    '<div class="row" style="margin-top:8px"><button class="btn" id="aikeep">KEEP LAST REPLY → ARCHIVE</button></div></div></div>';
+  $("#aisave").onclick=()=>{ const k=$("#aikey").value.trim(); S.ai={provider:$("#aipro").value,model:$("#aimod").value.trim()||"gemini-3.8-flash",key:k||S.ai.key}; save(); if(k&&$("#aipro").value==="gemini"&&!/^AIza[0-9A-Za-z_\\-]{25,}$/.test(k)){ toast("hmm — Gemini keys start with AIza and run ~39 chars. re-copy with the copy button."); return; } toast("oracle settings sealed in vault."); };
   const send=async ()=>{ const q=$("#aiin").value.trim(); if(!q)return; $("#aiin").value="";
     if(!S.ai.key){ toast("seal an API key first — or use the offline Console."); return; }
     AICHAT.push({who:"u",t:q}); vOracle();
@@ -1520,6 +1546,7 @@ function vOracle(){
         const r=await fetch("https://generativelanguage.googleapis.com/v1beta/models/"+encodeURIComponent(S.ai.model)+":generateContent?key="+encodeURIComponent(S.ai.key),
           {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({systemInstruction:{parts:[{text:aiDigest()}]},contents:[{parts:[{text:q}]}]})});
         const j=await r.json(); reply=(j.candidates&&j.candidates[0]&&j.candidates[0].content.parts.map(p=>p.text).join(""))||("error: "+JSON.stringify(j).slice(0,300));
+      if(/503|high demand|UNAVAILABLE/.test(reply)) reply="The frontier brain is crowded right now — free-tier rush. Wait a minute or two and ask again; the offline oracle never queues (try the chips).";
       } else {
         const r=await fetch("https://api.openai.com/v1/chat/completions",{method:"POST",
           headers:{"Content-Type":"application/json","Authorization":"Bearer "+S.ai.key},
@@ -1531,6 +1558,11 @@ function vOracle(){
     vOracle(); const l=$("#ailog"); if(l)l.scrollTop=l.scrollHeight; };
   $("#aisend").onclick=send;
   $("#aiin").onkeydown=e=>{ if(e.key==="Enter")send(); };
+  $("#aikeep").onclick=()=>{ const last=[...AICHAT].reverse().find(m=>m.who==="j"); if(!last){ toast("nothing from the oracle yet."); return; }
+    if(!S.archive) S.archive=[];
+    const uq=[...AICHAT].reverse().find(m=>m.who==="u");
+    S.archive.push({when:today(),title:"oracle · "+((uq&&uq.t)||"reply").slice(0,60),text:last.t,mono:true});
+    save(); toast("kept in Archive — formatting intact."); };
 }
 
 
@@ -1779,7 +1811,7 @@ vOracle=function(){
   const sendBox=$("#aiin");
   if(sendBox&&!S.ai.key){
     const chips=document.createElement("div"); chips.className="chips";
-    chips.innerHTML=["quiz me on statics","where's my money","what now","talk me down","bench status","explain FBD in one line"].map(c=>'<span class="chip">'+c+'</span>').join("");
+    chips.innerHTML='<span style="font-size:11px;color:var(--dim);width:100%">no key needed — this box answers offline, right now:</span>'+["quiz me on statics","where's my money","what now","talk me down","bench status","explain FBD in one line"].map(c=>'<span class="chip">'+c+'</span>').join("");
     sendBox.parentNode.parentNode.insertBefore(chips, sendBox.parentNode);
     chips.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{ sendBox.value=c.textContent; $("#aisend").click(); });
   }
@@ -1789,6 +1821,34 @@ vOracle=function(){
     return origSend(); };
   if(sendBox)sendBox.onkeydown=e=>{ if(e.key==="Enter")$("#aisend").click(); };
 };
+
+/* ---- ARCHIVE ---- */
+let ARCHEDIT=null;
+function vArchive(){
+  if(!S.archive) S.archive=[];
+  const rows=S.archive.slice().reverse().map(a=>{const i=S.archive.indexOf(a);
+    return '<div class="panel" style="margin-bottom:10px"><h3>'+esc(a.title||"untitled")+' <span>// '+esc(a.when)+' · '+a.text.length+' chars</span></h3>'+
+    '<pre style="white-space:pre-wrap;word-break:break-word;font-family:'+(a.mono?"var(--mono)":"inherit")+';margin:0;max-height:340px;overflow:auto;font-size:13px">'+esc(a.text)+'</pre>'+
+    '<div class="row" style="margin-top:8px"><button class="btn a-cp" data-i="'+i+'">COPY</button><button class="btn a-ed" data-i="'+i+'">EDIT</button><button class="btn warn a-dl" data-i="'+i+'">DELETE</button></div></div>';}).join("");
+  $("#view").innerHTML='<div class="panel"><h3>ARCHIVE <span>// paste anything · formatting is preserved exactly as typed</span></h3>'+
+   '<label>title</label><input class="inp" id="ar-t" placeholder="e.g. oracle on the crate method">'+
+   '<label>content</label><textarea class="inp" id="ar-x" rows="7" style="font-family:var(--mono);font-size:12px" placeholder="paste an oracle reply, a lecture extract, a plan — line breaks, spacing and lists keep their shape."></textarea>'+
+   '<div class="row" style="margin-top:8px"><button class="btn" id="ar-s">'+(ARCHEDIT==null?"KEEP IT":"UPDATE")+'</button><button class="btn" id="ar-p">PASTE FROM CLIPBOARD</button>'+(ARCHEDIT==null?"":'<button class="btn warn" id="ar-c">CANCEL EDIT</button>')+'</div>'+
+   '<p style="color:var(--dim);font-size:11px;margin-top:8px">Stored encrypted in your main vault, on this device only. Nothing is reformatted, ever — what you paste is what you will see.</p></div>'+
+   '<div style="margin-top:14px">'+(rows||'<p style="color:var(--dim)">nothing kept yet. the oracle’s next good answer belongs here verbatim.</p>')+'</div>';
+  if(ARCHEDIT!=null){ $("#ar-t").value=S.archive[ARCHEDIT].title||""; $("#ar-x").value=S.archive[ARCHEDIT].text; }
+  $("#ar-s").onclick=()=>{ const t=$("#ar-x").value; if(!t.trim()){ toast("nothing to keep."); return; }
+    const title=$("#ar-t").value.trim()||("note · "+today());
+    if(ARCHEDIT==null) S.archive.push({when:today(),title:title,text:t,mono:true});
+    else { S.archive[ARCHEDIT].title=title; S.archive[ARCHEDIT].text=t; ARCHEDIT=null; }
+    save(); vArchive(); toast("kept — exactly as written."); };
+  $("#ar-p").onclick=async ()=>{ try{ const t=await navigator.clipboard.readText(); $("#ar-x").value=($("#ar-x").value?$("#ar-x").value+"\n":"")+t; }catch(e){ toast("clipboard blocked here — paste with Ctrl+V instead."); } };
+  const cc=$("#ar-c"); if(cc)cc.onclick=()=>{ ARCHEDIT=null; vArchive(); };
+  document.querySelectorAll(".a-cp").forEach(b=>b.onclick=async ()=>{ try{ await navigator.clipboard.writeText(S.archive[+b.dataset.i].text); toast("copied."); }catch(e){ toast("copy blocked in this view — open it and select."); } });
+  document.querySelectorAll(".a-ed").forEach(b=>b.onclick=()=>{ ARCHEDIT=+b.dataset.i; vArchive(); toast("loaded into the form — edit, then UPDATE."); });
+  document.querySelectorAll(".a-dl").forEach(b=>b.onclick=()=>{ S.archive.splice(+b.dataset.i,1); save(); vArchive(); });
+}
+(function(){ const i=VIEWS.findIndex(v=>v[0]==="priv"); if(i>=0) VIEWS.splice(i,0,["archive","Archive"]); })();
 
 /* ---------- go ---------- */
 applyTheme(LS.get("lifeos.theme")||"hud");
