@@ -1,4 +1,4 @@
-LIFE//OS v3 — INSTALL / UPDATE (GitHub Pages)
+LIFE//OS v3.2 — INSTALL / UPDATE (GitHub Pages)
 =============================================
 Upload these 7 files. Nothing else. No assets folder, no images to drag —
 the artwork is baked into index.html itself.
@@ -29,6 +29,11 @@ file's page -> trash icon.
 HIDDEN ROOMS
   Pride Room : ctrl+shift+P (desktop) · long-press the LIFE//OS logo · or search "pride" + Enter.
   Archive: sidebar under VAULT. Search bar finds anything in the vault.
+
+NEW IN v3.2
+  Top navigation (sidebar removed) · colourful default theme with per-room accent colours
+  4 new themes sampled from YOUR images: WAKE UP, NIGHT DESK, STUDIO, PERIWINKLE
+  Fixed: room headers no longer disappear after tapping inside a room.
 
 NEW IN v3 (incl. vibe + content pack)
   Gradient display headlines, numbered room labels, corner-tick panels, neon money cards.
