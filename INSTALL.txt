@@ -1,4 +1,4 @@
-LIFE//OS v3.2 — INSTALL / UPDATE (GitHub Pages)
+LIFE//OS v3.3 — INSTALL / UPDATE (GitHub Pages)
 =============================================
 Upload these 7 files. Nothing else. No assets folder, no images to drag —
 the artwork is baked into index.html itself.
@@ -29,6 +29,11 @@ file's page -> trash icon.
 HIDDEN ROOMS
   Pride Room : ctrl+shift+P (desktop) · long-press the LIFE//OS logo · or search "pride" + Enter.
   Archive: sidebar under VAULT. Search bar finds anything in the vault.
+
+NEW IN v3.3
+  Layout fixed: the top nav no longer collapses into a right-hand column.
+  Today hero now shows the WAKE UP city poster (the collage moved to Plan/Dashboard).
+  Hero banners darkened for readability on mobile.
 
 NEW IN v3.2
   Top navigation (sidebar removed) · colourful default theme with per-room accent colours
