@@ -30,7 +30,11 @@ HIDDEN ROOMS
   Pride Room : ctrl+shift+P (desktop) · long-press the LIFE//OS logo · or search "pride" + Enter.
   Archive: sidebar under VAULT. Search bar finds anything in the vault.
 
-NEW IN v3
+NEW IN v3 (incl. vibe + content pack)
+  Gradient display headlines, numbered room labels, corner-tick panels, neon money cards.
+  315 rabbit holes (11 categories, searchable, shufflable) and 152 case-file mysteries
+  with Case of the Day. Live feed fetch in Feeds (needs internet).
+
   sidebar + search · Today (anchors, mood, 3 things, 25-min timer) · Journal
   Plan (dated gates, red when late, finish-date maths, controlled variables)
   Rabbit Hole (deep dives, murder-mystery logic vault, learn-something cards)
