@@ -1,4 +1,4 @@
-const C = "lifeos-v9";
+const C = "lifeos-v10";
 const PRE = ["./","index.html","manifest.json","icon.svg","icon-192.png","icon-512.png"];
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(C).then(c =>

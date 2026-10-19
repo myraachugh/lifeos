@@ -514,7 +514,7 @@ body[data-theme="wakeup"] body,body[data-theme="flatlay"] body,body[data-theme="
   <header id="top">
     <div class="trow">
       <span class="logo glow" id="brandlogo" title="press ctrl+shift+p">LIFE<b>//</b>OS</span>
-      <span id="ver">v3.7</span>
+      <span id="ver">v3.8</span>
       <div id="ssearch">
         <input class="inp" id="gsearch" placeholder="⌕ search everything…" autocomplete="off">
         <div id="searchwrap" class="hidden"></div>
@@ -1217,9 +1217,14 @@ async function blobFetch(tok){ const id=await gFind(tok); if(!id)return null;
   const r=await fetch("https://www.googleapis.com/drive/v3/files/"+id+"?alt=media",{headers:{Authorization:"Bearer "+tok}});
   if(!r.ok){ let msg=String(r.status); try{ const j=await r.json(); if(j.error&&j.error.message)msg=j.error.message; }catch(e){} throw new Error("drive read: "+msg); }
   return await r.json(); }
+function sameLock(a,b){ try{ return JSON.stringify(a)===JSON.stringify(b); }catch(e){ return false; } }
 async function syncNow(silent){ if(!SYNC.tok||!SK)return;
   try{ const remote=await blobFetch(SYNC.tok); const known=SYNC.knownRev, dirty=SYNC.dirty;
     if(!remote){ await blobPush(SYNC.tok,1); SYNC.knownRev=1; SYNC.dirty=false; if(!silent)toast("pushed (first sync)."); return; }
+    if(remote.lock&&!sameLock(remote.lock,LS.get("lifeos.lock"))){ /* different vault in the ring — never half-adopt */
+      if(SYNC.errShown!=="ring-differs"){ SYNC.errShown="ring-differs";
+        toast("ring holds a DIFFERENT vault (other passphrase). Use PULL to replace this device — or push from here to overwrite the ring."); }
+      return; }
     if(remote.rev>known&&!dirty){ LS.set("lifeos.data",remote.data); S=await SK.dec(remote.data); ensureIds(S);
       SYNC.knownRev=remote.rev; if(CUR)show(CUR); if(!silent)toast("adopted newer vault from the ring."); return; }
     if(remote.rev>known&&dirty){ const R=await SK.dec(remote.data); S=mergeStates(S,R); ensureIds(S);
@@ -1240,7 +1245,7 @@ async function gPush(){ try{ const tok=await gTok(); SYNC.tok=tok;
  }catch(e){ toast("push error: "+String(e)); } }
 async function gPull(){ try{ const tok=await gTok(); const b=await blobFetch(tok);
   if(!b){ toast("no vault in Drive yet — push first from whichever device has your data."); return; }
-  if(!confirm("Replace THIS device's vault with the Drive copy? (export a local backup first if unsure)"))return;
+  if(!confirm("Replace THIS device's vault AND its passphrase with the Drive copy? (The Drive copy opens with ITS passphrase. Export a local backup first if unsure.)"))return;
   if(b.lock)LS.set("lifeos.lock",b.lock); if(b.data)LS.set("lifeos.data",b.data);
   if(b.privlock)LS.set("lifeos.prilock",b.privlock); if(b.priv)LS.set("lifeos.priv",b.priv);
   location.reload();
