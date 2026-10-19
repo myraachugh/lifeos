@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Life OS — Vault Restore</title>
+<style>
+  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#0b1220;color:#e8f1ff;margin:0;padding:24px;line-height:1.5}
+  .card{max-width:760px;margin:0 auto;background:#121c30;border:1px solid #2a3c5e;border-radius:14px;padding:24px}
+  h1{font-size:22px;margin:0 0 6px} .sub{color:#8fb3d9;margin:0 0 18px}
+  .box{background:#0e1729;border:1px solid #2a3c5e;border-radius:10px;padding:14px;margin:14px 0}
+  .ok{color:#4ade80}.warn{color:#ffd166}.bad{color:#ff7b7b}.big{font-size:18px}
+  button{font-size:16px;font-weight:700;border:0;border-radius:10px;padding:14px 18px;cursor:pointer;margin:8px 8px 0 0}
+  .b1{background:#2563eb;color:#fff}.b2{background:#16a34a;color:#fff}.b2:disabled{background:#274b34;color:#7fae92;cursor:not-allowed}
+  .b3{background:#dc2626;color:#fff}.b3:disabled{background:#5b2b2b;color:#c9a0a0;cursor:not-allowed}
+  input[type=file]{margin:10px 0;color:#9fd0ff}
+  input[type=text]{font-size:16px;padding:12px;border-radius:8px;border:1px solid #2a3c5e;background:#0b1220;color:#e8f1ff;width:170px;text-transform:uppercase}
+  .step{margin:10px 0 0}.step b{color:#9fd0ff}
+  .tiny{font-size:12px;color:#7d97b8;margin-top:14px}
+  code{background:#0b1220;padding:2px 6px;border-radius:6px}
+  .banner{background:#3b1d1d;border:2px solid #ef4444;border-radius:10px;padding:16px;margin:14px 0;font-size:18px;display:none}
+  a.open{display:inline-block;margin:12px 8px 0 0;background:#7c3aed;color:#fff;font-weight:700;text-decoration:none;padding:14px 18px;border-radius:10px}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Life OS — Vault Restore</h1>
+  <p class="sub">Restores your vault file straight into this browser. No menus. No clearing. No first boot.</p>
+
+  <div class="banner" id="filewarn">
+    <b>⚠ YOU OPENED THIS FILE DIRECTLY FROM YOUR COMPUTER.</b><br>
+    This page must run <u>from the website</u> to reach the app's storage.<br>
+    Upload it to GitHub like before, then open
+    <code>https://myraachugh.github.io/lifeos/reset.html</code>
+  </div>
+
+  <div class="box" id="status">Checking this browser…</div>
+
+  <div class="box">
+    <p class="step"><b>STEP 1 — Save the current (broken) state, just in case.</b></p>
+    <button class="b1" id="bk">① DOWNLOAD EMERGENCY BACKUP</button>
+    <p id="bkmsg" class="tiny"></p>
+  </div>
+
+  <div class="box">
+    <p class="step"><b>STEP 2 — Choose your vault file and restore it.</b> The file is the <code>lifeos-vault-….json</code> you emailed to yourself from the phone (any exported vault file works).</p>
+    <input type="file" id="f" accept=".json,application/json">
+    <p id="fmsg" class="tiny">No file chosen yet.</p>
+    <button class="b2" id="r" disabled>② RESTORE MY VAULT INTO THIS BROWSER</button>
+    <p id="rmsg" class="tiny"></p>
+  </div>
+
+  <div class="box">
+    <p class="step"><b>STEP 3 — Open the app and unlock.</b> Click below (or open your normal LifeOS address). The lock screen appears — unlock with the <b>phone passphrase</b>. Your data is back.</p>
+    <a class="open" id="applink" href="./index.html">③ OPEN LIFE OS →</a>
+  </div>
+
+  <div class="box">
+    <p class="step"><b>Then:</b> rebuild the ring — this device: CONNECT → PUSH once (AUTO off) → other device: CONNECT → AUTO ON → this device: AUTO ON.</p>
+    <p class="step"><b>Later:</b> delete <code>reset.html</code> from the repo so nobody restores a vault by accident.</p>
+  </div>
+
+  <div class="box">
+    <p class="step"><b>Nuclear option (usually unneeded now):</b> type <code>WIPE</code> to erase this browser's vault and start from FIRST BOOT.</p>
+    <input type="text" id="t" placeholder="type WIPE" autocomplete="off">
+    <button class="b3" id="w" disabled>WIPE THIS BROWSER'S VAULT</button>
+    <p id="wmsg" class="tiny"></p>
+  </div>
+
+  <p class="tiny">This page can only touch this browser's storage for this site. It cannot read or change your phone, the cloud, or any other website.</p>
+</div>
+<script>
+const $ = s => document.querySelector(s);
+if (location.protocol === "file:") $("#filewarn").style.display = "block";
+const KEYS = () => Object.keys(localStorage).filter(k => k.indexOf("lifeos.") === 0);
+function render(){
+  const ks = KEYS();
+  const hasLock = ks.indexOf("lifeos.lock") >= 0, hasData = ks.indexOf("lifeos.data") >= 0;
+  const kb = ks.reduce((n,k)=> n + (localStorage.getItem(k)||"").length, 0) / 1024;
+  $("#status").innerHTML =
+    "<div class='big'>Running at: <b class='ok'>" + location.origin + "</b></div>" +
+    "Vault lock " + (hasLock ? "<b class='bad'>FOUND</b>" : "<b class='ok'>none</b>") +
+    " · vault data " + (hasData ? "<b class='warn'>FOUND</b>" : "<b class='ok'>none</b>") +
+    " · " + ks.length + " item(s) · " + kb.toFixed(1) + " KB";
+}
+render();
+$("#bk").onclick = () => {
+  const o = {}; KEYS().forEach(k => o[k] = localStorage.getItem(k));
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(o, null, 2)], {type:"application/json"}));
+  a.download = "lifeos-emergency-" + new Date().toISOString().slice(0,10) + ".json";
+  a.click();
+  $("#bkmsg").innerHTML = "<b class='ok'>Saved.</b>";
+};
+let picked = null;
+$("#f").onchange = e => {
+  const f = e.target.files[0]; if(!f) return;
+  const rd = new FileReader();
+  rd.onload = () => {
+    try{
+      const b = JSON.parse(rd.result);
+      if(b && b.lock && b.data){ picked = {shape:"export", b}; $("#fmsg").innerHTML = "<b class='ok'>Vault file recognised</b> (encrypted, from an EXPORT). Ready to restore."; }
+      else if(b && Object.keys(b).some(k => k.indexOf("lifeos.") === 0)){ picked = {shape:"raw", b}; $("#fmsg").innerHTML = "<b class='ok'>Emergency backup recognised</b> (raw browser copy). Ready to restore."; }
+      else { picked = null; $("#fmsg").innerHTML = "<b class='bad'>That file is not a vault.</b> Choose the lifeos-vault-….json you exported from the phone."; }
+    }catch(err){ picked = null; $("#fmsg").innerHTML = "<b class='bad'>That file could not be read.</b>"; }
+    $("#r").disabled = !picked;
+  };
+  rd.readAsText(f);
+};
+$("#r").onclick = () => {
+  if(!picked) return;
+  if(picked.shape === "export"){
+    const b = picked.b;
+    localStorage.setItem("lifeos.lock", JSON.stringify(b.lock));
+    localStorage.setItem("lifeos.data", JSON.stringify(b.data));
+    if(b.privlock) localStorage.setItem("lifeos.prilock", JSON.stringify(b.privlock));
+    if(b.priv) localStorage.setItem("lifeos.priv", JSON.stringify(b.priv));
+  } else {
+    Object.keys(picked.b).forEach(k => { if(k.indexOf("lifeos.") === 0) localStorage.setItem(k, picked.b[k]); });
+  }
+  render();
+  $("#rmsg").innerHTML = "<b class='ok big'>RESTORED ✓</b> Now click Step 3 and unlock with the <b>phone passphrase</b>.";
+};
+$("#t").oninput = e => { $("#w").disabled = e.target.value.trim().toUpperCase() !== "WIPE"; };
+$("#w").onclick = () => {
+  KEYS().forEach(k => localStorage.removeItem(k));
+  render();
+  $("#wmsg").innerHTML = "<b class='ok'>Wiped.</b> Open the app — it will show FIRST BOOT.";
+};
+</script>
+</body>
+</html>
