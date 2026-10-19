@@ -1,4 +1,4 @@
-LIFE//OS v3.5 — INSTALL / UPDATE (GitHub Pages)
+LIFE//OS v3.7 — INSTALL / UPDATE (GitHub Pages)
 =============================================
 Upload these 7 files. Nothing else. No assets folder, no images to drag —
 the artwork is baked into index.html itself.
@@ -19,7 +19,7 @@ UPDATE (2 minutes)
 5. Close the app/tab, reopen your Pages URL, reload TWICE
    (first reload gets the new worker, second shows the new build).
    Never clear "cookies and site data" — that deletes the vault.
-6. Check: v3.5 badge next to LIFE//OS, poster wall shows IMAGES now,
+6. Check: v3.7 badge next to LIFE//OS, poster wall shows IMAGES now,
    Today opens first, Archive opens.
 
 If you earlier uploaded an "assets" folder and it shows broken files in the
@@ -29,6 +29,19 @@ file's page -> trash icon.
 HIDDEN ROOMS
   Pride Room : ctrl+shift+P (desktop) · long-press the LIFE//OS logo · or search "pride" + Enter.
   Archive: sidebar under VAULT. Search bar finds anything in the vault.
+
+NEW IN v3.7
+  - Cloud sync tells the truth. If Google refuses a sync call, the app now shows the
+    real error text (e.g. "Drive API has not been used in project ...") instead of a
+    fake success. Fixed: "pushed (first sync)" no longer appears when the upload
+    actually failed. Service worker cache bumped to lifeos-v9.
+
+NEW IN v3.6
+  - Cloud sync maintains itself. After you CONNECT once in a browser, the app now
+    reconnects silently in the background (Google sign-in with no popup when it is
+    already granted) and keeps the Drive ring updated on its own — open the app and
+    it just syncs. Token expiry no longer turns auto-sync off until you notice.
+    Service worker cache bumped to lifeos-v8.
 
 NEW IN v3.5
   - Timetable is now a full weekly planner: add ANYTHING (class, study block, event,

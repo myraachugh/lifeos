@@ -514,7 +514,7 @@ body[data-theme="wakeup"] body,body[data-theme="flatlay"] body,body[data-theme="
   <header id="top">
     <div class="trow">
       <span class="logo glow" id="brandlogo" title="press ctrl+shift+p">LIFE<b>//</b>OS</span>
-      <span id="ver">v3.5</span>
+      <span id="ver">v3.7</span>
       <div id="ssearch">
         <input class="inp" id="gsearch" placeholder="⌕ search everything…" autocomplete="off">
         <div id="searchwrap" class="hidden"></div>
@@ -810,6 +810,7 @@ function enter(){
   $("#ftmode").textContent = "CRYPTO: " + (canCrypto ? "AES-256-GCM · PBKDF2-SHA256 250k" : "OBFUSCATION (NOT SECURITY)");
   if(!canCrypto) $("#banner").classList.remove("hidden"), $("#banner").textContent = "RESTRICTED PREVIEW — storage is session-only and encryption is simulated. Open the live preview or download this file for the real vault.";
   buildNav(); show("today"); startClock();
+  setTimeout(()=>{ try{ gAutoConnect(); }catch(e){} }, 1500);
 }
 
 /* ---------- nav ---------- */
@@ -1177,12 +1178,14 @@ $("#btnlock").onclick=()=>{ S=null; SK=null; PK=null; CHAT=[]; $("#app").classLi
 /* ================= v1.5 MODULES ================= */
 
 /* ================= SHIP & SYNC ================= */
-async function gTok(){
+async function gTok(silent){
   await new Promise(res=>{ if(window.google&&google.accounts&&google.accounts.oauth2)return res();
     const s=document.createElement("script"); s.src="https://accounts.google.com/gsi/client"; s.onload=()=>res(); s.onerror=()=>res(); document.head.appendChild(s); });
   if(!(window.google&&google.accounts&&google.accounts.oauth2))throw new Error("cannot load Google sign-in (network blocked here?)");
-  return new Promise(res=>{ google.accounts.oauth2.initTokenClient(
-    {client_id:S.sync.cid, scope:"https://www.googleapis.com/auth/drive.appdata", callback:r=>res(r.access_token)}).requestAccessToken(); });
+  return new Promise((res,rej)=>{ const cl=google.accounts.oauth2.initTokenClient(
+    {client_id:S.sync.cid, scope:"https://www.googleapis.com/auth/drive.appdata",
+     callback:r=> r&&r.access_token?res(r.access_token):rej(new Error(r&&r.error?("google: "+String(r.error)):"sign-in cancelled or blocked"))});
+    if(silent) cl.requestAccessToken({prompt:""}); else cl.requestAccessToken(); });
 }
 async function gFind(tok){ const r=await fetch("https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q="+encodeURIComponent("name = 'lifeos.vault'"),{headers:{Authorization:"Bearer "+tok}});
   const j=await r.json(); return (j.files&&j.files[0])?j.files[0].id:null; }
@@ -1204,12 +1207,15 @@ async function blobPush(tok,rev){
   const blob=JSON.stringify({rev:rev, ts:new Date().toISOString(), device:SYNC.dev, lock:LS.get("lifeos.lock"), data:LS.get("lifeos.data"), privlock:LS.get("lifeos.prilock"), priv:LS.get("lifeos.priv")});
   let id=await gFind(tok);
   if(!id){ const c=await fetch("https://www.googleapis.com/drive/v3/files?fields=id",{method:"POST",headers:{Authorization:"Bearer "+tok,"Content-Type":"application/json"},body:JSON.stringify({name:"lifeos.vault",parents:["appDataFolder"]})});
-    id=(await c.json()).id; }
+    const cj=await c.json(); if(!c.ok||!cj.id)throw new Error("drive create: "+((cj.error&&cj.error.message)||c.status));
+    id=cj.id; }
   const r=await fetch("https://www.googleapis.com/upload/drive/v3/files/"+id+"?uploadType=media",{method:"PATCH",headers:{Authorization:"Bearer "+tok,"Content-Type":"application/json"},body:blob});
-  if(r.ok)LS.set("lifeos.synced",new Date().toISOString()+" rev"+rev);
-  return r.ok; }
+  if(!r.ok){ let msg=String(r.status); try{ const j=await r.json(); if(j.error&&j.error.message)msg=j.error.message; }catch(e){} throw new Error("drive upload: "+msg); }
+  LS.set("lifeos.synced",new Date().toISOString()+" rev"+rev);
+  return true; }
 async function blobFetch(tok){ const id=await gFind(tok); if(!id)return null;
   const r=await fetch("https://www.googleapis.com/drive/v3/files/"+id+"?alt=media",{headers:{Authorization:"Bearer "+tok}});
+  if(!r.ok){ let msg=String(r.status); try{ const j=await r.json(); if(j.error&&j.error.message)msg=j.error.message; }catch(e){} throw new Error("drive read: "+msg); }
   return await r.json(); }
 async function syncNow(silent){ if(!SYNC.tok||!SK)return;
   try{ const remote=await blobFetch(SYNC.tok); const known=SYNC.knownRev, dirty=SYNC.dirty;
@@ -1221,7 +1227,8 @@ async function syncNow(silent){ if(!SYNC.tok||!SK)return;
       if(CUR)show(CUR); if(!silent)toast("merged edits from both devices."); return; }
     if(dirty){ const rev=Math.max(remote.rev,known)+1; await blobPush(SYNC.tok,rev); SYNC.knownRev=rev; SYNC.dirty=false;
       if(!silent)toast("pushed rev "+rev+"."); }
-  }catch(e){ if(!silent)toast("sync: "+String(e)); } }
+  }catch(e){ const msg=String(e&&e.message||e); SYNC.lastErr=msg;
+    if(!silent||SYNC.errShown!==msg){ SYNC.errShown=msg; toast("sync: "+msg); } } }
 async function gConnect(){ if(!S.sync.cid){ toast("seal the client id first."); return; }
   try{ SYNC.tok=await gTok(); const r=await blobFetch(SYNC.tok); SYNC.knownRev=r?r.rev:0;
     toast("connected — device "+SYNC.dev+" in the sync ring."); if(SYNC.auto)syncNow(true);
@@ -1238,6 +1245,13 @@ async function gPull(){ try{ const tok=await gTok(); const b=await blobFetch(tok
   if(b.privlock)LS.set("lifeos.prilock",b.privlock); if(b.priv)LS.set("lifeos.priv",b.priv);
   location.reload();
  }catch(e){ toast("pull error: "+String(e)); } }
+/* v3.6 — silent reconnect: login once per browser, then it maintains itself */
+async function gAutoConnect(){
+  if(!(S&&S.sync&&S.sync.cid)||!SK||!LS.get("lifeos.auto"))return;
+  try{ SYNC.tok=await gTok(true);
+    const r=await blobFetch(SYNC.tok); SYNC.knownRev=r?r.rev:0;
+    if(SYNC.auto)syncNow(true);
+  }catch(e){ /* silent — the CONNECT button remains the manual path */ } }
 function vDeploy(){
   if(!S.sync)S.sync={cid:""};
   $("#view").innerHTML='<div class="grid">'+
@@ -2764,8 +2778,8 @@ function v3decorate(id){
 /* ---------- go ---------- */
 applyTheme(LS.get("lifeos.theme")||"hud");
 FX.start();
-setInterval(()=>{ if(SYNC.auto&&SYNC.tok&&!document.hidden&&SK)syncNow(true); },90000);
-document.addEventListener("visibilitychange",()=>{ if(!document.hidden&&SYNC.auto&&SYNC.tok&&SK)syncNow(true); });
+setInterval(()=>{ if(SYNC.auto&&SK&&!document.hidden){ if(SYNC.tok)syncNow(true); else if(S.sync&&S.sync.cid)gAutoConnect(); } },90000);
+document.addEventListener("visibilitychange",()=>{ if(!document.hidden&&SYNC.auto&&SK){ if(SYNC.tok)syncNow(true); else if(S.sync&&S.sync.cid)gAutoConnect(); } });
 if("serviceWorker" in navigator && location.protocol==="https"){ navigator.serviceWorker.register("sw.js").catch(()=>{}); }
 let DEFERRED=null;
 addEventListener("beforeinstallprompt",e=>{ e.preventDefault(); DEFERRED=e; const b=$("#btninstall"); if(b)b.classList.remove("hidden"); });
