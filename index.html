@@ -236,6 +236,14 @@ html::after{content:"";position:fixed;inset:-10%;pointer-events:none;z-index:0;o
 .ttday{border:1px solid var(--line2);border-radius:6px;padding:6px;min-height:130px}
 .ttday h4{font-size:10px;letter-spacing:.2em;color:var(--dim);margin-bottom:6px}
 .ttc{font-size:10px;padding:5px 6px;border-radius:4px;margin-bottom:5px;color:#0a0f12;cursor:pointer;line-height:1.35}
+.ttday.today{border-color:var(--acc); box-shadow:0 0 0 2px rgba(76,201,240,.16)}
+.ttday.today h4 em{color:var(--cy); font-style:normal; letter-spacing:.14em}
+.ttt{display:inline-block; font-size:8px; letter-spacing:.18em; font-weight:700; color:#0a0f12; background:rgba(255,255,255,.55); border-radius:3px; padding:1px 5px; margin-bottom:3px}
+.ttn{display:block; font-size:9px; opacity:.85; margin-top:2px}
+.ttempty{font-size:9px; color:var(--dim); opacity:.55; padding:6px 2px}
+.ttlegend{display:flex; gap:8px; margin:0 0 10px}
+.ttlegend .chip{display:inline-flex; align-items:center; gap:6px; font-size:9px; letter-spacing:.16em; font-weight:700}
+.ttlegend .chip b{width:10px; height:10px; border-radius:3px}
 .quote{font-style:italic;font-size:15px;line-height:1.6;color:var(--parch,#e9dfc8)}
 
 /* ================== LIFE OS v3 — SKIN ================== */
@@ -446,6 +454,7 @@ a{color:var(--cy)}
 #view[data-room="applications"]{--acc:#facc15} #view[data-room="skills"]{--acc:#2dd4bf}
 #view[data-room="deploy"]{--acc:#38bdf8}     #view[data-room="settings"]{--acc:#94a3b8}
 #view[data-room="priv"]{--acc:#ff8fa3}
+#view[data-room="timetable"]{--acc:#7fd8e8}
 /* ---- themes rebuilt from HER images (real sampled palettes) ---- */
 body[data-theme="wakeup"]{ --bg:#04090f; --bg2:#081120; --panel:#081426; --line:#123049; --line2:#2b5a7a;
   --cy:#52b1b7; --cy2:#a8e6e8; --am:#b75274; --rd:#c05063; --gn:#52b76a; --pk:#8fa8d8; --vi:#4c7bb7; --tx:#dcecf2; --dim:#6f8fa3}
@@ -505,7 +514,7 @@ body[data-theme="wakeup"] body,body[data-theme="flatlay"] body,body[data-theme="
   <header id="top">
     <div class="trow">
       <span class="logo glow" id="brandlogo" title="press ctrl+shift+p">LIFE<b>//</b>OS</span>
-      <span id="ver">v3.3</span>
+      <span id="ver">v3.5</span>
       <div id="ssearch">
         <input class="inp" id="gsearch" placeholder="⌕ search everything…" autocomplete="off">
         <div id="searchwrap" class="hidden"></div>
@@ -806,17 +815,17 @@ function enter(){
 /* ---------- nav ---------- */
 const VIEWS = [
  ["today","Today"],["dashboard","Dashboard"],["journal","Journal"],["plan","Plan"],
- ["projects","Projects"],["applications","Applications"],["skills","Skills"],["courses","Course Oracle"],["study","Study Hall"],["reading","Reading"],
+ ["projects","Projects"],["applications","Applications"],["skills","Skills"],["courses","Course Oracle"],["timetable","Timetable"],["study","Study Hall"],["reading","Reading"],
  ["budget","Budget"],["music","Music & Studio"],["rabbit","Rabbit Hole"],["feeds","Feeds"],["games","Sanctum"],
  ["archive","Archive"],["locker","Locker"],["oracle","Oracle AI"],["keys","Keys"],["jarvis","Console"],["deploy","Ship & Sync"],["settings","Settings"]
 ];
 const NAVGROUPS=[
  ["today",["today","dashboard","journal","plan"]],
- ["work",["projects","applications","skills","courses","study","reading"]],
+ ["work",["projects","applications","skills","courses","timetable","study","reading"]],
  ["life",["budget","music","rabbit","feeds","games"]],
  ["vault",["archive","locker","oracle","keys","jarvis","deploy","settings"]]
 ];
-const NAVIC={today:"◉",dashboard:"◈",journal:"✎",plan:"▤",projects:"⬡",applications:"✉",skills:"✦",courses:"◎",study:"◫",reading:"❖",budget:"⛁",music:"♪",rabbit:"◍",feeds:"≋",games:"⬢",archive:"▣",locker:"⧉",oracle:"◐",keys:"⚿",jarvis:">_",deploy:"⤴",settings:"⚙",priv:"✿"};
+const NAVIC={today:"◉",dashboard:"◈",journal:"✎",plan:"▤",projects:"⬡",applications:"✉",skills:"✦",courses:"◎",timetable:"▦",study:"◫",reading:"❖",budget:"⛁",music:"♪",rabbit:"◍",feeds:"≋",games:"⬢",archive:"▣",locker:"⧉",oracle:"◐",keys:"⚿",jarvis:">_",deploy:"⤴",settings:"⚙",priv:"✿"};
 function buildNav(){
   const n=$("#nav"); n.innerHTML="";
   const lbl=id=>{const v=VIEWS.find(x=>x[0]===id); return v?v[1]:id;};
@@ -835,7 +844,7 @@ function show(id){
   if(id!=="priv") PK=null;
   const R = {today:vToday, dashboard:vDash, journal:vJournal, plan:vPlan, projects:vProjects, applications:vApps,
              skills:vSkills, reading:vReading, archive:vArchive, budget:vBudget, music:vMusic, rabbit:vRabbit,
-             feeds:vFeeds, priv:vPriv, settings:vSettings, courses:vCourses, study:vStudy, games:vGames,
+             feeds:vFeeds, priv:vPriv, settings:vSettings, courses:vCourses, timetable:vTimetable, study:vStudy, games:vGames,
              locker:vLocker, oracle:vOracle, deploy:vDeploy, keys:vKeys, jarvis:vJarvis}[id];
   if(!R){ toast("that room isn't wired — tell the developer."); return; }
   R();
@@ -1831,21 +1840,32 @@ function vOracle(){
 (function(){ /* v3: nav is rebuilt from NAVGROUPS; legacy splices retired */ })();
 
 /* ---- TIMETABLE ---- */
+const TT_TYPE={class:{lab:"CLASS",c:"#7fd8e8"},study:{lab:"STUDY",c:"#8fd08a"},event:{lab:"EVENT",c:"#e8b34a"},other:{lab:"OTHER",c:"#c98fd0"}};
 function vTimetable(){
   if(!S.tt)S.tt=[];
   const DAYS=["MON","TUE","WED","THU","FRI","SAT","SUN"];
-  const PAL=["#7fd8e8","#e8b34a","#c98fd0","#8fd08a","#b09aff","#e8875f","#d0d0d0"];
-  const cols=DAYS.map((d,di)=>'<div class="ttday"><h4>'+d+'</h4>'+
-    S.tt.filter(t=>t.day===di).map((t,)=>'<div class="ttc" style="background:'+t.col+'" data-id="'+t.id+'" title="click to remove"><b>'+esc(t.code)+'</b><br>'+esc(t.start)+'–'+esc(t.end)+(t.room?' · '+esc(t.room):'')+'</div>').join("")+
-    '</div>').join("");
-  $("#view").innerHTML='<div class="panel"><h3>UM TIMETABLE <span>// your week at a glance · click a class to remove</span></h3>'+
+  const today=(new Date().getDay()+6)%7;
+  const cols=DAYS.map((d,di)=>{
+    const items=S.tt.filter(t=>t.day===di).sort((x,y)=>(x.start||"99")<(y.start||"99")?-1:1);
+    return '<div class="ttday'+(di===today?" today":"")+'"><h4>'+d+(di===today?' <em>today</em>':'')+'</h4>'+
+    (items.length?items.map(t=>{const ty=TT_TYPE[t.type]||TT_TYPE.other;const time=(t.start||t.end)?(esc(t.start||"?")+"\u2013"+esc(t.end||"?")):"anytime";
+      return '<div class="ttc" style="background:'+ty.c+'" data-id="'+t.id+'" title="click to remove"><span class="ttt">'+ty.lab+'</span><b>'+esc(t.title||t.code||"?")+'</b><br>'+time+(t.room?' \u00b7 '+esc(t.room):'')+(t.note?'<i class="ttn">'+esc(t.note)+'</i>':'')+'</div>';}).join(""):'<div class="ttempty">nothing yet</div>')+
+    '</div>';}).join("");
+  $("#view").innerHTML='<div class="panel"><h3>TIMETABLE <span>// your whole week \u2014 classes, study, events, anything \u00b7 click a block to remove</span></h3>'+
+   '<div class="ttlegend">'+Object.keys(TT_TYPE).map(k=>'<span class="chip"><b style="background:'+TT_TYPE[k].c+'"></b>'+TT_TYPE[k].lab+'</span>').join("")+'</div>'+
    '<div class="ttgrid">'+cols+'</div>'+
-   '<div class="grid" style="margin-top:12px"><select class="inp" id="ttd" style="max-width:90px">'+DAYS.map((d,i)=>'<option value="'+i+'">'+d+'</option>').join("")+'</select>'+
-   '<input class="inp" id="tts" placeholder="start 08:00" style="max-width:90px"><input class="inp" id="tte" placeholder="end 10:00" style="max-width:90px">'+
-   '<input class="inp" id="ttc" placeholder="course (KIB1011)"><input class="inp" id="ttr" placeholder="room" style="max-width:110px">'+
-   '<button class="btn" id="tta">ADD CLASS</button></div></div>';
-  $("#tta").onclick=()=>{ const c=$("#ttc").value.trim(); if(!c)return toast("course code first.");
-    S.tt.push(stamp({id:Date.now(),day:+$("#ttd").value,start:$("#tts").value.trim()||"?",end:$("#tte").value.trim()||"?",code:c,room:$("#ttr").value.trim(),col:PAL[S.tt.length%PAL.length]})); save(); vTimetable(); };
+   '<div class="grid" style="margin-top:12px">'+
+   '<select class="inp" id="ttty" style="max-width:105px">'+Object.keys(TT_TYPE).map(k=>'<option value="'+k+'">'+TT_TYPE[k].lab.charAt(0)+TT_TYPE[k].lab.slice(1).toLowerCase()+'</option>').join("")+'</select>'+
+   '<select class="inp" id="ttd" style="max-width:90px">'+DAYS.map((d,i)=>'<option value="'+i+'"'+(i===today?" selected":"")+'>'+d+'</option>').join("")+'</select>'+
+   '<input class="inp" id="tts" placeholder="start 08:00" style="max-width:95px"><input class="inp" id="tte" placeholder="end 10:00" style="max-width:95px">'+
+   '<input class="inp" id="ttw" placeholder="what is it? anything" style="min-width:170px"><input class="inp" id="ttr" placeholder="where?" style="max-width:110px">'+
+   '<input class="inp" id="ttnote" placeholder="note (optional)" style="min-width:150px">'+
+   '<button class="btn" id="tta">ADD TO WEEK</button></div></div>';
+  $("#tta").onclick=()=>{
+    const w=$("#ttw").value.trim(); if(!w)return toast("name it first \u2014 what is it?");
+    S.tt.push(stamp({id:Date.now(),type:$("#ttty").value,day:+$("#ttd").value,start:$("#tts").value.trim(),end:$("#tte").value.trim(),title:w,room:$("#ttr").value.trim(),note:$("#ttnote").value.trim()}));
+    save(); vTimetable(); toast("added \u2014 "+w);
+  };
   document.querySelectorAll(".ttc").forEach(x=>x.onclick=()=>{ S.tt=S.tt.filter(t=>String(t.id)!==x.dataset.id); save(); vTimetable(); });
 }
 
@@ -2712,7 +2732,8 @@ const V3DECOR={
  skills:   ["20","SKILLS","COMPOUNDING","ONE HOUR A DAY."],
  deploy:   ["21","SHIP & SYNC","DEPLOYED","MAKE IT LIVE."],
  settings: ["22","SETTINGS","VAULT","CONTROL THE MACHINE."],
- priv:     ["23","PRIDE ROOM","SEALED","YOU ARE NOT TOO MUCH."]
+ timetable:["23","TIMETABLE","WEEKLY","OWN THE WEEK BEFORE IT OWNS YOU."],
+ priv:     ["24","PRIDE ROOM","SEALED","YOU ARE NOT TOO MUCH."]
 };
 function v3decorate(id){
   const d=V3DECOR[id]; const v=$("#view"); if(!d||!v) return;

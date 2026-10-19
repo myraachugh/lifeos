@@ -1,4 +1,4 @@
-LIFE//OS v3.3 — INSTALL / UPDATE (GitHub Pages)
+LIFE//OS v3.5 — INSTALL / UPDATE (GitHub Pages)
 =============================================
 Upload these 7 files. Nothing else. No assets folder, no images to drag —
 the artwork is baked into index.html itself.
@@ -19,7 +19,7 @@ UPDATE (2 minutes)
 5. Close the app/tab, reopen your Pages URL, reload TWICE
    (first reload gets the new worker, second shows the new build).
    Never clear "cookies and site data" — that deletes the vault.
-6. Check: v3 badge next to LIFE//OS, poster wall shows IMAGES now,
+6. Check: v3.5 badge next to LIFE//OS, poster wall shows IMAGES now,
    Today opens first, Archive opens.
 
 If you earlier uploaded an "assets" folder and it shows broken files in the
@@ -29,6 +29,18 @@ file's page -> trash icon.
 HIDDEN ROOMS
   Pride Room : ctrl+shift+P (desktop) · long-press the LIFE//OS logo · or search "pride" + Enter.
   Archive: sidebar under VAULT. Search bar finds anything in the vault.
+
+NEW IN v3.5
+  - Timetable is now a full weekly planner: add ANYTHING (class, study block, event,
+    other) with a name, optional time, place and note. Colour-coded by type, today's
+    column highlighted, blocks sorted by start time, click a block to remove it.
+    Old class entries still show. Service worker cache bumped to lifeos-v7.
+
+NEW IN v3.4
+  - Timetable is back in the top nav (Work group, between Course Oracle and Study Hall).
+    The room itself was never lost — a nav rewrite dropped its button. Now wired:
+    VIEWS + nav group + icon + router + per-room accent. Same weekly grid, click a
+    class to remove. Service worker cache bumped to lifeos-v6 so the update sticks.
 
 NEW IN v3.3
   Layout fixed: the top nav no longer collapses into a right-hand column.
