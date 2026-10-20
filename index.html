@@ -476,6 +476,51 @@ body[data-theme="wakeup"] body,body[data-theme="flatlay"] body,body[data-theme="
   .hero{min-height:190px}
   .hero img.bg{object-position:center 38%}
 }
+/* ---------- v4.0 phone app layer ---------- */
+#tabbar{display:none}
+#roomhub{display:none}
+@keyframes phoneIn{from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:none}}
+#roomhub{position:fixed; inset:0; z-index:70; overflow:auto; -webkit-overflow-scrolling:touch;
+  background:linear-gradient(180deg,rgba(8,16,26,.985),rgba(10,22,36,.995)); padding:18px 16px 40px}
+#roomhub.on{display:block; animation:phoneIn .2s ease both}
+#roomhub h2{margin:2px 0 10px; letter-spacing:3px}
+#roomhub .hgroup{margin:20px 0 8px; color:var(--dim); letter-spacing:2.5px; font-size:11px; text-transform:uppercase}
+#roomhub .htiles{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px}
+#roomhub .htile{border:1px solid var(--line2); border-radius:16px; padding:16px 12px; background:rgba(14,26,42,.85);
+  color:var(--tx); cursor:pointer; display:flex; flex-direction:column; gap:8px; min-height:92px; text-align:left;
+  transition:transform .12s ease, border-color .12s ease}
+#roomhub .htile .ic{font-size:24px; line-height:1; color:var(--cy2)}
+#roomhub .htile b{font-size:13px; letter-spacing:.6px; font-weight:600}
+#roomhub .htile:active{transform:scale(.96); border-color:var(--cy)}
+#roomhub .hubhead{display:flex; align-items:center; justify-content:space-between; gap:10px}
+@media (max-width:880px){
+  #top nav{display:none !important}
+  #tabbar{display:grid; grid-template-columns:repeat(5,1fr); position:fixed; left:0; right:0; top:auto; bottom:0; z-index:60;
+    background:rgba(8,16,26,.94); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    border:0; border-top:1px solid var(--line2); margin:0; padding:0 0 env(safe-area-inset-bottom)}
+  #tabbar button{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
+    background:none; border:0; color:var(--dim); font-family:inherit; font-size:10px; letter-spacing:.8px;
+    min-height:62px; padding:9px 2px 11px; cursor:pointer}
+  #tabbar button .ic{font-size:22px; line-height:1}
+  #tabbar button.on{color:var(--cy2)}
+  #tabbar button.on .ic{color:var(--cy); text-shadow:0 0 14px var(--cy)}
+  #maincol{padding:12px 12px 118px}
+  #footbar{display:none}
+  .btn{min-height:44px}
+  .inp{min-height:44px; font-size:16px}
+  .panel{padding:16px}
+  .panel h3{font-size:15px}
+  table td,table th{padding:10px 8px}
+  #view.vfade{animation:phoneIn .22s ease both}
+  #ecg{display:none}
+  .trow{flex-wrap:wrap}
+  #ssearch{flex:1 1 140px}
+  .row{flex-wrap:wrap; gap:8px}
+  .inp{max-width:100% !important; min-width:0 !important}
+  select.inp{flex:1 1 120px}
+  .ttgrid{overflow-x:auto; -webkit-overflow-scrolling:touch}
+  .ttday{min-width:74px}
+}
 
 </style>
 </head>
@@ -514,7 +559,7 @@ body[data-theme="wakeup"] body,body[data-theme="flatlay"] body,body[data-theme="
   <header id="top">
     <div class="trow">
       <span class="logo glow" id="brandlogo" title="press ctrl+shift+p">LIFE<b>//</b>OS</span>
-      <span id="ver">v3.8</span>
+      <span id="ver">v4.0</span>
       <div id="ssearch">
         <input class="inp" id="gsearch" placeholder="⌕ search everything…" autocomplete="off">
         <div id="searchwrap" class="hidden"></div>
@@ -546,6 +591,9 @@ body[data-theme="wakeup"] body,body[data-theme="flatlay"] body,body[data-theme="
     </footer>
   </main>
 </div>
+
+<nav id="tabbar"></nav>
+<div id="roomhub"></div>
 
 <div id="toasts"></div>
 <input type="file" id="importfile" accept=".json" class="hidden">
@@ -809,7 +857,7 @@ function enter(){
   $("#lock").classList.add("hidden"); $("#app").classList.remove("hidden");
   $("#ftmode").textContent = "CRYPTO: " + (canCrypto ? "AES-256-GCM · PBKDF2-SHA256 250k" : "OBFUSCATION (NOT SECURITY)");
   if(!canCrypto) $("#banner").classList.remove("hidden"), $("#banner").textContent = "RESTRICTED PREVIEW — storage is session-only and encryption is simulated. Open the live preview or download this file for the real vault.";
-  buildNav(); show("today"); startClock();
+  buildNav(); buildTabs(); show("today"); startClock();
   setTimeout(()=>{ try{ gAutoConnect(); }catch(e){} }, 1500);
 }
 
@@ -839,9 +887,42 @@ function buildNav(){
     }
   }
 }
+/* ---------- v4.0 phone tabs & rooms hub ---------- */
+const TABS=[["today","TODAY","◉"],["hub","ROOMS","▦"],["timetable","TIME","▤"],["jarvis","CONSOLE","≫"],["settings","ME","⚙"]];
+function buildTabs(){
+  const n=$("#tabbar"); if(!n) return;
+  n.innerHTML="";
+  for(const [id,label,ic] of TABS){
+    const b=document.createElement("button");
+    b.innerHTML='<span class="ic">'+ic+'</span>'+label; b.dataset.tab=id;
+    b.onclick=()=>{ if(id==="hub") openHub(); else { closeHub(); show(id); } };
+    n.appendChild(b);
+  }
+}
+function tabFor(id){ return ["today","timetable","jarvis","settings"].indexOf(id)>=0 ? id : "hub"; }
+function openHub(){
+  const h=$("#roomhub"); if(!h) return;
+  let html='<div class="hubhead"><h2>ROOMS</h2><button class="btn" id="hubclose">✕ CLOSE</button></div>';
+  for(const [g,ids] of NAVGROUPS){
+    html+='<div class="hgroup">'+(g==="today"?"daily":g)+'</div><div class="htiles">';
+    for(const id of ids){
+      const v=VIEWS.find(x=>x[0]===id);
+      html+='<button class="htile" data-v="'+id+'"><span class="ic">'+(NAVIC[id]||"·")+'</span><b>'+esc(v?v[1]:id)+'</b></button>';
+    }
+    html+='</div>';
+  }
+  h.innerHTML=html; h.classList.add("on");
+  h.querySelector("#hubclose").onclick=closeHub;
+  h.querySelectorAll(".htile").forEach(t=>t.onclick=()=>{ closeHub(); show(t.dataset.v); });
+}
+function closeHub(){ const h=$("#roomhub"); if(h)h.classList.remove("on"); }
+
 function show(id){
   CUR=id;
   document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on", b.dataset.v===id));
+  document.querySelectorAll("#tabbar button").forEach(b=>b.classList.toggle("on", b.dataset.tab===tabFor(id)));
+  closeHub();
+  const vw=$("#view"); if(vw){ vw.classList.remove("vfade"); void vw.offsetWidth; vw.classList.add("vfade"); }
   if(id!=="priv") PK=null;
   const R = {today:vToday, dashboard:vDash, journal:vJournal, plan:vPlan, projects:vProjects, applications:vApps,
              skills:vSkills, reading:vReading, archive:vArchive, budget:vBudget, music:vMusic, rabbit:vRabbit,

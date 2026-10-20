@@ -1,4 +1,4 @@
-LIFE//OS v3.8 — INSTALL / UPDATE (GitHub Pages)
+LIFE//OS v4.0 — INSTALL / UPDATE (GitHub Pages)
 =============================================
 Upload these 7 files. Nothing else. No assets folder, no images to drag —
 the artwork is baked into index.html itself.
@@ -19,7 +19,7 @@ UPDATE (2 minutes)
 5. Close the app/tab, reopen your Pages URL, reload TWICE
    (first reload gets the new worker, second shows the new build).
    Never clear "cookies and site data" — that deletes the vault.
-6. Check: v3.8 badge next to LIFE//OS, poster wall shows IMAGES now,
+6. Check: v4.0 badge next to LIFE//OS, poster wall shows IMAGES now,
    Today opens first, Archive opens.
 
 If you earlier uploaded an "assets" folder and it shows broken files in the
@@ -29,6 +29,13 @@ file's page -> trash icon.
 HIDDEN ROOMS
   Pride Room : ctrl+shift+P (desktop) · long-press the LIFE//OS logo · or search "pride" + Enter.
   Archive: sidebar under VAULT. Search bar finds anything in the vault.
+
+NEW IN v4.0 — THE PHONE APP
+  - Phone gets its own cockpit. Bottom tab bar (Today / Rooms / Time / Console / Me)
+    with big thumb-sized buttons, a full-screen ROOMS hub with every room as a tile
+    (grouped, colourful, one tap), bigger text and buttons everywhere, app-like
+    transitions, and the footer/nav strip retired on small screens. Desktop keeps the
+    console exactly as it was. Service worker cache bumped to lifeos-v11.
 
 NEW IN v3.8
   - Sync can no longer half-pair a device. If the cloud vault was sealed with a
