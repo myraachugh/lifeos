@@ -559,7 +559,7 @@ body[data-theme="wakeup"] body,body[data-theme="flatlay"] body,body[data-theme="
   <header id="top">
     <div class="trow">
       <span class="logo glow" id="brandlogo" title="press ctrl+shift+p">LIFE<b>//</b>OS</span>
-      <span id="ver">v4.0</span>
+      <span id="ver">v4.1</span>
       <div id="ssearch">
         <input class="inp" id="gsearch" placeholder="⌕ search everything…" autocomplete="off">
         <div id="searchwrap" class="hidden"></div>
@@ -936,7 +936,8 @@ function show(id){
 /* ---------- views ---------- */
 function vDash(){
   const ph = phase();
-  const chips = DEADLINES.slice().sort((a,b)=>a.d<b.d?-1:1)
+  const EVENTS = DEADLINES.concat((S.exams||[]).map(e=>({d:e.date, label:"EXAM · "+(e.subj||""), kind:"exam"})));
+  const chips = EVENTS.slice().sort((a,b)=>a.d<b.d?-1:1)
     .map(x=>({x, dd:days(x.d)})).filter(o=>o.dd>=-30).slice(0,6)
     .map(o=>'<span class="chip"><b>'+Math.max(o.dd,0)+'d</b> · '+esc(o.x.label)+(o.x.kind!=="verified"?" <i style='color:var(--dim)'>["+o.x.kind+"]</i>":"")+'</span>').join("");
   const tasks = S.tasks.map((t,i)=>
@@ -1228,7 +1229,7 @@ function jarvisReply(q){
   const has=re=>re.test(q);
   if(has(/\b(hi|hello|hey)\b/)) return "Operator. Systems green. Current phase: "+ph.name+". Priorities: "+ph.pri+". Ask 'what now' if you want the short list.";
   if(has(/priorit|focus|important/)) return "Phase "+ph.name+". Priorities: "+ph.pri+". Remember the standing order: academics first; the lab and projects are multipliers on grades, not replacements.";
-  if(has(/deadline|when.*due|radar|countdown/)){ const up=DEADLINES.map(x=>({x,dd:days(x.d)})).filter(o=>o.dd>=0).sort((a,b)=>a.dd-b.dd).slice(0,4); return "Radar:\n"+up.map(o=>"  "+o.dd+"d — "+o.x.label+(o.x.kind!=="verified"?" ["+o.x.kind+"]":"")).join("\n"); }
+  if(has(/deadline|when.*due|radar|countdown/)){ const up=DEADLINES.concat((S.exams||[]).map(e=>({d:e.date,label:"EXAM · "+(e.subj||""),kind:"exam"}))).map(x=>({x,dd:days(x.d)})).filter(o=>o.dd>=0).sort((a,b)=>a.dd-b.dd).slice(0,4); return "Radar:\n"+up.map(o=>"  "+o.dd+"d — "+o.x.label+(o.x.kind!=="verified"?" ["+o.x.kind+"]":"")).join("\n"); }
   if(has(/what now|do now|next|start/)) return "Short list, in order:\n1. "+(S.tasks.find(t=>!t.done)?S.tasks.find(t=>!t.done).t:"directives clear — run your weekly review")+"\n2. This phase's skills: "+ph.skills+"\n3. Reading: "+ph.read+"\nSleep before all three.";
   if(has(/money|ipad|budget|loan|freelance|work/)) return "Money rules, non-negotiable:\n- legal part-time work only, breaks only, ~120 h/yr ≈ RM 960-1,560. Pocket money, not a plan.\n- freelance for overseas clients = self-employment = NOT permitted on your Student Pass. Not worth the iPad.\n- the family loan makes FUNDED postgraduate study the only route; a funded PhD is the only route that pays you.\n- iPad target: legal break work + scholarships, Year 3-4. Skills now, money later.";
   if(has(/sleep|tired|burn|exhaust|rest/)) return "Sleep is a performance constraint, not a reward: 7-9 h, consistent times. An all-nighter costs more marks than it saves. If you are working past midnight and seeing nobody, that is a system failure — fix the plan, not your willpower. Rest is a component of progress.";
@@ -1273,10 +1274,10 @@ async function gFind(tok){ const r=await fetch("https://www.googleapis.com/drive
 /* --- v1.7 sync engine: auto + merge, still zero-knowledge --- */
 const SYNC={tok:null, auto:!!LS.get("lifeos.auto"), st:null, timer:null, knownRev:0, dirty:false,
   dev:(LS.get("lifeos.dev")||(()=>{ const d=Math.random().toString(36).slice(2,10); LS.set("lifeos.dev",d); return d; })())};
-const COLLS=["tasks","projects","applications","skills","reading","decisions","budget","weekly","cards"];
+const COLLS=["tasks","projects","applications","skills","reading","decisions","budget","weekly","cards","exams"];
 function uid(){ return (crypto.randomUUID?crypto.randomUUID():Date.now()+"-"+Math.random().toString(36).slice(2,10)); }
 function stamp(r){ if(!r.id)r.id=uid(); r.updatedAt=Date.now(); return r; }
-function ensureIds(st){ for(const c of COLLS){ if(Array.isArray(st[c]))for(const r of st[c]){ if(!r.id)r.id=uid(); if(!r.updatedAt)r.updatedAt=0; } }
+function ensureIds(st){ if(!st.exams)st.exams=[]; for(const c of COLLS){ if(Array.isArray(st[c]))for(const r of st[c]){ if(!r.id)r.id=uid(); if(!r.updatedAt)r.updatedAt=0; } }
   if(st.study&&Array.isArray(st.study.log))for(const r of st.study.log){ if(!r.id)r.id=uid(); if(!r.updatedAt)r.updatedAt=0; } }
 function mergeStates(A,B){ const M=JSON.parse(JSON.stringify(A));
   const coll=(a,b)=>{ const by={}; for(const r of a)by[r.id]=r; for(const r of b){ const e=by[r.id]; if(!e)by[r.id]=r; else if((r.updatedAt||0)>(e.updatedAt||0))by[r.id]=r; } return Object.values(by); };
@@ -1750,6 +1751,19 @@ function cardSeed(){ return [
  {f:"Mu rhythm — why should you care?",b:"The EEG basis of motor-imagery BCIs; your advisor published on extracting it (IEEE TBME 2009). His record is your entry ramp.",box:0,due:"2000-01-01"}
 ]; }
 const BOXD=[1,2,4,8,16,32];
+function examList(){
+  const es=(S.exams||[]).slice().sort((a,b)=>a.date<b.date?-1:1);
+  if(!es.length) return '<p style="margin-top:8px;color:var(--dim)">no exams on the radar yet — add the date and it counts down here and on the Dashboard.</p>';
+  return '<table style="margin-top:10px">'+es.map(e=>{
+    const dd=days(e.date);
+    const col= dd<0 ? "var(--dim)" : dd<3 ? "var(--rd)" : dd<10 ? "var(--am)" : "var(--cy)";
+    const lbl= dd<0 ? "past" : dd===0 ? "TODAY" : "in "+dd+"d";
+    return '<tr><td style="width:92px"><span class="st" style="color:'+col+'">'+lbl+'</span></td>'+
+      '<td><b>'+esc(e.subj)+'</b>'+(e.note?' <span style="color:var(--dim)">— '+esc(e.note)+'</span>':'')+
+      ' <span style="color:var(--dim);font-size:11px">'+esc(e.date)+'</span></td>'+
+      '<td style="text-align:right"><button class="btn warn exdel" data-id="'+e.id+'" style="min-height:0;padding:2px 10px">✕</button></td></tr>';
+  }).join("")+'</table>';
+}
 function vStudy(){
   if(!S.study)S.study={log:[],target:120};
   if(!S.cards)S.cards=cardSeed();
@@ -1761,6 +1775,11 @@ function vStudy(){
   const due=S.cards.filter(c=>c.due<=now);
   const mm=String(Math.floor(POMO.left/60)).padStart(2,"0"), ss=String(POMO.left%60).padStart(2,"0");
   $("#view").innerHTML='<div class="grid">'+
+   '<div class="panel"><h3>EXAMS &amp; COUNTDOWNS <span>// your dates, your reminders</span></h3>'+
+    '<div class="row"><input class="inp" id="exs" placeholder="subject (e.g. KIB1009 Final)" style="max-width:230px">'+
+    '<input class="inp" id="exd" type="date" style="max-width:165px">'+
+    '<input class="inp" id="exn" placeholder="topics / syllabus (optional)" style="max-width:250px">'+
+    '<button class="btn" id="exa">+ ADD EXAM</button></div>'+ examList() + '</div>'+
    '<div class="panel"><h3>POMODORO <span>// 25 on, 5 off — the referee of the Sanctum</span></h3>'+
     '<div class="pomodoro">'+mm+":"+ss+'</div>'+
     '<div class="row"><input class="inp" id="psub" placeholder="subject (e.g. KIB1009, cyber course, P2)" style="max-width:240px">'+
@@ -1783,6 +1802,12 @@ function vStudy(){
   $("#ptgt").onchange=()=>{ S.study.target=+$("#ptgt").value||120; save(); };
   $("#ca").onclick=()=>{ const f=$("#cf").value.trim(),b=$("#cb").value.trim(); if(!f||!b)return;
     S.cards.push(stamp({f:f,b:b,box:0,due:"2000-01-01"})); save(); vStudy(); };
+  const exa=$("#exa"); if(exa) exa.onclick=()=>{
+    const subj=$("#exs").value.trim(), d=$("#exd").value, note=$("#exn").value.trim();
+    if(!subj||!d){ toast("subject and date needed"); return; }
+    (S.exams=S.exams||[]).push(stamp({subj:subj, date:d, note:note})); save(); vStudy(); toast("exam reminder set — it now counts down everywhere");
+  };
+  document.querySelectorAll(".exdel").forEach(b=>b.onclick=()=>{ S.exams=(S.exams||[]).filter(x=>x.id!==b.dataset.id); save(); vStudy(); });
   renderCards(due);
 }
 function vStudyKeepTimer(){ const p=$("#view .pomodoro"); if(p&&POMO.run){ p.textContent=String(Math.floor(POMO.left/60)).padStart(2,"0")+":"+String(POMO.left%60).padStart(2,"0"); } }
